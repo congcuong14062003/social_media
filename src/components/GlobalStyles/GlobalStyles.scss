@@ -1,0 +1,41 @@
+@import 'normalize.css';
+
+:root {
+    --primary-color: #2b284e;
+    --active-color: #ffea3d;
+
+
+    --header-height: 60px;
+    --header-color: #ffffff;
+
+
+    --input-background-color: #f0f2f5;
+
+    --twelve-px: 1.2rem;
+    --thirteen-px: 1.3rem;
+    --fourteen-px: 1.4rem;
+    --sixteen-px: 1.6rem;
+    --eighteen-px: 1.8rem;
+    --twenty-one-px: 2.1rem;
+    --twenty-four-px: 2.4rem;
+
+
+    --main-font-weight: 600;
+    --secon-font-weight: 500;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+html {
+    font-size: 62.5%;
+}
+
+body {
+    font-size: var(--sixteen-px);
+    text-rendering: optimizeSpeed;
+}
+a {
+    text-decoration: none;
+}

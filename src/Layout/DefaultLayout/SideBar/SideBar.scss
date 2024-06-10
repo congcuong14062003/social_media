@@ -1,0 +1,60 @@
+.sidebar_container {
+    background: linear-gradient(180deg, rgba(38, 34, 80, 0.65) 0%, rgba(27, 25, 66, 0.85) 57.44%, #17163b 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    background-color: #28282d;
+    position: fixed;
+    top: 20px;
+    left: 10px;
+    bottom: 0;
+    padding: 10px;
+    z-index: 1;
+    width: var(--width-sidebar);
+    // transform: translate3d(-280px, 0, 0);
+    transition: 0.5s ease;
+    box-shadow: none;
+    border-radius: 12px;
+    .logo_citybank {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    .user_account {
+        width: 100%;
+        background: #111111;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        .infor_user {
+            display: flex;
+            flex: 1;
+            .avatar_user {
+                img {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                }
+            }
+            .profile_user {
+                color: #fff;
+                margin-left: 10px;
+                .name_user {
+                    font-size: var(--fourteen-px);
+                    font-weight: var(--secondary-fontweight);
+                }
+                .level_user {
+                    font-weight: --third-fontweight;
+                    font-size: var(--twelve-px);
+                    opacity: 65%;
+                }
+            }
+        }
+
+        .btn_logout {
+            justify-self: end;
+        }
+    }
+}
