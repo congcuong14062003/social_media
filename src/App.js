@@ -4,7 +4,7 @@ import { DefaultLayout } from './Layout';
 function App() {
     return (
         <Router>
-            <div className="App">
+            <div>
                 <Routes>
                     {publicRouter.map((route, index) => {
                         const Layout = route.layout || DefaultLayout;

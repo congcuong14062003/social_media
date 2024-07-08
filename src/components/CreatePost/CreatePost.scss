@@ -1,0 +1,35 @@
+.container_create_post {
+    border-radius: 5px;
+    padding: 10px 15px;
+    padding-bottom: 5px;
+    background-color: var(--card-background);
+    .header_post {
+        display: flex;
+        .search_container {
+            flex: 1;
+        }
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--comment-backgroud);
+    }
+    .footer_post {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        .image_and_video {
+            margin-top: 5px;
+            border-radius: 5px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            span {
+                margin-left: 5px;
+                line-height: 24px;
+                color: var(--secondary-text);
+            }
+            &:hover {
+                cursor: pointer;
+                background-color: var(--comment-backgroud);
+            }
+        }
+    }
+}

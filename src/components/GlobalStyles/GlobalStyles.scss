@@ -1,16 +1,27 @@
 @import 'normalize.css';
-
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
 :root {
-    --primary-color: #2b284e;
-    --active-color: #ffea3d;
-
-
-    --header-height: 60px;
+    --header-height: 56px;
+    --card-background: #fff;
     --header-color: #ffffff;
+    --body-color: #f0f2f5;
+    --primary-color: #0866ff;
+    --primary-text: #050505;
+    --comment-backgroud: #F0F2F5;
+    --secondary-icon: #65676b;
+    --secondary-text: #65676b;
+    --secondary-button: #e3e6eb;
+    --icon-color: #080808;
 
 
-    --input-background-color: #f0f2f5;
-
+    --box-shadow1: rgba(158, 158, 158, 0);
+    --box-shadow2: rgba(0, 0, 0, 0.06);
+      
     --twelve-px: 1.2rem;
     --thirteen-px: 1.3rem;
     --fourteen-px: 1.4rem;
@@ -18,11 +29,25 @@
     --eighteen-px: 1.8rem;
     --twenty-one-px: 2.1rem;
     --twenty-four-px: 2.4rem;
-
-
     --main-font-weight: 600;
     --secon-font-weight: 500;
 }
+
+[data-theme='dark'] {
+
+    --card-background: #242526;
+    --header-color: #242526;
+    --body-color: #18191a;
+    --primary-text: #e4e6eb;
+    --secondary-text: #B0B3B8;
+    --comment-backgroud: #3A3B3C;
+    --secondary-icon: #65676b;
+    --secondary-button: rgba(255,255,255,.1);
+    --icon-color: #e4e6eb;
+    --box-shadow1: rgba(97, 97, 97, 0);
+    --box-shadow2: rgba(255, 255, 255, 0.06);
+}
+
 * {
     box-sizing: border-box;
     margin: 0;

@@ -1,0 +1,29 @@
+.search_container {
+    background-color: var(--comment-backgroud);
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-left: 10px;
+    border-radius: 50px;
+    width: 250px;
+    .icon_search {
+        margin: 0 5px;
+        svg path {
+            fill: var(--secondary-icon);
+        }
+    }
+    input {
+        width: 100%;
+        font-size: var(--fourteen-px);
+        font-weight: var(--secon-font-weight);
+        border: none;
+        outline: none;
+        color: var(--primary-text);
+        background-color: transparent;
+        &::placeholder {
+            font-size: var(--fourteen-px);
+            font-weight: var(--secon-font-weight);
+            color: var(--secondary-text)
+        }
+    }
+}
