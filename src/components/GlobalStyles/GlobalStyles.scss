@@ -7,48 +7,49 @@
 }
 
 @font-face {
-    font-family: "Segoe UI";
+    font-family: 'Segoe UI';
     font-weight: 200;
-    src: local("Segoe UI Light");
+    src: local('Segoe UI Light');
 }
 @font-face {
-    font-family: "Segoe UI";
+    font-family: 'Segoe UI';
     font-weight: 300;
-    src: local("Segoe UI Semilight");
+    src: local('Segoe UI Semilight');
 }
 @font-face {
-    font-family: "Segoe UI";
+    font-family: 'Segoe UI';
     font-weight: 400;
-    src: local("Segoe UI");
+    src: local('Segoe UI');
 }
 @font-face {
-    font-family: "Segoe UI";
+    font-family: 'Segoe UI';
     font-weight: 600;
-    src: local("Segoe UI Semibold");
+    src: local('Segoe UI Semibold');
 }
 @font-face {
-    font-family: "Segoe UI";
+    font-family: 'Segoe UI';
     font-weight: 700;
-    src: local("Segoe UI Bold");
+    src: local('Segoe UI Bold');
 }
 @font-face {
-    font-family: "Segoe UI";
+    font-family: 'Segoe UI';
     font-style: italic;
     font-weight: 400;
-    src: local("Segoe UI Italic");
+    src: local('Segoe UI Italic');
 }
 
 @font-face {
-    font-family: "Segoe UI";
+    font-family: 'Segoe UI';
     font-style: italic;
     font-weight: 700;
-    src: local("Segoe UI Bold Italic");
+    src: local('Segoe UI Bold Italic');
 }
-
 
 :root {
     --header-height: 56px;
+    --alway-white: #fff;
     --card-background: #fff;
+    --alway-primary-text: #050505;
     --header-color: #ffffff;
     --body-color: #f0f2f5;
     --primary-color: #0866ff;
@@ -60,7 +61,10 @@
     --icon-color: #080808;
     --disable-button: #e4e6eb;
     --disable-button-text: #bcc0c4;
+    --navbar-background-color: #ffffff;
 
+    --always-dark-gradient: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+    --web-wash: #f0f2f5;
     --box-shadow1: rgba(158, 158, 158, 0);
     --box-shadow2: rgba(0, 0, 0, 0.06);
     --invert: 0%;
@@ -84,6 +88,9 @@
     --card-background: #242526;
     --header-color: #242526;
     --body-color: #18191a;
+    --web-wash: #18191a;
+    --navbar-background-color: #242526;
+    --always-dark-gradient: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.6));
     --primary-text: #e4e6eb;
     --secondary-text: #b0b3b8;
     --comment-backgroud: #3a3b3c;

@@ -12,6 +12,7 @@ const images = {
     location: require('./location.png'),
     gif: require('./gif.png'),
     baochi: require('./baochi.jpg'),
+    car: require('./car.jpg'),
 };
 
 export default images;
