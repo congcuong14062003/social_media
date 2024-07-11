@@ -1,0 +1,195 @@
+.post_item_container {
+    background-color: var(--card-background);
+    margin-top: 20px;
+    border-radius: 5px;
+    .header_post_container {
+        padding: 10px 15px;
+        .user_post {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            .user_post_detai {
+                align-items: center;
+                display: flex;
+                .infor_user_post {
+                    margin-left: 10px;
+                    .user_name_post {
+                        font-size: var(--fourteen-px);
+                        color: var(--primary-text);
+                        font-weight: var(--secon-font-weight);
+                    }
+                    .time_post {
+                        display: flex;
+                        align-items: center;
+                        color: var(--secondary-text);
+                        font-size: var(--twelve-px);
+                        margin-top: 5px;
+                        img {
+                            margin-left: 5px;
+                            width: 12px;
+                            filter: invert(var(--invert));
+                        }
+                    }
+                }
+            }
+            .action_user_post {
+                width: 30px;
+                height: 30px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background-color: var(--card-background);
+                color: var(--secondary-icon);
+                font-size: 20px;
+                &:hover {
+                    background-color: var(--comment-backgroud);
+                    cursor: pointer;
+                }
+            }
+        }
+        .title_post {
+            margin: 10px 0 0 0;
+            font-size: var(--fourteen-px);
+            color: var(--primary-text);
+            font-weight: var(--secon-font-weight);
+        }
+    }
+    .content_post_container {
+        img {
+            width: 100%;
+        }
+    }
+    .footer_post_container {
+        font-size: var(--fourteen-px);
+        padding: 0 20px;
+        padding-bottom: 10px;
+        .action_count_post {
+            // border-bottom: 1px solid var(--comment-backgroud);
+            color: var(--secondary-text);
+            padding: 10px 0;
+            justify-content: space-between;
+            display: flex;
+            .count_icon {
+                display: flex;
+                align-items: center;
+                svg {
+                    margin-right: 2px;
+                    margin-bottom: 2px;
+                    path {
+                        fill: var(--primary-color);
+                    }
+                }
+            }
+            .count_comment_shared {
+                display: flex;
+                .count_comment {
+                    margin-right: 20px;
+                    &:hover {
+                        cursor: pointer;
+                        text-decoration: underline;
+                    }
+                }
+                .count_shared {
+                    &:hover {
+                        cursor: pointer;
+                        text-decoration: underline;
+                    }
+                }
+            }
+        }
+        .action_user_post_footer {
+            font-size: var(--fourteen-px);
+            padding: 5px 0;
+            border-top: 1px solid var(--comment-backgroud);
+            border-bottom: 1px solid var(--comment-backgroud);
+            .action_detail {
+                margin: 0 -5px;
+                display: flex;
+                justify-content: space-between;
+                .action_item {
+                    border-radius: 5px;
+                    padding: 6px 0;
+                    margin: 0 5px;
+                    flex: 1;
+                    justify-content: center;
+                    display: flex;
+                    align-items: center;
+                    color: var(--secondary-text);
+                    .icon_action {
+                        margin-right: 5px;
+                        margin-top: 1px;
+                    }
+                    .name_action {
+                    }
+                    &:hover {
+                        cursor: pointer;
+                        background-color: var(--comment-backgroud);
+                    }
+                }
+            }
+        }
+        .comment_post_container {
+            margin-top: 20px;
+            .user_comment_container {
+                display: flex;
+                align-items: flex-start;
+                .main_comment {
+                    .container_comment {
+                        padding: 10px;
+                        border-radius: 20px;
+                        background-color: var(--comment-backgroud);
+                        margin-left: 5px;
+                        .username_comment {
+                            color: var(--primary-text);
+                            font-weight: var(--main-font-weight);
+                            font-size: var(--twelve-px);
+                        }
+                        .content_comment {
+                            margin-top: 5px;
+                            color: var(--primary-text);
+                            font-weight: var(--secon-font-weight);
+                            font-size: var(--fourteen-px);
+                        }
+                    }
+                    .img_comment {
+                        border-radius: 20px;
+                        margin-left: 5px;
+                        margin-top: 5px;
+                        width: max-content;
+
+                        img {
+                            border-radius: 20px;
+                            width: 260px;
+                        }
+                    }
+                    .status_post_comment {
+                        display: flex;
+                        align-items: center;
+                        padding: 10px;
+                        .item_status {
+                            color: var(--secondary-text);
+                            margin: 0 10px;
+                            font-size: var(--twelve-px);
+                            &:hover {
+                                text-decoration: underline;
+                                cursor: pointer;
+                            }
+                        }
+                        .like_comment,
+                        .responsive_comment {
+                            font-weight: var(--main-font-weight);
+                        }
+                    }
+                }
+            }
+        }
+        .my_comment_footer {
+            display: flex;
+            align-items: center;
+            .search_container {
+                flex: 1;
+            }
+        }
+    }
+}

@@ -5,6 +5,47 @@
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
+
+@font-face {
+    font-family: "Segoe UI";
+    font-weight: 200;
+    src: local("Segoe UI Light");
+}
+@font-face {
+    font-family: "Segoe UI";
+    font-weight: 300;
+    src: local("Segoe UI Semilight");
+}
+@font-face {
+    font-family: "Segoe UI";
+    font-weight: 400;
+    src: local("Segoe UI");
+}
+@font-face {
+    font-family: "Segoe UI";
+    font-weight: 600;
+    src: local("Segoe UI Semibold");
+}
+@font-face {
+    font-family: "Segoe UI";
+    font-weight: 700;
+    src: local("Segoe UI Bold");
+}
+@font-face {
+    font-family: "Segoe UI";
+    font-style: italic;
+    font-weight: 400;
+    src: local("Segoe UI Italic");
+}
+
+@font-face {
+    font-family: "Segoe UI";
+    font-style: italic;
+    font-weight: 700;
+    src: local("Segoe UI Bold Italic");
+}
+
+
 :root {
     --header-height: 56px;
     --card-background: #fff;
@@ -12,37 +53,42 @@
     --body-color: #f0f2f5;
     --primary-color: #0866ff;
     --primary-text: #050505;
-    --comment-backgroud: #F0F2F5;
+    --comment-backgroud: #f0f2f5;
     --secondary-icon: #65676b;
     --secondary-text: #65676b;
-    --secondary-button: #e3e6eb;
+    --secondary-button: #e4e6eb;
     --icon-color: #080808;
-
+    --disable-button: #e4e6eb;
+    --disable-button-text: #bcc0c4;
 
     --box-shadow1: rgba(158, 158, 158, 0);
     --box-shadow2: rgba(0, 0, 0, 0.06);
-      
+    --invert: 0%;
     --twelve-px: 1.2rem;
     --thirteen-px: 1.3rem;
     --fourteen-px: 1.4rem;
     --sixteen-px: 1.6rem;
     --eighteen-px: 1.8rem;
+    --twenty-px: 2rem;
     --twenty-one-px: 2.1rem;
     --twenty-four-px: 2.4rem;
     --main-font-weight: 600;
     --secon-font-weight: 500;
+    --third-font-weight: 400;
 }
 
 [data-theme='dark'] {
-
+    --invert: 100%;
+    --disable-button: rgba(255, 255, 255, 0.2);
+    --disable-button-text: rgba(255, 255, 255, 0.3);
     --card-background: #242526;
     --header-color: #242526;
     --body-color: #18191a;
     --primary-text: #e4e6eb;
-    --secondary-text: #B0B3B8;
-    --comment-backgroud: #3A3B3C;
+    --secondary-text: #b0b3b8;
+    --comment-backgroud: #3a3b3c;
     --secondary-icon: #65676b;
-    --secondary-button: rgba(255,255,255,.1);
+    --secondary-button: rgba(255, 255, 255, 0.1);
     --icon-color: #e4e6eb;
     --box-shadow1: rgba(97, 97, 97, 0);
     --box-shadow2: rgba(255, 255, 255, 0.06);

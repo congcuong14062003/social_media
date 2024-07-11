@@ -34,16 +34,25 @@ function Header() {
                 <div className="logo_website">
                     <img src={images.logo} alt="" />
                 </div>
-                <Search placeholder="Tìm kiếm..." />
+                <Search iconSearch placeholder="Tìm kiếm..." />
             </div>
             <div className="center_header">
-                <NavLink exact to="/" activeClassName="active">
+                <NavLink
+                    to="/"
+                    className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')}
+                >
                     <HomeIcon />
                 </NavLink>
-                <NavLink to="/video" activeClassName="active">
+                <NavLink
+                    to="/video"
+                    className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')}
+                >
                     <VideoIcon />
                 </NavLink>
-                <NavLink to="/group" activeClassName="active">
+                <NavLink
+                    to="/group"
+                    className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')}
+                >
                     <GroupIcon />
                 </NavLink>
             </div>

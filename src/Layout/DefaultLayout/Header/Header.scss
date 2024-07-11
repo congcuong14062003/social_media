@@ -2,6 +2,11 @@
     height: var(--header-height);
     background-color: var(--header-color);
     padding: 0 20px;
+    // position: fixed;
+    // top: 0;
+    // left: 0;
+    // right: 0;
+    // z-index: 1;
     box-shadow: 0 2px 4px 0 var(--box-shadow1), 0 2px 15px 0 var(--box-shadow2);
     display: flex;
     .left_header {

@@ -7,7 +7,7 @@ function DefaultLayout({ children }) {
            <div className="container_content">
                 {/* <SideBar /> */}
                 <Header />
-                <div className="content_right">{children}</div>
+                <div className="content_body">{children}</div>
             </div>
         </Fragment>
     );

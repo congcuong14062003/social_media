@@ -1,0 +1,111 @@
+.model_content_access {
+    background-color: var(--card-background);
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    padding: 10px 0;
+    width: 500px;
+    .header_modal {
+        border-bottom: 1px solid var(--secondary-icon);
+        padding: 5px 10px 15px 10px;
+        h2 {
+            text-align: center;
+            font-size: var(--twenty-px);
+            color: var(--primary-text);
+        }
+    }
+    .content_modal {
+        padding: 20px;
+        .group_access {
+            label {
+                margin: 10px 0;
+                width: 100%;
+                justify-content: space-between;
+                display: flex;
+                align-items: center;
+                margin-left: 0;
+                span {
+                    padding: 0;
+                }
+                .access_post_detail {
+                    display: flex;
+                    align-items: center;
+                    .icon_access {
+                        background-color: var(--secondary-button);
+                        width: 50px;
+                        height: 50px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 50%;
+
+                        img {
+                            filter: invert(var(--invert));
+                        }
+                    }
+                    .text_access {
+                        margin-left: 10px;
+                        span {
+                            color: var(--primary-text);
+                            font-size: var(--sixteen-px);
+                        }
+                        p {
+                            color: var(--secondary-text);
+                            font-size: var(--fourteen-px);
+                        }
+                    }
+                }
+            }
+            .radio_custom {
+                &.MuiRadio-root {
+                    color: var(--secondary-icon);
+                    &.Mui-checked {
+                        color: var(--primary-color);
+                    }
+                }
+            }
+        }
+    }
+    .footer_detail_post {
+        border-top: 1px solid var(--secondary-icon);
+        padding: 10px 0;
+        div {
+            padding: 10px;
+            padding-bottom: 0;
+            display: flex;
+            justify-content: end;
+            align-items: center;
+            button {
+                margin-right: 10px;
+                width: 115px;
+                padding: 10px 0;
+                font-size: var(--fourteen-px);
+                text-transform: none;
+            }
+            .submit_btn_access {
+                background-color: var(--primary-color);
+            }
+            .cancel_btn_access {
+                color: var(--primary-color)
+            }
+        }
+    }
+    .close_modal_detail {
+        position: absolute;
+        top: 10px;
+        left: 15px;
+        width: 35px;
+        display: flex;
+        height: 35px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        background-color: var(--secondary-button);
+        svg {
+            font-size: 25px;
+        }
+        svg path {
+            fill: var(--secondary-icon);
+        }
+    }
+}
