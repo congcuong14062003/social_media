@@ -18,7 +18,17 @@ function App() {
                                         <Page />
                                     </Layout>
                                 }
-                            />
+                            >
+                                {route.childrenRouter &&
+                                    route.childrenRouter.map((child, indexChild) => (
+                                        <Route
+                                            exact
+                                            key={child.path}
+                                            path={child.path}
+                                            element={child.component}
+                                        />
+                                    ))}
+                            </Route>
                         );
                     })}
                 </Routes>

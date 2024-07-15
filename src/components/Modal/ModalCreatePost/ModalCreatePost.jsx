@@ -11,6 +11,7 @@ import Button from '@mui/material/Button';
 import ModalAccess from '../ModalAccess/ModalAccess';
 import { MdArrowDropDown, MdPhoto, MdAddPhotoAlternate, MdCancel } from 'react-icons/md';
 import { useEffect, useState } from 'react';
+import CloseBtn from '../../CloseBtn/CloseBtn';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -73,23 +74,23 @@ export default function ModalCreatePost({ openModel, closeModel, openFile }) {
     //     cursor: 'pointer',
     //     color: '#fff',
     // });
-    useEffect(() => {
-        console.log('selected image: ', selectedImage);
-        console.log('valueInput: ', valueInput);
-        if (selectedImage || valueInput) {
-            setStyleBtn({
-                backgroundColor: getCSSVariableValue('--primary-color'),
-                cursor: 'pointer',
-                color: '#fff',
-            });
-        } else {
-            setStyleBtn({
-                backgroundColor: getCSSVariableValue('--disable-button'),
-                color: getCSSVariableValue('--disable-button-text'),
-                cursor: 'not-allowed',
-            });
-        }
-    }, [selectedImage, valueInput]);
+    // useEffect(() => {
+    //     console.log('selected image: ', selectedImage);
+    //     console.log('valueInput: ', valueInput);
+    //     if (selectedImage || valueInput) {
+    //         setStyleBtn({
+    //             backgroundColor: getCSSVariableValue('--primary-color'),
+    //             cursor: 'pointer',
+    //             color: '#fff',
+    //         });
+    //     } else {
+    //         setStyleBtn({
+    //             backgroundColor: getCSSVariableValue('--disable-button'),
+    //             color: getCSSVariableValue('--disable-button-text'),
+    //             cursor: 'not-allowed',
+    //         });
+    //     }
+    // }, [selectedImage, valueInput]);
     const handleCancel = () => {
         setOpenSelectFile(false);
         setSelectedImage(null);
@@ -190,15 +191,17 @@ export default function ModalCreatePost({ openModel, closeModel, openFile }) {
                             )}
                         </div>
                         <div className="btn_dang">
-                            <Button style={styleBtn} variant="contained">
-                                Đăng bài
-                            </Button>
+                            <Button variant="contained">Đăng bài</Button>
                         </div>
                     </div>
 
-                    <div className="close_modal" onClick={closeModel}>
+                    {/* <div className="close_modal" onClick={closeModel}>
                         <FontAwesomeIcon icon={faXmark} />
-                    </div>
+                    </div> */}
+                    <span className="close_btn_model">
+                        <CloseBtn onClick={closeModel} />
+                    </span>
+
                     <ModalAccess
                         openAccess={openAccess}
                         closeAccess={handleCloseAccess}

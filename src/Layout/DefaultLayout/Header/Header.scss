@@ -6,7 +6,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1;
+    z-index: 999;
     box-shadow: 0 2px 4px 0 var(--box-shadow1), 0 2px 15px 0 var(--box-shadow2);
     border-bottom: 1px solid var(--comment-backgroud);
     display: flex;

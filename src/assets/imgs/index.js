@@ -13,6 +13,11 @@ const images = {
     gif: require('./gif.png'),
     baochi: require('./baochi.jpg'),
     car: require('./car.jpg'),
+    lamviec: require('./lamviec.png'),
+    dentu: require('./dentu.png'),
+    livefrom: require('./livefrom.png'),
+    thamgia: require('./thamgia.png'),
+    boy: require('./boy.jpg'),
 };
 
 export default images;

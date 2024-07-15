@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom';
 import './HomePage.scss';
-import images from '../../assets/imgs';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import config from '../../configs';
 import CreatePost from '../../components/CreatePost/CreatePost';
 import AvatarUser from '../../components/AvatarUser/AvatarUser';
 import PostItem from '../../components/PostItem/PostItem';
+import ListStory from '../../components/ListStory/ListStory';
 function HomePage() {
     return (
         <div className="home__container">
@@ -24,7 +22,9 @@ function HomePage() {
             </div>
             <div className="center__container">
                 {/*đăng tin và danh sách tin*/}
-                <div className="story_container"></div>
+                <div className="story_container">
+                    <ListStory />
+                </div>
 
                 {/* đăng bài viết và danh sách bài viết */}
                 <div className="post__container">

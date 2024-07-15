@@ -1,0 +1,29 @@
+.count_friends {
+    color: var(--secondary-text);
+    font-size: var(--sixteen-px);
+    margin-top: 10px;
+}
+.friend_user_profile {
+    display: grid;
+    margin-top: 20px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px 10px;
+    a {
+        .friend_item {
+            font-size: var(--twelve-px);
+            color: var(--primary-text);
+            font-weight: var(--main-font-weight);
+
+            img {
+                width: 100%;
+                border-radius: 10px;
+            }
+        }
+        p {
+            &:hover {
+                text-decoration: underline;
+                text-decoration-color: currentColor; // Đặt màu gạch chân theo màu chữ
+            }
+        }
+    }
+}

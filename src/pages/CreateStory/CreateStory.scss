@@ -1,0 +1,22 @@
+.create_story_container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    .left_container {
+        height: 100%;
+        width: 360px;
+        background-color: var(--navbar-background-color);
+        border-right: 1px solid var(--comment-backgroud);
+        .action_go_home {
+            .close_create_story {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    }
+    .right_container {
+        height: 100%;
+        flex: 1;
+        background-color: var(--right-background-story);
+    }
+}

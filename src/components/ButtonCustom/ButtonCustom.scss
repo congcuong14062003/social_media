@@ -1,0 +1,13 @@
+.btn_action_custom {
+    font-size: var(--fourteen-px) !important;
+    text-transform: none !important;
+    // font-weight: var(--main-font-weight);
+    &.primary {
+        background-color: var(--primary-color) !important;
+        color: var(--alway-white);
+    }
+    &.secondary {
+        background-color: var(--secondary-button) !important;
+        color: var(--primary-text) !important;
+    }
+}

@@ -59,9 +59,15 @@
     --secondary-text: #65676b;
     --secondary-button: #e4e6eb;
     --icon-color: #080808;
+    --survey-backgroud: #ffffff;
+    --right-background-story: #f1f2f6; 
+
+    --divider-color: #ced0d4;
     --disable-button: #e4e6eb;
     --disable-button-text: #bcc0c4;
     --navbar-background-color: #ffffff;
+    --filter-placeholder-icon: invert(59%) sepia(11%) saturate(200%) saturate(135%) hue-rotate(176deg) brightness(96%)
+        contrast(94%);
 
     --always-dark-gradient: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
     --web-wash: #f0f2f5;
@@ -83,14 +89,20 @@
 
 [data-theme='dark'] {
     --invert: 100%;
+    --right-background-story: #18191b; 
+
+    --divider-color: #3e4042;
     --disable-button: rgba(255, 255, 255, 0.2);
     --disable-button-text: rgba(255, 255, 255, 0.3);
     --card-background: #242526;
     --header-color: #242526;
     --body-color: #18191a;
     --web-wash: #18191a;
+    --survey-backgroud: #242527;
     --navbar-background-color: #242526;
-    --always-dark-gradient: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.6));
+    --always-dark-gradient: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+    --filter-placeholder-icon: invert(59%) sepia(11%) saturate(200%) saturate(135%) hue-rotate(176deg) brightness(96%)
+        contrast(94%);
     --primary-text: #e4e6eb;
     --secondary-text: #b0b3b8;
     --comment-backgroud: #3a3b3c;
@@ -109,7 +121,22 @@
 html {
     font-size: 62.5%;
 }
+::-webkit-scrollbar {
+    width: 8px;
+}
 
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 50px;
+    background: var(--divider-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--divider-color);
+}
 body {
     font-size: var(--sixteen-px);
     text-rendering: optimizeSpeed;

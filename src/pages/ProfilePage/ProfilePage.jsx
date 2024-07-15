@@ -5,22 +5,16 @@ import AddIcon from '@mui/icons-material/Add';
 import CreateIcon from '@mui/icons-material/Create';
 import { Box, Button, Tab, Tabs } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import PostProfile from '../../components/PostProfile/PostProfile';
+import ContentProfileUser from '../../components/ContentProfileUser/ContentProfileUser';
+import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
 
-    return (
-        <div
-            role="tabpanel"
-            hidden={value !== index}
-            id={`simple-tabpanel-${index}`}
-            aria-labelledby={`simple-tab-${index}`}
-            {...other}
-        >
-            {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-        </div>
-    );
+    return <div {...other}>{children}</div>;
 }
 
 CustomTabPanel.propTypes = {
@@ -37,11 +31,27 @@ function a11yProps(index) {
 }
 
 function ProfilePage() {
+    const location = useLocation();
     const [value, setValue] = useState(0);
+
+    useEffect(() => {
+        switch (location.pathname) {
+            case '/profile/anh':
+                setValue(1);
+                break;
+            case '/profile/ban-be':
+                setValue(2);
+                break;
+            default:
+                setValue(0);
+                break;
+        }
+    }, [location.pathname]);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
+
     return (
         <div className="profile_container">
             <div className="profile_header">
@@ -65,40 +75,32 @@ function ProfilePage() {
                             <div className="user_name_header">Công Cường</div>
                             <div className="count_friend">385 bạn bè</div>
                             <div className="action_user_container">
-                                <Button
-                                    className="btn_action btn_add_story"
-                                    variant="contained"
-                                    startIcon={<AddIcon />}
-                                >
-                                    Thêm vào tin
-                                </Button>
-                                <Button
-                                    className="btn_action btn_edit_profile"
-                                    variant="contained"
+                                <ButtonCustom className="primary" title="Thêm vào tin" startIcon={<AddIcon />} />
+                                <ButtonCustom
+                                    className="secondary"
+                                    title="Chỉnh sửa trang cá nhân"
                                     startIcon={<CreateIcon />}
-                                >
-                                    Chỉnh sửa trang cá nhân
-                                </Button>
+                                />
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div className="body_profile">
+                <div className="content_body_profile">
                     <div className="tab_profile_user">
                         <Box sx={{ width: '100%' }}>
                             <Box className="tab_profile_content" sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                 <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                                    <Tab label="Bài viết" {...a11yProps(0)} />
-                                    <Tab label="Giới thiệu" {...a11yProps(1)} />
-                                    <Tab label="Bạn bè" {...a11yProps(2)} />
+                                    <Tab label="Bài viết" {...a11yProps(0)} component={Link} to="/profile" />
+                                    <Tab label="Ảnh" {...a11yProps(1)} component={Link} to="/profile/anh" />
+                                    <Tab label="Bạn bè" {...a11yProps(2)} component={Link} to="/profile/ban-be" />
                                 </Tabs>
                             </Box>
-                            <CustomTabPanel value={value} index={0}>
-                                Bài viết
-                            </CustomTabPanel>
-                            <CustomTabPanel value={value} index={1}>
-                                Giới thiệu
-                            </CustomTabPanel>
-                            <CustomTabPanel value={value} index={2}>
-                                Bạn bè
+                            <CustomTabPanel className="tab_profile_user" value={value} index={0}>
+                                <ContentProfileUser>
+                                    <Outlet />
+                                </ContentProfileUser>
                             </CustomTabPanel>
                         </Box>
                     </div>

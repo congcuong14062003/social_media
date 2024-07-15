@@ -8,20 +8,20 @@ const CreatePost = () => {
     const [open, setOpen] = React.useState(false);
     const [openFile, setOpenFile] = React.useState(false);
     const handleOpen = () => {
-      setOpen(true);
+        setOpen(true);
     };
     const handleClose = () => {
         setOpen(false);
-      };
-      const handleOpenCreatePost = () => {
+    };
+    const handleOpenCreatePost = () => {
         setOpen(true);
         setOpenFile(true);
-      }
+    };
     return (
         <div className="container_create_post">
             <div className="header_post">
                 <AvatarUser />
-                <Search  onClick={handleOpen}  placeholder="Công ơi bạn đang nghĩ gì thế" />
+                <Search onClick={handleOpen} placeholder="Công ơi bạn đang nghĩ gì thế" />
             </div>
             <div className="footer_post">
                 <div className="image_and_video" onClick={handleOpenCreatePost}>

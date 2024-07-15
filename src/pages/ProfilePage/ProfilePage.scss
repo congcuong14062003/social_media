@@ -1,131 +1,129 @@
 .profile_container {
     .profile_header {
         background-color: var(--navbar-background-color);
-    }
-    .content_profile_header {
-        max-width: 1095px;
-        margin: auto;
-        .cover_image {
-            position: relative;
-            height: 400px;
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-            overflow: hidden;
-            background-color: var(--web-wash);
-            img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-            .footer_cover {
-                background-image: var(--always-dark-gradient);
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                z-index: 1;
-                right: 0;
-                height: 68px;
-                display: flex;
-                justify-content: end;
-                align-items: center;
-                .add_cover_image {
-                    height: 36px;
-                    display: flex;
-                    align-items: center;
-                    margin-right: 40px;
-                    border-radius: 5px;
-                    background-color: var(--alway-white);
-                    padding: 5px 10px;
-                    color: var(--alway-primary-text);
-                    font-size: var(--fourteen-px);
-                    svg {
-                        font-size: 16px;
-                        width: 16px;
-                        height: 16px;
-                    }
-                    span {
-                        line-height: 0px;
-                        margin-left: 5px;
-                    }
-                    &:hover {
-                        cursor: pointer;
-                    }
-                }
-            }
-        }
-    }
-    .infor_user_container {
-        max-width: 1063px;
-        margin: auto;
-        flex-direction: column;
-        // border-bottom: 2px solid var(--comment-backgroud);
-        padding-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        .infor_user_content {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            .avatar_user {
+        .content_profile_header {
+            max-width: 1095px;
+            margin: auto;
+            .cover_image {
                 position: relative;
-                z-index: 2;
-                border-radius: 50%;
-                width: 168px;
-                height: 168px;
-                margin-top: -35px;
-                border: 5px solid var(--card-background);
+                height: 400px;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+                overflow: hidden;
+                background-color: var(--web-wash);
                 img {
                     width: 100%;
+                    height: 100%;
+                    object-fit: cover;
                 }
-            }
-            .infor_header_user {
-                flex: 1;
-                margin-left: 10px;
-                .user_name_header {
-                    font-size: 32px;
-                    margin: 8px 0;
-                    color: var(--primary-text);
-                    font-weight: var(--main-font-weight);
-                }
-                .count_friend {
-                    color: var(--secondary-text);
-                    font-size: var(--fourteen-px);
-                }
-                .action_user_container {
+                .footer_cover {
+                    background-image: var(--always-dark-gradient);
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    z-index: 1;
+                    right: 0;
+                    height: 68px;
                     display: flex;
                     justify-content: end;
-                    button {
-                        margin-left: 10px;
-                        text-transform: none;
+                    align-items: center;
+                    .add_cover_image {
+                        height: 36px;
+                        display: flex;
+                        align-items: center;
+                        margin-right: 40px;
+                        border-radius: 5px;
+                        background-color: var(--alway-white);
+                        padding: 5px 10px;
+                        color: var(--alway-primary-text);
                         font-size: var(--fourteen-px);
-                    }
-                    .btn_edit_profile {
-                        background-color: var(--secondary-button);
-                        color: var(--primary-text);
-                    }
-                    .btn_add_story {
-                        background-color: var(--primary-color);
-                        color: var(--alway-white);
+                        svg {
+                            font-size: 16px;
+                            width: 16px;
+                            height: 16px;
+                        }
+                        span {
+                            line-height: 0px;
+                            margin-left: 5px;
+                        }
+                        &:hover {
+                            cursor: pointer;
+                        }
                     }
                 }
             }
         }
-        .tab_profile_user {
-            .tab_profile_content {
-                border-bottom: 1px solid var(--comment-backgroud);
-                button {
-                    font-size: var(--fourteen-px);
-                    text-transform: none;
-                    color: var(--secondary-text);
-                    // font-weight: var(--main-font-weight);
-                    &:hover {
-                        // background-color: var(--comment-backgroud);
-                        // border-radius: 3px;
+        .infor_user_container {
+            max-width: 1063px;
+            margin: auto;
+            flex-direction: column;
+            // border-bottom: 2px solid var(--comment-backgroud);
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            .infor_user_content {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                .avatar_user {
+                    position: relative;
+                    z-index: 2;
+                    border-radius: 50%;
+                    width: 168px;
+                    height: 168px;
+                    margin-top: -35px;
+                    border: 5px solid var(--card-background);
+                    img {
+                        width: 100%;
                     }
                 }
-                .css-1aquho2-MuiTabs-indicator {
-                    background-color: var(--primary-color) !important;
-                    height: 3px;
+                .infor_header_user {
+                    flex: 1;
+                    margin-left: 10px;
+                    .user_name_header {
+                        font-size: 32px;
+                        margin: 8px 0;
+                        color: var(--primary-text);
+                        font-weight: var(--main-font-weight);
+                    }
+                    .count_friend {
+                        color: var(--secondary-text);
+                        font-size: var(--fourteen-px);
+                    }
+                    .action_user_container {
+                        display: flex;
+                        justify-content: end;
+                        button {
+                            margin-left: 10px;
+                            text-transform: none;
+                            font-size: var(--fourteen-px);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .body_profile {
+        .content_body_profile {
+            .tab_profile_user {
+                background-color: var(--navbar-background-color);
+                .tab_profile_content {
+                    max-width: 1063px;
+                    margin: auto;
+                    border-top: 1px solid var(--comment-backgroud);
+                    a {
+                        font-size: var(--fourteen-px);
+                        text-transform: none;
+                        color: var(--secondary-text);
+                    }
+                    .css-1aquho2-MuiTabs-indicator {
+                        background-color: var(--primary-color) !important;
+                        height: 3px;
+                    }
+                }
+                .tab_profile_user {
+                    padding: 20px;
+                    background-color: var(--body-color);
                 }
             }
         }

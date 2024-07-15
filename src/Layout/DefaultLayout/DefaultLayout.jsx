@@ -4,7 +4,7 @@ import Header from './Header/Header';
 function DefaultLayout({ children }) {
     return (
         <Fragment>
-           <div className="container_content">
+            <div className="container_content">
                 {/* <SideBar /> */}
                 <Header />
                 <div className="content_body">{children}</div>

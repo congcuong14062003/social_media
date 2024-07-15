@@ -1,0 +1,23 @@
+.component_profile_container {
+    background-color: var(--card-background);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    .header_component {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .title {
+            font-size: var(--twenty-px);
+            color: var(--primary-text);
+            font-weight: var(--main-font-weight);
+        }
+        .link_component {
+            a {
+                font-size: var(--sixteen-px);
+                color: var(--primary-color);
+            }
+        }
+    }
+}

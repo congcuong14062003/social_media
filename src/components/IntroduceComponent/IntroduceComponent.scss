@@ -1,0 +1,25 @@
+.content_introduce {
+    padding: 10px 0;
+    .list_infor_introduce {
+        display: flex;
+        padding: 10px 0;
+        align-items: center;
+        img {
+            margin-right: 8px;
+            filter: var(--filter-placeholder-icon);
+        }
+        p {
+            font-size: var(--fourteen-px);
+            color: var(--secondary-text);
+        }
+        span {
+            font-size: var(--fourteen-px);
+            color: var(--primary-text);
+        }
+    }
+}
+.btn_edit_introduce{
+    button {
+        width: 100%;
+    }
+}

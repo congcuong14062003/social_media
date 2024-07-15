@@ -1,0 +1,11 @@
+.post_profile_container {
+    display: flex;
+    .left_container {
+        flex: 2;
+        margin-right: 20px;
+        
+    }
+    .right_container {
+        flex: 3;
+    }
+}

@@ -1,0 +1,12 @@
+.image_user_profile {
+    display: grid;
+    margin-top: 20px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5px;
+    img {
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        width: 100%;
+    }
+}
