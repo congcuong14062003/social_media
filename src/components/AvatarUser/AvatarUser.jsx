@@ -1,4 +1,4 @@
-import images from "../../assets/imgs";
+import images from '../../assets/imgs';
 import './AvatarUser.scss';
 function AvatarUser() {
     return (

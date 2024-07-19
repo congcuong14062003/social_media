@@ -1,5 +1,6 @@
 .container_content {
     .content_body {
         margin-top: var(--header-height);
+        height: calc(100vh - var(--header-height));
     }
 }

@@ -22,7 +22,7 @@ function AccessPost({ image, heading, title }) {
     );
 }
 
-function ModalAccess({ openAccess, closeAccess, initialValue, onAccessChange }) {
+function ModalAccess({ openAccess, closeAccess, initialValue, onAccessChange, title }) {
     const style = {
         position: 'absolute',
         top: '50%',
@@ -51,6 +51,8 @@ function ModalAccess({ openAccess, closeAccess, initialValue, onAccessChange }) 
         onAccessChange(selectedValue);
         closeAccess();
     };
+
+    console.log(selectedValue);
     return (
         <Fragment>
             <Modal
@@ -61,7 +63,7 @@ function ModalAccess({ openAccess, closeAccess, initialValue, onAccessChange }) 
             >
                 <Box sx={{ ...style }} className="model_content_access">
                     <div className="header_modal">
-                        <h2 id="parent-modal-title">Đối tượng bài viết</h2>
+                        <h2 id="parent-modal-title">{title}</h2>
                     </div>
                     <div className="content_modal">
                         <RadioGroup

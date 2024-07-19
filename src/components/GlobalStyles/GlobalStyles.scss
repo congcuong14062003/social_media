@@ -46,6 +46,7 @@
 }
 
 :root {
+    --border-color: #bfbfbf;
     --header-height: 56px;
     --alway-white: #fff;
     --card-background: #fff;
@@ -61,7 +62,7 @@
     --icon-color: #080808;
     --survey-backgroud: #ffffff;
     --right-background-story: #f1f2f6; 
-
+    --shadow-2: rgba(0, 0, 0, 0.2);
     --divider-color: #ced0d4;
     --disable-button: #e4e6eb;
     --disable-button-text: #bcc0c4;
@@ -90,7 +91,7 @@
 [data-theme='dark'] {
     --invert: 100%;
     --right-background-story: #18191b; 
-
+    --border-color: #5b5c5e;
     --divider-color: #3e4042;
     --disable-button: rgba(255, 255, 255, 0.2);
     --disable-button-text: rgba(255, 255, 255, 0.3);

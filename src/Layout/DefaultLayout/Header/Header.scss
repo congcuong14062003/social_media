@@ -86,27 +86,9 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        .messenger_icon {
-            padding: 20px;
-            border-radius: 50%;
-            background-color: var(--secondary-button);
-            width: 40px;
-            height: 40px;
-            position: relative;
-            svg {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-               
-            }
-            svg path {
-                fill: var(--icon-color);
-            }
-            &.notice{
-                margin: 0 10px;
-            }
-        }
-       
+   
+       .primary_icon_background {
+        margin-right: 5px;
+       }
     }
 }

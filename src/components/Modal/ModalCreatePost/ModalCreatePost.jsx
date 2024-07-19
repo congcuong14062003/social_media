@@ -203,6 +203,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile }) {
                     </span>
 
                     <ModalAccess
+                        title="Đối tượng bài viết"
                         openAccess={openAccess}
                         closeAccess={handleCloseAccess}
                         initialValue={accessLabel}

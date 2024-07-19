@@ -4,10 +4,21 @@ import PostProfile from '../components/PostProfile/PostProfile';
 import CreateStory from '../pages/CreateStory/CreateStory';
 import GroupPage from '../pages/GroupPage/GroupPage';
 import HomePage from '../pages/HomePage/HomePage';
+import Login from '../pages/Login/Login';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import VideoPage from '../pages/VideoPage/VideoPage';
 
 const publicRouter = [
+    {
+        path: '/login',
+        component: Login,
+        layout: Login,
+    },
+    {
+        path: '/signup',
+        component: Login,
+        layout: Login,
+    },
     {
         path: '/',
         component: HomePage,
@@ -23,7 +34,7 @@ const publicRouter = [
     {
         path: '/story/create',
         component: CreateStory,
-        layout: CreateStory,
+        // layout: CreateStory,
     },
     {
         path: '/profile',

@@ -8,6 +8,7 @@ import { GroupIcon, HomeIcon, MessageIcon, NoticeIcon, VideoIcon } from '../../.
 import { FormControlLabel, Switch } from '@mui/material';
 import Search from '../../../components/Search/Search';
 import AvatarUser from '../../../components/AvatarUser/AvatarUser';
+import PrimaryIcon from '../../../components/PrimaryIcon/PrimaryIcon';
 
 function Header() {
     const [darkMode, setDarkMode] = useState(false);
@@ -71,12 +72,10 @@ function Header() {
                     labelPlacement="start"
                     sx={{ '& .MuiFormControlLabel-label': { fontSize: '15px', color: '#050505' } }}
                 />
-                <div className="messenger_icon">
-                    <MessageIcon fill="#000" />
-                </div>
-                <div className="messenger_icon notice">
-                    <NoticeIcon fill="#000" />
-                </div>
+
+                <PrimaryIcon icon={<MessageIcon />} />
+                <PrimaryIcon icon={<NoticeIcon />} />
+
                 <AvatarUser />
             </div>
         </div>
