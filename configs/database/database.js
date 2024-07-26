@@ -1,11 +1,14 @@
 import mysql from "mysql2/promise";
-require("dotenv").config();
+import { config } from "dotenv";
+
+config();
 
 const pool = mysql.createPool({
-  connectionLimit: process.env.DBCONNECTIONLIMIT,
-  host: process.env.DBHOSTNAME,
-  user: process.env.DBUSERNAME,
-  password: process.env.DBPASSWORD,
-  database: process.env.DBNAME,
+  connectionLimit: 10, // Bạn có thể đặt giá trị cố định nếu không cần cấu hình từ .env
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
+
 export default pool;
