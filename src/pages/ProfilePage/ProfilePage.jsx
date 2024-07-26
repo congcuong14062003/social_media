@@ -10,6 +10,8 @@ import PostProfile from '../../components/PostProfile/PostProfile';
 import ContentProfileUser from '../../components/ContentProfileUser/ContentProfileUser';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import routes from '../../configs/routes';
+import config from '../../configs';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -75,7 +77,9 @@ function ProfilePage() {
                             <div className="user_name_header">Công Cường</div>
                             <div className="count_friend">385 bạn bè</div>
                             <div className="action_user_container">
-                                <ButtonCustom className="primary" title="Thêm vào tin" startIcon={<AddIcon />} />
+                                <Link to={config.routes.createStory}>
+                                    <ButtonCustom className="primary" title="Thêm vào tin" startIcon={<AddIcon />} />
+                                </Link>
                                 <ButtonCustom
                                     className="secondary"
                                     title="Chỉnh sửa trang cá nhân"

@@ -72,28 +72,79 @@
             }
             .text_action_container {
                 padding: 20px;
+                height: 70%;
+                overflow-y: scroll;
                 .text_fild_content {
                     .text_fild {
+                        color: var(--primary-text);
                         width: 100%;
                         border: 1px solid var(--border-color);
                         border-radius: 5px;
-                        // label {
-                        //     font-size: var(--thirteen-px);
-                        //     color: var(--primary-text);
-                        // }
-                        textarea {
-                            font-size: var(--fourteen-px);
+                        .css-dpjnhs-MuiInputBase-root-MuiOutlinedInput-root {
                             color: var(--primary-text);
-                            &::placeholder {
-                                font-size: var(--fourteen-px);
-                            }
+                            font-size: var(--thirteen-px);
+                        }
+                        label {
+                            font-size: var(--thirteen-px);
+                            color: var(--primary-text);
                         }
                         &:focus-within {
-                            // label {
-                            //     color: var(--primary-color); /* Màu xanh */
-                            // }
+                            label {
+                                color: var(--primary-color);
+                            }
                             border: 1px solid var(--primary-color);
                         }
+                    }
+                }
+                .control-group {
+                    width: 100%;
+                    margin: 20px 0;
+                    .bg-images {
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: center;
+                        img {
+                            cursor: pointer;
+                            margin: 3px;
+                            width: 40px;
+                            height: 40px;
+                            aspect-ratio: 1;
+                            border-radius: 50%;
+                            border: 2px solid var(--alway-white);
+                            object-fit: cover;
+                        }
+                    }
+                    label {
+                        display: block;
+                        margin-bottom: 5px;
+                        font-weight: var(--main-font-weight);
+                        font-size: var(--fourteen-px);
+                        color: var(--primary-text);
+                    }
+
+                    input[type='text'],
+                    input[type='number'],
+                    select {
+                        width: 100%;
+                        padding: 8px;
+                        border: 1px solid var(--border-color);
+                        border-radius: 5px;
+                        color: var(--secondary-text);
+                        font-size: var(--fourteen-px);
+                        background-color: var(--navbar-background-color);
+                        box-sizing: border-box;
+                    }
+
+                    option {
+                        color: var(--secondary-text);
+                        font-weight: var(--main-font-weight);
+                        font-size: var(--fourteen-px);
+                        background-color: var(--card-background);
+                    }
+
+                    input[type='color'] {
+                        height: 40px;
+                        border: none;
                     }
                 }
             }
@@ -122,6 +173,20 @@
                     }
                 }
             }
+            .btn_cut_image {
+                background-color: var(--card-background);
+                display: flex;
+                padding: 20px;
+                position: absolute;
+                box-shadow: 0 2px 12px var(--shadow-2);
+                left: 0;
+                bottom: 0;
+                right: 0;
+                z-index: 1;
+                button {
+                    width: 100%;
+                }
+            }
         }
     }
     .right_container {
@@ -131,6 +196,7 @@
         background-color: var(--right-background-story);
         .image_or_text {
             height: 100%;
+            width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -194,12 +260,52 @@
                 flex-direction: column;
                 .title_render {
                     margin-bottom: 20px;
+                    color: var(--primary-text);
+                    font-weight: var(--main-font-weight);
                 }
                 .body_render {
                     border-radius: 8px;
                     flex: 1;
+                    position: relative;
                     width: 100%;
                     background-color: #18191a;
+                    display: flex;
+                    overflow-y: scroll;
+                    .content_text_input {
+                        max-width: 300px;
+                        height: 95%;
+                        width: 300px;
+                        overflow-y: scroll;
+                        margin: auto;
+                        background-color: var(--primary-color);
+                        color: var(--alway-white);
+                        border-radius: 8px;
+                        text-align: center;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        padding: 20px;
+                        p {
+                            font-size: var(--twenty-one-px);
+                            width: 100%;
+                            max-height: 100%;
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                        }
+                    }
+                    .content_img_input {
+                        max-width: 300px;
+                        height: 95%;
+                        width: 300px;
+                        background-color: var(--primary-color);
+                        margin: auto;
+                        position: relative;
+                    }
+                    .btn_cut_image {
+                        position: absolute;
+                        bottom: 10px;
+                        right: 10px;
+                    }
                 }
             }
         }

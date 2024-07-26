@@ -5,46 +5,6 @@
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
-
-@font-face {
-    font-family: 'Segoe UI';
-    font-weight: 200;
-    src: local('Segoe UI Light');
-}
-@font-face {
-    font-family: 'Segoe UI';
-    font-weight: 300;
-    src: local('Segoe UI Semilight');
-}
-@font-face {
-    font-family: 'Segoe UI';
-    font-weight: 400;
-    src: local('Segoe UI');
-}
-@font-face {
-    font-family: 'Segoe UI';
-    font-weight: 600;
-    src: local('Segoe UI Semibold');
-}
-@font-face {
-    font-family: 'Segoe UI';
-    font-weight: 700;
-    src: local('Segoe UI Bold');
-}
-@font-face {
-    font-family: 'Segoe UI';
-    font-style: italic;
-    font-weight: 400;
-    src: local('Segoe UI Italic');
-}
-
-@font-face {
-    font-family: 'Segoe UI';
-    font-style: italic;
-    font-weight: 700;
-    src: local('Segoe UI Bold Italic');
-}
-
 :root {
     --border-color: #bfbfbf;
     --header-height: 56px;
@@ -114,11 +74,7 @@
     --box-shadow2: rgba(255, 255, 255, 0.06);
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+
 html {
     font-size: 62.5%;
 }

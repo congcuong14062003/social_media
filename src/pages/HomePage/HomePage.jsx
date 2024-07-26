@@ -5,7 +5,22 @@ import CreatePost from '../../components/CreatePost/CreatePost';
 import AvatarUser from '../../components/AvatarUser/AvatarUser';
 import PostItem from '../../components/PostItem/PostItem';
 import ListStory from '../../components/ListStory/ListStory';
+import { useEffect, useState } from 'react';
 function HomePage() {
+    const [dataUser, setDataUser] = useState()
+    useEffect(() => {
+        fetch('http://localhost:5000/users/me', {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then((res) => res.json())
+            .then((me) => {
+                setDataUser(me.user);
+            });
+    }, []);
     return (
         <div className="home__container">
             <div className="left__container">
@@ -14,7 +29,7 @@ function HomePage() {
                         <li>
                             <Link to={config.routes.profile}>
                                 <AvatarUser />
-                                <div className="text_content">Công Cường</div>
+                                <div className="text_content">{dataUser?.username}</div>
                             </Link>
                         </li>
                     </ul>

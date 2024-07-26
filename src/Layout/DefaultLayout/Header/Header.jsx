@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './Header.scss';
 import images from '../../../assets/imgs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,10 +9,12 @@ import { FormControlLabel, Switch } from '@mui/material';
 import Search from '../../../components/Search/Search';
 import AvatarUser from '../../../components/AvatarUser/AvatarUser';
 import PrimaryIcon from '../../../components/PrimaryIcon/PrimaryIcon';
+import config from '../../../configs';
+import ButtonCustom from '../../../components/ButtonCustom/ButtonCustom';
 
 function Header() {
     const [darkMode, setDarkMode] = useState(false);
-
+    const navigate = useNavigate();
     const handleThemeChange = () => {
         const newDarkMode = !darkMode;
         setDarkMode(newDarkMode);
@@ -29,11 +31,33 @@ function Header() {
             document.documentElement.removeAttribute('data-theme');
         }
     }, [darkMode]);
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/users/logout', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.ok) {
+                navigate('/login'); // Chuyển hướng về trang login ngay lập tức
+            } else {
+                console.error('Logout failed');
+            }
+        } catch (error) {
+            console.error('There was a problem with the logout request:', error);
+        }
+    };
     return (
         <div className="header_container">
             <div className="left_header">
                 <div className="logo_website">
-                    <img src={images.logo} alt="" />
+                    <Link to={config.routes.home}>
+                        <img src={images.logo} alt="" />
+                    </Link>
                 </div>
                 <Search iconSearch placeholder="Tìm kiếm..." />
             </div>
@@ -58,6 +82,7 @@ function Header() {
                 </NavLink>
             </div>
             <div className="right_header">
+                <ButtonCustom title="đăng xuất" onClick={handleLogout} />
                 <FormControlLabel
                     value="start"
                     control={

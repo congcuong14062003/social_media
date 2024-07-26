@@ -52,7 +52,7 @@ function ModalAccess({ openAccess, closeAccess, initialValue, onAccessChange, ti
         closeAccess();
     };
 
-    console.log(selectedValue);
+    // console.log(selectedValue);
     return (
         <Fragment>
             <Modal

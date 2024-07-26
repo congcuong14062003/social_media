@@ -4,16 +4,13 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import axios from 'axios'; // Import axios
-import './Login.scss';
-import signUpWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
-import { useAuth } from '../../context/AuthContext'; // Import useAuth
+import './Signup.scss';
 import config from '../../configs';
 
-function Login() {
-    const [email, setEmail] = useState('cuongkoi1406@gmail.com');
-    const [password, setPassword] = useState('123');
+function Signup() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const navigate = useNavigate();
-    const { login } = useAuth(); // Use login function from context
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -22,38 +19,26 @@ function Login() {
             password: password,
         };
         try {
-            const response = await fetch('http://localhost:5000/users/login', {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-            let res = await response.json();
-            if (response.status === 200) {
-                console.log('Data: ', res);
-                login(res.user); // Save user data in context
-                toast.success(res.message);
+            const response = await axios.post('http://localhost:5000/users/signup', payload);
+            if (response.data.success) {
+                console.log('Data: ', response.data);
+                toast.success(response.data.message);
                 setTimeout(() => {
                     navigate('/');
                 }, 1000);
             } else {
-                toast.error(res.message || 'An error occurred');
+                toast.error(response.data.message || 'An error occurred');
             }
         } catch (error) {
             console.error('There was a problem with the request:', error);
-            toast.error(error.response?.message || 'An error occurred');
+            toast.error(error.response?.data?.message || 'An error occurred');
         }
     }
 
-    const handleLoginWithGoogle = () => {
-        signUpWithGoogle();
-    };
     return (
         <div className="login_container">
             <div className="bt-form-login-simple-1">
-                <a onClick={handleLoginWithGoogle} href="#" className="btn-login-google">
+                {/* <a href="#" className="btn-login-google">
                     <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M22.3055 10.0415L21.5 10.0415L21.5 10L12.5 10L12.5 14L18.1515 14C17.327 16.3285 15.1115 18 12.5 18C9.1865 18 6.5 15.3135 6.5 12C6.5 8.6865 9.1865 6 12.5 6C14.0295 6 15.421 6.577 16.4805 7.5195L19.309 4.691C17.523 3.0265 15.134 2 12.5 2C6.9775 2 2.5 6.4775 2.5 12C2.5 17.5225 6.9775 22 12.5 22C18.0225 22 22.5 17.5225 22.5 12C22.5 11.3295 22.431 10.675 22.3055 10.0415Z"
@@ -73,7 +58,7 @@ function Login() {
                         ></path>
                     </svg>
                     Login in with Google
-                </a>
+                </a> */}
                 <div className="text-wrap">
                     <div className="text-line"></div>
                     <p className="text">or</p>
@@ -105,15 +90,15 @@ function Login() {
                             <input type="checkbox" name="remember-account" id="remember-account" />
                             <label htmlFor="remember-account">Remember for 30 days</label>
                         </div>
-                        <a href="#" className="form-link">
+                        {/* <a href="#" className="form-link">
                             Forgot Password
-                        </a>
+                        </a> */}
                     </div>
-                    <ButtonCustom type="submit" title="Đăng nhập" className="primary form-btn" />
+                    <ButtonCustom type="submit" title="Đăng ký" className="primary form-btn" />
                 </form>
                 <div className="form-option">
-                    Bạn chưa có tài khoản
-                    <Link to={config.routes.signup}>Đăng ký nhanh</Link>
+                    Bạn đã có tài khoản
+                    <Link to={config.routes.login}>Đăng nhập</Link>
                 </div>
             </div>
             {/* Thêm ToastContainer vào component */}
@@ -122,4 +107,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Signup;

@@ -6,6 +6,7 @@ import GroupPage from '../pages/GroupPage/GroupPage';
 import HomePage from '../pages/HomePage/HomePage';
 import Login from '../pages/Login/Login';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
+import Signup from '../pages/Signup/Signup';
 import VideoPage from '../pages/VideoPage/VideoPage';
 
 const publicRouter = [
@@ -16,8 +17,8 @@ const publicRouter = [
     },
     {
         path: '/signup',
-        component: Login,
-        layout: Login,
+        component: Signup,
+        layout: Signup,
     },
     {
         path: '/',
