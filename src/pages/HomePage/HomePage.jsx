@@ -6,21 +6,22 @@ import AvatarUser from '../../components/AvatarUser/AvatarUser';
 import PostItem from '../../components/PostItem/PostItem';
 import ListStory from '../../components/ListStory/ListStory';
 import { useEffect, useState } from 'react';
+import FriendList from '../../components/Friend/FriendList/FriendList';
 function HomePage() {
-    const [dataUser, setDataUser] = useState()
-    useEffect(() => {
-        fetch('http://localhost:5000/users/me', {
-            method: 'GET',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-            .then((res) => res.json())
-            .then((me) => {
-                setDataUser(me.user);
-            });
-    }, []);
+    // const [dataUser, setDataUser] = useState()
+    // useEffect(() => {
+    //     fetch('http://localhost:5000/users/me', {
+    //         method: 'GET',
+    //         credentials: 'include',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //     })
+    //         .then((res) => res.json())
+    //         .then((me) => {
+    //             setDataUser(me.user);
+    //         });
+    // }, []);
     return (
         <div className="home__container">
             <div className="left__container">
@@ -29,7 +30,7 @@ function HomePage() {
                         <li>
                             <Link to={config.routes.profile}>
                                 <AvatarUser />
-                                <div className="text_content">{dataUser?.username}</div>
+                                <div className="text_content">Công Cường</div>
                             </Link>
                         </li>
                     </ul>
@@ -40,7 +41,6 @@ function HomePage() {
                 <div className="story_container">
                     <ListStory />
                 </div>
-
                 {/* đăng bài viết và danh sách bài viết */}
                 <div className="post__container">
                     <div className="create_my_post">
@@ -53,7 +53,9 @@ function HomePage() {
                     </div>
                 </div>
             </div>
-            <div className="right__container"></div>
+            <div className="right__container">
+                <FriendList />
+            </div>
         </div>
     );
 }

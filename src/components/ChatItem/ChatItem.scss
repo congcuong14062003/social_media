@@ -1,0 +1,31 @@
+.chat_item_container {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 5px;
+    .avatar_chat {
+        .avatar_user {
+            width: 56px;
+            height: 56px;
+        }
+    }
+    .content_chat {
+        margin-left: 10px;
+        .title_chat {
+            color: var(--primary-text);
+            font-size: var(--fourteen-px);
+            font-weight: var(--main-font-weight);
+        }
+        .time_chat {
+            color: var(--secondary-text);
+            font-size: var(--thirteen-px);
+            font-weight: var(--secon-font-weight);
+            span {
+                margin-left: 10px;
+            }
+        }
+    }
+    &:hover {
+        background-color: var(--secondary-button);
+    }
+}

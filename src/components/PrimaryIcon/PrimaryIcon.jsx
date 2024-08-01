@@ -1,6 +1,11 @@
 import './PrimaryIcon.scss';
-function PrimaryIcon({ icon }) {
-    return <div className="primary_icon_background">{icon}</div>;
+function PrimaryIcon({ icon, onClick, className }) {
+    const classes = `primary_icon_background ${className}`;
+    return (
+        <div onClick={onClick} className={classes}>
+            {icon}
+        </div>
+    );
 }
 
 export default PrimaryIcon;

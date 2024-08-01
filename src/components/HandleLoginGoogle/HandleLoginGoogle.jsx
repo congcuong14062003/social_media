@@ -20,7 +20,7 @@ function signUpWithGoogle() {
             const token = credential.accessToken;
             // The signed-in user info.
             const user = result.user;
-            console.log('Success:', user.accessToken);
+            console.log('Success:', user);
 
             // Optional: Retrieve IdP data if needed
             // const additionalUserInfo = getAdditionalUserInfo(result);

@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './Header.scss';
 import images from '../../../assets/imgs';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { GroupIcon, HomeIcon, MessageIcon, NoticeIcon, VideoIcon } from '../../../assets/icons/icons';
-import { FormControlLabel, Switch } from '@mui/material';
+import { FormControlLabel, Switch, Popover, Typography } from '@mui/material';
 import Search from '../../../components/Search/Search';
 import AvatarUser from '../../../components/AvatarUser/AvatarUser';
 import PrimaryIcon from '../../../components/PrimaryIcon/PrimaryIcon';
 import config from '../../../configs';
-import ButtonCustom from '../../../components/ButtonCustom/ButtonCustom';
+import PopoverNotice from '../../../components/Popover/PopoverNotice/PopoverNotice';
+import PopoverChat from '../../../components/Popover/PopoverChat/PopoverChat';
 
 function Header() {
     const [darkMode, setDarkMode] = useState(false);
@@ -20,10 +19,12 @@ function Header() {
         setDarkMode(newDarkMode);
         localStorage.setItem('darkMode', newDarkMode);
     };
+
     useEffect(() => {
         const saveDarkMode = localStorage.getItem('darkMode') === 'true';
         setDarkMode(saveDarkMode);
-    });
+    }, []);
+
     useEffect(() => {
         if (darkMode) {
             document.documentElement.setAttribute('data-theme', 'dark');
@@ -32,25 +33,33 @@ function Header() {
         }
     }, [darkMode]);
 
-    const handleLogout = async () => {
-        try {
-            const response = await fetch('http://localhost:5000/users/logout', {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (response.ok) {
-                navigate('/login'); // Chuyển hướng về trang login ngay lập tức
-            } else {
-                console.error('Logout failed');
-            }
-        } catch (error) {
-            console.error('There was a problem with the logout request:', error);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [popoverContent, setPopoverContent] = useState(null);
+    const [activeMessage, setActiveMessage] = useState(false);
+    const [activeNotice, setActiveNotice] = useState(false);
+    const handleClickPopover = (event, content) => {
+        if (anchorEl && popoverContent) {
+            handleClosePopover(); // This will close the current popover
+        }
+        setAnchorEl(event.currentTarget);
+        setPopoverContent(content);
+        if (content == 'chat') {
+            setActiveMessage(true);
+        } else if (content == 'notice') {
+            setActiveNotice(true);
         }
     };
+
+    const handleClosePopover = () => {
+        setAnchorEl(null);
+        setActiveMessage(false);
+        setActiveNotice(false);
+        // setPopoverContent(null);
+    };
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+
     return (
         <div className="header_container">
             <div className="left_header">
@@ -82,7 +91,6 @@ function Header() {
                 </NavLink>
             </div>
             <div className="right_header">
-                <ButtonCustom title="đăng xuất" onClick={handleLogout} />
                 <FormControlLabel
                     value="start"
                     control={
@@ -93,14 +101,38 @@ function Header() {
                             sx={{ marginRight: '20px' }}
                         />
                     }
-                    // label="Chế độ tối"
                     labelPlacement="start"
                     sx={{ '& .MuiFormControlLabel-label': { fontSize: '15px', color: '#050505' } }}
                 />
-
-                <PrimaryIcon icon={<MessageIcon />} />
-                <PrimaryIcon icon={<NoticeIcon />} />
-
+                <PrimaryIcon
+                    className={activeMessage ? 'active_popover' : ''}
+                    icon={<MessageIcon />}
+                    onClick={(e) => handleClickPopover(e, 'chat')}
+                />
+                <PrimaryIcon
+                    className={activeNotice ? 'active_popover' : ''}
+                    icon={<NoticeIcon />}
+                    onClick={(e) => handleClickPopover(e, 'notice')}
+                />
+                <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handleClosePopover}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                        vertical: -4,
+                        horizontal: 'left',
+                    }}
+                    classes={{ paper: 'popover_custom' }}
+                >
+                    <Typography sx={{ p: 0 }}>
+                        {popoverContent === 'notice' ? <PopoverNotice /> : <PopoverChat />}
+                    </Typography>
+                </Popover>
                 <AvatarUser />
             </div>
         </div>

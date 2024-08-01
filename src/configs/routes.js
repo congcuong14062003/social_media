@@ -6,5 +6,6 @@ const routes = {
     createStory: '/story/create', 
     video: '/video',
     group: '/group',
+    messages: '/messages',
 };
 export default routes;

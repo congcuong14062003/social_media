@@ -88,8 +88,8 @@ export const CuoiIcon = ({ fill }) => (
                 gradientUnits="userSpaceOnUse"
                 gradientTransform="matrix(0 7.9992 -7.99863 0 7.9986 7.9992)"
             >
-                <stop offset=".5637" stop-color="#FF5758" stop-opacity="0" />
-                <stop offset="1" stop-color="#FF5758" stop-opacity=".1" />
+                <stop offset=".5637" stopColor="#FF5758" stop-opacity="0" />
+                <stop offset="1" stopColor="#FF5758" stop-opacity=".1" />
             </radialGradient>
             <radialGradient
                 id="paint2_radial_15251_63610"
@@ -99,8 +99,8 @@ export const CuoiIcon = ({ fill }) => (
                 gradientUnits="userSpaceOnUse"
                 gradientTransform="rotate(45 -4.5272 10.9202) scale(10.1818)"
             >
-                <stop stop-color="#FFF287" />
-                <stop offset="1" stop-color="#FFF287" stop-opacity="0" />
+                <stop stopColor="#FFF287" />
+                <stop offset="1" stopColor="#FFF287" stop-opacity="0" />
             </radialGradient>
             <linearGradient
                 id="paint0_linear_15251_63610"
@@ -110,8 +110,8 @@ export const CuoiIcon = ({ fill }) => (
                 y2="13.5993"
                 gradientUnits="userSpaceOnUse"
             >
-                <stop stop-color="#FFF287" />
-                <stop offset="1" stop-color="#F68628" />
+                <stop stopColor="#FFF287" />
+                <stop offset="1" stopColor="#F68628" />
             </linearGradient>
             <linearGradient
                 id="paint3_linear_15251_63610"
@@ -121,13 +121,60 @@ export const CuoiIcon = ({ fill }) => (
                 y2="14.2452"
                 gradientUnits="userSpaceOnUse"
             >
-                <stop stop-color="#FF60A4" />
-                <stop offset=".2417" stop-color="#FA2E3E" />
-                <stop offset="1" stop-color="#BC0A26" />
+                <stop stopColor="#FF60A4" />
+                <stop offset=".2417" stopColor="#FA2E3E" />
+                <stop offset="1" stopColor="#BC0A26" />
             </linearGradient>
             <clipPath id="clip0_15251_63610">
                 <path fill="#fff" d="M-.002 0h16v15.9992h-16z" />
             </clipPath>
         </defs>
+    </svg>
+);
+export const PhoneIcon = ({ fill }) => (
+    <svg viewBox="0 0 12 13" width="20" height="20" fill="currentColor">
+        <g stroke="none" stroke-width="1" fill-rule="evenodd">
+            <path
+                d="M109.492 925.682a1.154 1.154 0 0 0-.443-.81 10.642 10.642 0 0 0-1.158-.776l-.211-.125c-.487-.29-.872-.514-1.257-.511a3.618 3.618 0 0 0-.693.084c-.304.07-.6.302-.88.69a3.365 3.365 0 0 0-.297.494l.449.22-.507-.202-.13-.074a8.53 8.53 0 0 1-3.04-3.043l-.071-.124.019-.057v-.001c.168-.083.334-.183.492-.297.162-.117.552-.432.681-.842.063-.2.075-.407.086-.59l.007-.116c.029-.389-.197-.764-.482-1.237l-.153-.256c-.322-.55-.6-.933-.775-1.158a1.155 1.155 0 0 0-.811-.443c-.36-.031-1.066.01-1.748.608-1.018.896-1.326 2.25-.845 3.714a11.734 11.734 0 0 0 2.834 4.612 11.732 11.732 0 0 0 4.61 2.833c.455.149.897.222 1.32.222.94 0 1.777-.364 2.395-1.067.599-.681.639-1.387.608-1.748"
+                transform="translate(-450 -1073) translate(352.5 157)"
+            ></path>
+        </g>
+    </svg>
+);
+
+export const VideoCallIcon = ({ fill }) => (
+    <svg viewBox="0 0 12 13" width="20" height="20" fill="currentColor">
+        <g fill-rule="evenodd" transform="translate(-450 -1073)">
+            <path d="M461.583 1076.078a.732.732 0 0 0-.774.073l-.612.466a.498.498 0 0 0-.197.398v4.97c0 .157.072.304.197.398l.612.466a.736.736 0 0 0 .774.073.749.749 0 0 0 .417-.677v-5.49a.75.75 0 0 0-.417-.677m-4.562-1.557h-5.043A1.98 1.98 0 0 0 450 1076.5v6.021a1.98 1.98 0 0 0 1.978 1.979h5.043a1.98 1.98 0 0 0 1.979-1.979v-6.021a1.98 1.98 0 0 0-1.978-1.979"></path>
+        </g>
+    </svg>
+);
+
+export const ExtendChatIcon = ({ fill }) => (
+    <svg height="24px" name="icon" role="presentation" viewBox="0 0 36 36" width="24px">
+        <g transform="translate(18,18)scale(1.2)translate(-18,-18)">
+            <path d="M18,10 C16.6195,10 15.5,11.119 15.5,12.5 C15.5,13.881 16.6195,15 18,15 C19.381,15 20.5,13.881 20.5,12.5 C20.5,11.119 19.381,10 18,10 Z M16,25 C16,25.552 16.448,26 17,26 L19,26 C19.552,26 20,25.552 20,25 L20,18 C20,17.448 19.552,17 19,17 L17,17 C16.448,17 16,17.448 16,18 L16,25 Z M18,30 C11.3725,30 6,24.6275 6,18 C6,11.3725 11.3725,6 18,6 C24.6275,6 30,11.3725 30,18 C30,24.6275 24.6275,30 18,30 Z"></path>
+        </g>
+    </svg>
+);
+export const SendFileIcon = ({ fill }) => (
+    <svg class="x1lliihq x1tzjh5l" height="20px" viewBox="0 -1 17 17" width="20px">
+        <g fill="none" fill-rule="evenodd">
+            <path
+                d="M2.882 13.13C3.476 4.743 3.773.48 3.773.348L2.195.516c-.7.1-1.478.647-1.478 1.647l1.092 11.419c0 .5.2.9.4 1.3.4.2.7.4.9.4h.4c-.6-.6-.727-.951-.627-2.151z"
+                fill="var(--chat-composer-button-color)"
+            ></path>
+            <circle cx="8.5" cy="4.5" fill="var(--chat-composer-button-color)" r="1.5"></circle>
+            <path
+                d="M14 6.2c-.2-.2-.6-.3-.8-.1l-2.8 2.4c-.2.1-.2.4 0 .6l.6.7c.2.2.2.6-.1.8-.1.1-.2.1-.4.1s-.3-.1-.4-.2L8.3 8.3c-.2-.2-.6-.3-.8-.1l-2.6 2-.4 3.1c0 .5.2 1.6.7 1.7l8.8.6c.2 0 .5 0 .7-.2.2-.2.5-.7.6-.9l.6-5.9L14 6.2z"
+                fill="var(--chat-composer-button-color)"
+            ></path>
+            <path
+                d="M13.9 15.5l-8.2-.7c-.7-.1-1.3-.8-1.3-1.6l1-11.4C5.5 1 6.2.5 7 .5l8.2.7c.8.1 1.3.8 1.3 1.6l-1 11.4c-.1.8-.8 1.4-1.6 1.3z"
+                stroke="var(--chat-composer-button-color)"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+            ></path>
+        </g>
     </svg>
 );

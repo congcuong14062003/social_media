@@ -127,15 +127,15 @@ function CreateStory() {
     const handleCancel = () => {
         setOpenTextStory(false);
         setOpenImageStory(false);
-        // setHiddenCropper(false);
-        // setBtnCutImage(false);
-        // setFileInput("")
+        setHiddenCropper(false);
+        setBtnCutImage(false);
+        setFileInput("")
     };
-    // // Xử lí cắt ảnh
-    // const handleCutImage = () => {
-    //     setHiddenCropper(true);
-    //     setBtnCutImage(true);
-    // };
+    // Xử lí cắt ảnh
+    const handleCutImage = () => {
+        setHiddenCropper(true);
+        setBtnCutImage(true);
+    };
     const handleImageClick = () => {
         setHiddenCropper(false);
         setBtnCutImage(false);
@@ -361,11 +361,11 @@ function CreateStory() {
                                         )}
                                     </div>
                                 )}
-                                {/* {btnCutImage  || (
+                                {btnCutImage  || (
                                     <div className="btn_cut_image" onClick={handleCutImage}>
                                     <ButtonCustom title="Cắt ảnh" />
                                     </div>
-                                )} */}
+                                )}
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,15 @@
+.link_full_notice {
+    text-align: end;
+    margin-top: -20px;
+    a {
+        padding: 8px;
+        font-size: var(--fourteen-px);
+        color: var(--primary-color);
+        &:hover {
+            border-radius: 5px;
+            background-color: var(--secondary-button);
+        }
+    }
+}
+.list_notice {
+}

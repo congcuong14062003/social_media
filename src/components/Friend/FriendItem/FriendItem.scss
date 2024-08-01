@@ -1,0 +1,16 @@
+.friend_item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+    border-radius: 8px;
+    .name_friend {
+        margin-left: 10px;
+        font-size: var(--fourteen-px);
+        font-weight: var(--main-font-weight);
+        color: var(--primary-text)
+    }
+    &:hover {
+        background-color: var(--secondary-button);
+    }
+}

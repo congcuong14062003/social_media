@@ -1,0 +1,26 @@
+.notice_item_container {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 5px;
+    .avatar_notice {
+        .avatar_user {
+            width: 56px;
+            height: 56px;
+        }
+    }
+    .content_notice {
+        margin-left: 10px;
+        .title_notice {
+            color: var(--primary-text);
+            font-size: var(--fourteen-px);
+        }
+        .time_notice {
+            color: var(--secondary-text);
+            font-size: var(--twelve-px);
+        }
+    }
+    &:hover {
+        background-color: var(--secondary-button);
+    }
+}

@@ -1,0 +1,82 @@
+.messenger_container {
+    height: calc(100vh - var(--header-height));
+    background-color: var(--card-background);
+    display: flex;
+    .left_messenger {
+        width: 360px;
+        height: 100%;
+        border-right: 1px solid var(--border-color);
+        .popover_container {
+            height: 100%;
+            max-height: 100%;
+            .body_popover {
+                height: 90%;
+                padding-right: 0px;
+                .chat_container {
+                    height: 100%;
+                    overflow: auto;
+                }
+            }
+        }
+    }
+    .center_messenger {
+        height: 100%;
+        overflow-y: hidden;
+        flex: 1;
+        border-right: 1px solid var(--border-color);
+        .messages_container {
+            position: relative;
+            height: 100%;
+            .chat_header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 6px 10px;
+                box-shadow: 0 2px 4px 0 var(--box-shadow1), 0 2px 15px 0 var(--box-shadow2);
+                border-bottom: 1px solid var(--comment-backgroud);
+                .friend_item {
+                    padding: 6px 10px;
+                    .name_friend {
+                        font-size: var(--sixteen-px);
+                    }
+                }
+                .action_call {
+                    display: flex;
+                    align-items: center;
+                    .action_chat {
+                        width: 36px;
+                        display: flex;
+                        margin: 0 5px;
+                        align-items: center;
+                        justify-content: center;
+                        height: 36px;
+                        border-radius: 50%;
+                        color: var(--primary-color);
+                        svg path {
+                            fill: var(--primary-color);
+                        }
+                        &:hover {
+                            cursor: pointer;
+                            background-color: var(--secondary-button);
+                        }
+                    }
+                }
+            }
+            .chat_body {
+            }
+            .chat_footer {
+                box-shadow: 0 2px 4px 0 var(--box-shadow1), 0 2px 15px 0 var(--box-shadow2);
+                border-top: 1px solid var(--comment-backgroud);
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 8px 10px;
+            }
+        }
+    }
+    .right_messenger {
+        width: 360px;
+        height: 100%;
+    }
+}

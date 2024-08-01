@@ -1,0 +1,16 @@
+.popover_container {
+    width: 360px;
+    max-height: 650px;
+    padding: 20px 0;
+    .title_popover {
+        padding: 0 16px;
+        margin-bottom: 16px;
+        color: var(--primary-text);
+        font-size: var(--twenty-four-px);
+        font-weight: var(--bold-font-weight);
+    }
+    .body_popover {
+        padding: 8px;
+        padding-top: 0px;
+    }
+}

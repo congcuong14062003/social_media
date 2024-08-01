@@ -8,18 +8,24 @@ import './Login.scss';
 import signUpWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth
 import config from '../../configs';
+import signUpWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
 
 function Login() {
-    const [email, setEmail] = useState('cuongkoi1406@gmail.com');
-    const [password, setPassword] = useState('123');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const { login } = useAuth(); // Use login function from context
 
     async function handleSubmit(e) {
         e.preventDefault();
+        if (!email || !password) {
+            console.log('vào');
+            toast.error('Vui lòng nhập đầy đủ thông tin');
+            return;
+        }
         const payload = {
-            email: email,
-            password: password,
+            user_email: email,
+            user_password: password,
         };
         try {
             const response = await fetch('http://localhost:5000/users/login', {
@@ -50,6 +56,9 @@ function Login() {
     const handleLoginWithGoogle = () => {
         signUpWithGoogle();
     };
+    const handleLoginWithFaceBook = () => {
+        signUpWithFacebook();
+    };
     return (
         <div className="login_container">
             <div className="bt-form-login-simple-1">
@@ -73,6 +82,51 @@ function Login() {
                         ></path>
                     </svg>
                     Login in with Google
+                </a>
+                <a onClick={handleLoginWithFaceBook} href="#" className="btn-login-google">
+                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25" height="25" viewBox="0 0 64 64">
+                        <radialGradient
+                            id="nT5WH7nXAOiS46rXmee3Oa_msQ6HdxpqUmi_gr1"
+                            cx="33.34"
+                            cy="27.936"
+                            r="43.888"
+                            gradientTransform="matrix(1 0 0 -1 0 66)"
+                            gradientUnits="userSpaceOnUse"
+                        >
+                            <stop offset="0" stop-color="#f4e9c3"></stop>
+                            <stop offset=".219" stop-color="#f8eecd"></stop>
+                            <stop offset=".644" stop-color="#fdf4dc"></stop>
+                            <stop offset="1" stop-color="#fff6e1"></stop>
+                        </radialGradient>
+                        <path
+                            fill="url(#nT5WH7nXAOiS46rXmee3Oa_msQ6HdxpqUmi_gr1)"
+                            d="M51.03,37.34c0.16,0.98,1.08,1.66,2.08,1.66h5.39c2.63,0,4.75,2.28,4.48,4.96	C62.74,46.3,60.64,48,58.29,48H49c-1.22,0-2.18,1.08-1.97,2.34c0.16,0.98,1.08,1.66,2.08,1.66h8.39c1.24,0,2.37,0.5,3.18,1.32	C61.5,54.13,62,55.26,62,56.5c0,2.49-2.01,4.5-4.5,4.5h-49c-1.52,0-2.9-0.62-3.89-1.61C3.62,58.4,3,57.02,3,55.5	C3,52.46,5.46,50,8.5,50H14c1.22,0,2.18-1.08,1.97-2.34C15.81,46.68,14.89,44,13.89,44H5.5c-2.63,0-4.75-2.28-4.48-4.96	C1.26,36.7,3.36,35,5.71,35H8c1.71,0,3.09-1.43,3-3.16C10.91,30.22,9.45,29,7.83,29H4.5c-2.63,0-4.75-2.28-4.48-4.96	C0.26,21.7,2.37,20,4.71,20H20c0.83,0,1.58-0.34,2.12-0.88C22.66,18.58,23,17.83,23,17c0-1.66-1.34-3-3-3h-1.18	c-0.62-0.09-1.43,0-2.32,0h-9c-1.52,0-2.9-0.62-3.89-1.61S2,10.02,2,8.5C2,5.46,4.46,3,7.5,3h49c3.21,0,5.8,2.79,5.47,6.06	C61.68,11.92,60.11,14,57.24,14H52c-2.76,0-5,2.24-5,5c0,1.38,0.56,2.63,1.46,3.54C49.37,23.44,50.62,24,52,24h6.5	c3.21,0,5.8,2.79,5.47,6.06C63.68,32.92,61.11,35,58.24,35H53C51.78,35,50.82,36.08,51.03,37.34z"
+                        ></path>
+                        <linearGradient
+                            id="nT5WH7nXAOiS46rXmee3Ob_msQ6HdxpqUmi_gr2"
+                            x1="32"
+                            x2="32"
+                            y1="-3.34"
+                            y2="59.223"
+                            gradientTransform="matrix(1 0 0 -1 0 66)"
+                            gradientUnits="userSpaceOnUse"
+                        >
+                            <stop offset="0" stop-color="#155cde"></stop>
+                            <stop offset=".278" stop-color="#1f7fe5"></stop>
+                            <stop offset=".569" stop-color="#279ceb"></stop>
+                            <stop offset=".82" stop-color="#2cafef"></stop>
+                            <stop offset="1" stop-color="#2eb5f0"></stop>
+                        </linearGradient>
+                        <path
+                            fill="url(#nT5WH7nXAOiS46rXmee3Ob_msQ6HdxpqUmi_gr2)"
+                            d="M58,32c0,13.35-10.05,24.34-23,25.83C34.02,57.94,33.01,58,32,58c-1.71,0-3.38-0.17-5-0.49	C15.03,55.19,6,44.65,6,32C6,17.64,17.64,6,32,6S58,17.64,58,32z"
+                        ></path>
+                        <path
+                            fill="#fff"
+                            d="M42.8,36.05l-0.76,2C41.6,39.22,40.46,40,39.19,40H35v17.83C34.02,57.94,33.01,58,32,58	c-1.71,0-3.38-0.17-5-0.49V40h-2.95C22.36,40,21,38.66,21,37v-2c0-1.66,1.36-3,3.05-3H27v-6c0-5.51,4.49-10,10-10h3	c2.21,0,4,1.79,4,4s-1.79,4-4,4h-3c-1.1,0-2,0.9-2,2v6h4.95C42.08,32,43.55,34.09,42.8,36.05z"
+                        ></path>
+                    </svg>
+                    Login in with Facebook
                 </a>
                 <div className="text-wrap">
                     <div className="text-line"></div>
@@ -101,10 +155,6 @@ function Login() {
                         />
                     </div>
                     <div className="form-meta">
-                        <div className="form-remember">
-                            <input type="checkbox" name="remember-account" id="remember-account" />
-                            <label htmlFor="remember-account">Remember for 30 days</label>
-                        </div>
                         <a href="#" className="form-link">
                             Forgot Password
                         </a>

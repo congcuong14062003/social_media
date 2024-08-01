@@ -28,6 +28,7 @@ const images = {
     bg8: require('./bg8.jpg'),
     bg9: require('./bg9.jpg'),
     bg10: require('./bg10.jpg'),
+    bglogin: require('./bglogin.jpg'),
 };
 
 export default images;

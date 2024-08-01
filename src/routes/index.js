@@ -5,6 +5,7 @@ import CreateStory from '../pages/CreateStory/CreateStory';
 import GroupPage from '../pages/GroupPage/GroupPage';
 import HomePage from '../pages/HomePage/HomePage';
 import Login from '../pages/Login/Login';
+import MessagesPage from '../pages/Messages/Messages';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import Signup from '../pages/Signup/Signup';
 import VideoPage from '../pages/VideoPage/VideoPage';
@@ -36,6 +37,10 @@ const publicRouter = [
         path: '/story/create',
         component: CreateStory,
         // layout: CreateStory,
+    },
+    {
+        path: '/messages',
+        component: MessagesPage,
     },
     {
         path: '/profile',

@@ -3,9 +3,10 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-family);
 }
 :root {
+    --font-family: 'ProximaNova', sans-serif;
     --border-color: #bfbfbf;
     --header-height: 56px;
     --alway-white: #fff;
@@ -21,7 +22,7 @@
     --secondary-button: #e4e6eb;
     --icon-color: #080808;
     --survey-backgroud: #ffffff;
-    --right-background-story: #f1f2f6; 
+    --right-background-story: #f1f2f6;
     --shadow-2: rgba(0, 0, 0, 0.2);
     --divider-color: #ced0d4;
     --disable-button: #e4e6eb;
@@ -43,6 +44,7 @@
     --twenty-px: 2rem;
     --twenty-one-px: 2.1rem;
     --twenty-four-px: 2.4rem;
+    --bold-font-weight: 700;
     --main-font-weight: 600;
     --secon-font-weight: 500;
     --third-font-weight: 400;
@@ -50,7 +52,7 @@
 
 [data-theme='dark'] {
     --invert: 100%;
-    --right-background-story: #18191b; 
+    --right-background-story: #18191b;
     --border-color: #5b5c5e;
     --divider-color: #3e4042;
     --disable-button: rgba(255, 255, 255, 0.2);
@@ -74,12 +76,36 @@
     --box-shadow2: rgba(255, 255, 255, 0.06);
 }
 
-
 html {
     font-size: 62.5%;
 }
+
+@font-face {
+    font-family: ProximaNova;
+    src: url('/assets/fonts/Proxima-Nova-Regular.woff2');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: ProximaNova;
+    src: url('/assets/fonts/ProximaNova-Semibold.woff2');
+    font-weight: 600;
+}
+
+@font-face {
+    font-family: ProximaNova;
+    src: url('/assets/fonts/Proxima-Nova-Bold.woff');
+    font-weight: 700;
+}
+
+@font-face {
+    font-family: SofiaPro;
+    src: url('/assets/fonts/sofiapro-bold.woff');
+    font-weight: 700;
+}
 ::-webkit-scrollbar {
     width: 8px;
+    // display: none;
 }
 
 ::-webkit-scrollbar-track {

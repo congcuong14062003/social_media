@@ -14,4 +14,12 @@
     svg path {
         fill: var(--icon-color);
     }
+    &:hover {
+        cursor: pointer;
+    }
+}
+.active_popover {
+    svg path {
+        fill: var(--primary-color);
+    }
 }

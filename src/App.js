@@ -4,13 +4,11 @@ import { publicRouter } from './routes';
 import { DefaultLayout } from './Layout';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
-import Login from './pages/Login/Login';
-import Signup from './pages/Signup/Signup'; // Import component Signup
 
 function App() {
     return (
         <Router>
-            <AuthProvider>
+            {/* <AuthProvider> */}
                 <Routes>
                     {publicRouter.map((route, index) => {
                         const Layout = route.layout || DefaultLayout;
@@ -36,11 +34,11 @@ function App() {
                                 key={index}
                                 path={route.path}
                                 element={
-                                    <ProtectedRoute>
+                                    // <ProtectedRoute>
                                         <Layout>
                                             <Page />
                                         </Layout>
-                                    </ProtectedRoute>
+                                    // </ProtectedRoute>
                                 }
                             >
                                 {route.childrenRouter &&
@@ -49,18 +47,14 @@ function App() {
                                             exact
                                             key={child.path}
                                             path={child.path}
-                                            element={
-                                                <ProtectedRoute>
-                                                    {child.component}
-                                                </ProtectedRoute>
-                                            }
+                                            element={child.component}
                                         />
                                     ))}
                             </Route>
                         );
                     })}
                 </Routes>
-            </AuthProvider>
+            {/* </AuthProvider> */}
         </Router>
     );
 }

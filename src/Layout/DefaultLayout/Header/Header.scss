@@ -86,9 +86,12 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-   
-       .primary_icon_background {
-        margin-right: 5px;
-       }
+
+        .primary_icon_background {
+            margin-right: 5px;
+        }
     }
+}
+.popover_custom {
+    background-color: var(--card-background) !important;
 }
