@@ -1,0 +1,30 @@
+.receiver_user_container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    // justify-content: flex-start;
+    align-items: flex-start;
+    .content_receiver {
+        background-color: var(--comment-backgroud);
+        width: max-content;
+        max-width: 600px;
+        padding: 10px 20px;
+        border-radius: 50px;
+        span {
+            word-break: break-word;
+            color: var(--primary-text);
+            font-size: var(--fourteen-px);
+            font-weight: var(--secon-font-weight);
+        }
+    }
+}
+.sender {
+    align-items: flex-end;
+    .content_receiver {
+        justify-self: end;
+        background-color: var(--primary-color);
+        span {
+            color: var(--alway-white);
+        }
+    }
+}

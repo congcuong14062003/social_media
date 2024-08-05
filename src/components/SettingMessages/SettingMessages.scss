@@ -1,0 +1,49 @@
+.setting_message_container {
+    padding: 20px 12px;
+    .receiver_infor {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        .avatar_receiver {
+            .avatar_user {
+                width: 80px;
+                height: 80px;
+            }
+        }
+        .name_receiver {
+            margin: 10px 0;
+            color: var(--primary-text);
+            font-weight: var(--main-font-weight);
+            font-size: var(--eighteen-px);
+        }
+        .action_sender {
+            display: flex;
+            align-items: center;
+            .search_messages {
+                margin-left: 30px;
+            }
+        }
+    }
+    .list_action {
+        margin-top: 20px;
+        .item_action {
+            padding: 10px 8px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            svg path {
+                fill: var(--icon-color);
+            }
+            span {
+                color: var(--primary-text);
+                font-weight: var(--secon-font-weight);
+                size: var(--fourteen-px);
+                margin-left: 5px;
+            }
+            &:hover {
+                cursor: pointer;
+                background-color: var(--secondary-button);
+            }
+        }
+    }
+}

@@ -10,6 +10,7 @@ import PrimaryIcon from '../../../components/PrimaryIcon/PrimaryIcon';
 import config from '../../../configs';
 import PopoverNotice from '../../../components/Popover/PopoverNotice/PopoverNotice';
 import PopoverChat from '../../../components/Popover/PopoverChat/PopoverChat';
+import PopoverMe from '../../../components/Popover/PopoverMe/PopoverMe';
 
 function Header() {
     const [darkMode, setDarkMode] = useState(false);
@@ -37,16 +38,20 @@ function Header() {
     const [popoverContent, setPopoverContent] = useState(null);
     const [activeMessage, setActiveMessage] = useState(false);
     const [activeNotice, setActiveNotice] = useState(false);
+    const [activeMe, setActiveMe] = useState(false);
+
     const handleClickPopover = (event, content) => {
         if (anchorEl && popoverContent) {
             handleClosePopover(); // This will close the current popover
         }
         setAnchorEl(event.currentTarget);
         setPopoverContent(content);
-        if (content == 'chat') {
+        if (content === 'chat') {
             setActiveMessage(true);
-        } else if (content == 'notice') {
+        } else if (content === 'notice') {
             setActiveNotice(true);
+        } else if (content === 'me') {
+            setActiveMe(true);
         }
     };
 
@@ -54,7 +59,7 @@ function Header() {
         setAnchorEl(null);
         setActiveMessage(false);
         setActiveNotice(false);
-        // setPopoverContent(null);
+        setActiveMe(false);
     };
 
     const open = Boolean(anchorEl);
@@ -114,6 +119,9 @@ function Header() {
                     icon={<NoticeIcon />}
                     onClick={(e) => handleClickPopover(e, 'notice')}
                 />
+                <div className="avatar_me" onClick={(e) => handleClickPopover(e, 'me')}>
+                    <AvatarUser />
+                </div>                
                 <Popover
                     id={id}
                     open={open}
@@ -130,10 +138,15 @@ function Header() {
                     classes={{ paper: 'popover_custom' }}
                 >
                     <Typography sx={{ p: 0 }}>
-                        {popoverContent === 'notice' ? <PopoverNotice /> : <PopoverChat />}
+                        {popoverContent === 'notice' ? (
+                            <PopoverNotice />
+                        ) : popoverContent === 'chat' ? (
+                            <PopoverChat />
+                        ) : (
+                            <PopoverMe />
+                        )}
                     </Typography>
                 </Popover>
-                <AvatarUser />
             </div>
         </div>
     );

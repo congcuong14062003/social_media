@@ -6,7 +6,10 @@
     font-family: var(--font-family);
 }
 :root {
-    --font-family: 'ProximaNova', sans-serif;
+    // --font-family: "IBM Plex Sans", TikTokFont, Arial, Tahoma, PingFangSC, sans-serif;
+    --font-family: 'Arial', sans-serif;
+    --font-family: 'Poppins', sans-serif;
+    --hover-item: #f2f2f2;
     --border-color: #bfbfbf;
     --header-height: 56px;
     --alway-white: #fff;
@@ -55,6 +58,7 @@
     --right-background-story: #18191b;
     --border-color: #5b5c5e;
     --divider-color: #3e4042;
+    --hover-item: #3a3b3d;
     --disable-button: rgba(255, 255, 255, 0.2);
     --disable-button-text: rgba(255, 255, 255, 0.3);
     --card-background: #242526;
@@ -79,30 +83,14 @@
 html {
     font-size: 62.5%;
 }
-
 @font-face {
-    font-family: ProximaNova;
-    src: url('/assets/fonts/Proxima-Nova-Regular.woff2');
-    font-weight: 400;
-}
-
-@font-face {
-    font-family: ProximaNova;
-    src: url('/assets/fonts/ProximaNova-Semibold.woff2');
-    font-weight: 600;
-}
-
-@font-face {
-    font-family: ProximaNova;
-    src: url('/assets/fonts/Proxima-Nova-Bold.woff');
-    font-weight: 700;
-}
-
-@font-face {
-    font-family: SofiaPro;
-    src: url('/assets/fonts/sofiapro-bold.woff');
-    font-weight: 700;
-}
+    font-family: 'Proxima Nova';
+    src: url('../../assets/fonts/Proxima-Nova-Regular.woff2') format('woff2'),
+         url('../../assets/fonts/Proxima-Nova-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
 ::-webkit-scrollbar {
     width: 8px;
     // display: none;

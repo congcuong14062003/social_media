@@ -30,6 +30,32 @@ function PopoverChat() {
                 <ChatItem />
                 <ChatItem />
                 <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
+                <ChatItem />
             </div>
         </Popover>
     );

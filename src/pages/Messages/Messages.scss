@@ -1,5 +1,5 @@
 .messenger_container {
-    height: calc(100vh - var(--header-height));
+    height: 100%;
     background-color: var(--card-background);
     display: flex;
     .left_messenger {
@@ -10,7 +10,7 @@
             height: 100%;
             max-height: 100%;
             .body_popover {
-                height: 90%;
+                height: 89%;
                 padding-right: 0px;
                 .chat_container {
                     height: 100%;
@@ -25,14 +25,15 @@
         flex: 1;
         border-right: 1px solid var(--border-color);
         .messages_container {
-            position: relative;
+            display: flex;
+            flex-direction: column;
             height: 100%;
             .chat_header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 padding: 6px 10px;
-                box-shadow: 0 2px 4px 0 var(--box-shadow1), 0 2px 15px 0 var(--box-shadow2);
+                box-shadow: 0 0px 0px 0 var(--box-shadow1), 0 0px 8px 0 var(--box-shadow2);
                 border-bottom: 1px solid var(--comment-backgroud);
                 .friend_item {
                     padding: 6px 10px;
@@ -63,15 +64,45 @@
                 }
             }
             .chat_body {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: auto; /* Cho phép cuộn */
+                .chat_main_infor {
+                    flex: 1; /* Chiếm toàn bộ không gian còn lại */
+                    padding: 20px;
+                    overflow-y: auto; /* Cho phép cuộn theo chiều dọc */
+                }
             }
             .chat_footer {
                 box-shadow: 0 2px 4px 0 var(--box-shadow1), 0 2px 15px 0 var(--box-shadow2);
                 border-top: 1px solid var(--comment-backgroud);
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
                 padding: 8px 10px;
+                display: flex;
+                align-items: center;
+                .send_file_input,
+                .send_mesage_action,
+                .like_message_action {
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    border-radius: 50%;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    &:hover {
+                        background-color: var(--secondary-button);
+                    }
+                }
+                .hidden {
+                    display: none;
+                }
+                .search_container {
+                    flex: 1;
+                    margin-right: 10px;
+                }
+                .send_mesage_action {
+                }
             }
         }
     }

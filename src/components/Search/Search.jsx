@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IoSendSharp } from 'react-icons/io5';
 import { IoCameraOutline } from "react-icons/io5";
 import './Search.scss';
-function Search({ placeholder, onChange, icon, onClick, iconSearch, handleOpenFile, handleSendMessage}) {
+function Search({ placeholder, onChange, icon, onClick, iconSearch, handleOpenFile, handleSendMessage, value}) {
     return (
         <div className="search_container" onClick={onClick}>
             {iconSearch && (
@@ -11,7 +11,7 @@ function Search({ placeholder, onChange, icon, onClick, iconSearch, handleOpenFi
                     <FontAwesomeIcon fontSize="15px" icon={faMagnifyingGlass} />
                 </div>
             )}
-            <input type="text" onChange={onChange} placeholder={placeholder} />
+            <input type="text" value={value} onChange={onChange} placeholder={placeholder} />
             {icon && (
                 <>
                     <div className="camera_comment" onClick={handleOpenFile}>
