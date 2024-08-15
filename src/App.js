@@ -1,22 +1,23 @@
 // src/App.js
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRouter } from './routes';
 import { DefaultLayout } from './Layout';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
+import PrivateRoute from './components/PrivateRouter/PrivateRouter';
+import { ToastContainer } from 'react-toastify'; // Import ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS
 
 function App() {
     return (
         <Router>
-            {/* <AuthProvider> */}
-                <Routes>
-                    {publicRouter.map((route, index) => {
-                        const Layout = route.layout || DefaultLayout;
-                        const Page = route.component;
-
-                        // Nếu là route login hoặc signup thì không cần bảo vệ
-                        if (route.path === '/login' || route.path === '/signup') {
-                            return (
+            <ToastContainer /> {/* Add ToastContainer here */}
+            <Routes>
+                {publicRouter.map((route, index) => {
+                    const Layout = route.layout || DefaultLayout;
+                    const Page = route.component;
+                    if (route.requireAuth) {
+                        return (
+                            <Route key={index} element={<PrivateRoute />}>
                                 <Route
                                     key={index}
                                     path={route.path}
@@ -25,36 +26,33 @@ function App() {
                                             <Page />
                                         </Layout>
                                     }
-                                />
-                            );
-                        }
-
-                        return (
-                            <Route
-                                key={index}
-                                path={route.path}
-                                element={
-                                    // <ProtectedRoute>
-                                        <Layout>
-                                            <Page />
-                                        </Layout>
-                                    // </ProtectedRoute>
-                                }
-                            >
-                                {route.childrenRouter &&
-                                    route.childrenRouter.map((child, indexChild) => (
-                                        <Route
-                                            exact
-                                            key={child.path}
-                                            path={child.path}
-                                            element={child.component}
-                                        />
-                                    ))}
+                                >
+                                    {route.childrenRouter &&
+                                        route.childrenRouter.map((child, indexChild) => (
+                                            <Route exact key={child.path} path={child.path} element={child.component} />
+                                        ))}
+                                </Route>
                             </Route>
                         );
-                    })}
-                </Routes>
-            {/* </AuthProvider> */}
+                    }
+                    return (
+                        <Route
+                            key={index}
+                            path={route.path}
+                            element={
+                                <Layout>
+                                    <Page />
+                                </Layout>
+                            }
+                        >
+                            {route.childrenRouter &&
+                                route.childrenRouter.map((child, indexChild) => (
+                                    <Route exact key={child.path} path={child.path} element={child.component} />
+                                ))}
+                        </Route>
+                    );
+                })}
+            </Routes>
         </Router>
     );
 }

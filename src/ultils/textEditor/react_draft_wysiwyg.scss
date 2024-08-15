@@ -1,0 +1,33 @@
+.editor-container {
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 2px;
+  margin: 0 5px 20px;
+  .rdw-editor-toolbar {
+    border-bottom: none;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+  }
+
+  span {
+    color: black;
+  }
+
+  .rdw-option-wrapper {
+    border: 1px solid #ddd;
+    margin: 2px;
+    padding: 5px;
+    border-radius: 4px;
+  }
+  .rdw-editor-main {
+    padding: 10px;
+    border: 1px solid #ddd;
+    color: #333; /* Default text color */
+    overflow: auto;
+    height: 200px;
+    a {
+      color: #0962d5; /* Link color */
+    }
+  }
+}

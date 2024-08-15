@@ -37,7 +37,7 @@ function Signup() {
             if (response.data.status === 200) {
                 toast.success(response.data.message);
                 setTimeout(() => {
-                    navigate('/');
+                    navigate('/login');
                 }, 1000);
             } else {
                 toast.error(response.data.message || 'An error occurred');
@@ -97,7 +97,6 @@ function Signup() {
                     <Link to={config.routes.login}> Đăng nhập</Link>
                 </div>
             </div>
-            <ToastContainer /> 
         </div>
     );
 }

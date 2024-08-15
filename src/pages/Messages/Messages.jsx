@@ -21,6 +21,8 @@ function MessagesPage() {
     const handleInputChange = (e) => {
         setMessage(e.target.value);
     };
+
+    
     return (
         <div className="messenger_container">
             <div className="left_messenger">

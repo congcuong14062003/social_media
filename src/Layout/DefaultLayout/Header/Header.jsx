@@ -13,26 +13,26 @@ import PopoverChat from '../../../components/Popover/PopoverChat/PopoverChat';
 import PopoverMe from '../../../components/Popover/PopoverMe/PopoverMe';
 
 function Header() {
-    const [darkMode, setDarkMode] = useState(false);
-    const navigate = useNavigate();
-    const handleThemeChange = () => {
-        const newDarkMode = !darkMode;
-        setDarkMode(newDarkMode);
-        localStorage.setItem('darkMode', newDarkMode);
-    };
+    // const [darkMode, setDarkMode] = useState(false);
+    // const navigate = useNavigate();
+    // const handleThemeChange = () => {
+    //     const newDarkMode = !darkMode;
+    //     setDarkMode(newDarkMode);
+    //     localStorage.setItem('darkMode', newDarkMode);
+    // };
 
-    useEffect(() => {
-        const saveDarkMode = localStorage.getItem('darkMode') === 'true';
-        setDarkMode(saveDarkMode);
-    }, []);
+    // useEffect(() => {
+    //     const saveDarkMode = localStorage.getItem('darkMode') === 'true';
+    //     setDarkMode(saveDarkMode);
+    // }, []);
 
-    useEffect(() => {
-        if (darkMode) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-        }
-    }, [darkMode]);
+    // useEffect(() => {
+    //     if (darkMode) {
+    //         document.documentElement.setAttribute('data-theme', 'dark');
+    //     } else {
+    //         document.documentElement.removeAttribute('data-theme');
+    //     }
+    // }, [darkMode]);
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [popoverContent, setPopoverContent] = useState(null);
@@ -96,7 +96,7 @@ function Header() {
                 </NavLink>
             </div>
             <div className="right_header">
-                <FormControlLabel
+                {/* <FormControlLabel
                     value="start"
                     control={
                         <Switch
@@ -108,7 +108,7 @@ function Header() {
                     }
                     labelPlacement="start"
                     sx={{ '& .MuiFormControlLabel-label': { fontSize: '15px', color: '#050505' } }}
-                />
+                /> */}
                 <PrimaryIcon
                     className={activeMessage ? 'active_popover' : ''}
                     icon={<MessageIcon />}

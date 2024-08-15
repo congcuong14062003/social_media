@@ -15,36 +15,43 @@ const publicRouter = [
         path: '/login',
         component: Login,
         layout: Login,
+        requireAuth: false,
     },
     {
         path: '/signup',
         component: Signup,
         layout: Signup,
+        requireAuth: false,
     },
     {
         path: '/',
         component: HomePage,
+        requireAuth: true,
     },
     {
         path: '/video',
         component: VideoPage,
+        requireAuth: true,
     },
     {
         path: '/group',
         component: GroupPage,
+        requireAuth: true,
     },
     {
         path: '/story/create',
         component: CreateStory,
-        // layout: CreateStory,
+        requireAuth: true,
     },
     {
-        path: '/messages',
+        path: '/messages/:id',
         component: MessagesPage,
+        requireAuth: true,
     },
     {
         path: '/profile',
         component: ProfilePage,
+        requireAuth: true,
         childrenRouter: [
             { path: '', component: <PostProfile /> },
             { path: 'ban-be', component: <FriendProfile /> },
@@ -52,7 +59,5 @@ const publicRouter = [
         ],
     },
 ];
-const privateRouter = [
 
-];
-export { publicRouter, privateRouter };
+export { publicRouter };

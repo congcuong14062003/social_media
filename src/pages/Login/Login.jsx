@@ -1,20 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
-import axios from 'axios'; // Import axios
 import './Login.scss';
 import signUpWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
-import { useAuth } from '../../context/AuthContext'; // Import useAuth
 import config from '../../configs';
 import signUpWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
+import getToken from '../../ultils/getToken/get_token';
+import ShowPopupLoginWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
-    const { login } = useAuth(); // Use login function from context
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -39,11 +38,8 @@ function Login() {
             let res = await response.json();
             if (response.status === 200) {
                 console.log('Data: ', res);
-                login(res.user); // Save user data in context
                 toast.success(res.message);
-                setTimeout(() => {
                     navigate('/');
-                }, 1000);
             } else {
                 toast.error(res.message || 'An error occurred');
             }
@@ -52,13 +48,69 @@ function Login() {
             toast.error(error.response?.message || 'An error occurred');
         }
     }
+    useEffect(() => {
+        const storedToken = getToken();
+        if (storedToken) {
+            navigate('/');
+        }
+    }, []);
 
-    const handleLoginWithGoogle = () => {
-        signUpWithGoogle();
+    const handleLoginSocial = async (payload) => {
+        try {
+            const response = await fetch('http://localhost:5000/users/check-account', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+            if (response.status !== 200) {
+                const inforUser = {
+                    user_email: payload?.user_email,
+                    user_password: payload?.user_password,
+                };
+                const responseLogin = await fetch('http://localhost:5000/users/login', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(inforUser),
+                });
+                console.log(responseLogin);
+                
+                if (responseLogin.status === 200) {
+                    navigate('/');
+                } else {
+                    toast.error('Lỗi đăng nhập, vui lòng thử lại hoặc dùng phương thức đăng nhập khác');
+                }
+            } else {
+                const responseSignup = await fetch('http://localhost:5000/users/signup', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+                
+                if (responseSignup.ok) {
+                    await handleLoginSocial(payload);
+                }
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
+    const handleLoginWithGoogle = async () => {
+        const payload = await ShowPopupLoginWithGoogle();
+        await handleLoginSocial(payload);
     };
     const handleLoginWithFaceBook = () => {
         signUpWithFacebook();
     };
+
     return (
         <div className="login_container">
             <div className="bt-form-login-simple-1">
@@ -166,8 +218,6 @@ function Login() {
                     <Link to={config.routes.signup}>Đăng ký nhanh</Link>
                 </div>
             </div>
-            {/* Thêm ToastContainer vào component */}
-            <ToastContainer />
         </div>
     );
 }
