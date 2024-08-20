@@ -12,7 +12,7 @@ class Users {
     this.user_role = data.user_role || 0;
   }
 
-  async createUser() {
+  async signup() {
     try {
       const createUserQuery =
         "INSERT INTO users (user_id, user_name, user_email, user_password) VALUES (?, ?, ?, ?);";
@@ -30,7 +30,9 @@ class Users {
   }
 
   // tìm người dùng
-  static async findUser(user_email, user_password) {
+  static async login(user_email, user_password) {
+    console.log("vào");
+    
     try {
       const findUserQuery =
         "SELECT * FROM users WHERE user_email = ? and user_password = ?;";
