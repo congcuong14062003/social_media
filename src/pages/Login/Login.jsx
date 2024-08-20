@@ -9,45 +9,28 @@ import config from '../../configs';
 import signUpWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
 import getToken from '../../ultils/getToken/get_token';
 import ShowPopupLoginWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
+import { API_LOGIN_POST } from '../../API/api_server';
+import { postData } from '../../ultils/fetchAPI/fetch_API';
+import getDataForm from '../../ultils/getDataForm/get_data_form';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    async function handleSubmit(e) {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email || !password) {
             console.log('vào');
             toast.error('Vui lòng nhập đầy đủ thông tin');
             return;
         }
-        const payload = {
-            user_email: email,
-            user_password: password,
-        };
-        try {
-            const response = await fetch('http://localhost:5000/users/login', {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-            let res = await response.json();
-            if (response.status === 200) {
-                console.log('Data: ', res);
-                toast.success(res.message);
-                    navigate('/');
-            } else {
-                toast.error(res.message || 'An error occurred');
-            }
-        } catch (error) {
-            console.error('There was a problem with the request:', error);
-            toast.error(error.response?.message || 'An error occurred');
+        const data = getDataForm('.form_login');
+        const respone = await postData(API_LOGIN_POST, data)
+        if (respone?.status === 200) {
+            navigate('/');
         }
-    }
+    };
     useEffect(() => {
         const storedToken = getToken();
         if (storedToken) {
@@ -79,7 +62,7 @@ function Login() {
                     body: JSON.stringify(inforUser),
                 });
                 console.log(responseLogin);
-                
+
                 if (responseLogin.status === 200) {
                     navigate('/');
                 } else {
@@ -94,7 +77,7 @@ function Login() {
                     },
                     body: JSON.stringify(payload),
                 });
-                
+
                 if (responseSignup.ok) {
                     await handleLoginSocial(payload);
                 }
@@ -185,10 +168,11 @@ function Login() {
                     <p className="text">or</p>
                     <div className="text-line"></div>
                 </div>
-                <form className="form" autoComplete="off" onSubmit={handleSubmit}>
+                <form className="form_login form" autoComplete="off" onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="email">Email *</label>
                         <input
+                            name="user_email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -199,6 +183,7 @@ function Login() {
                     <div className="form-group">
                         <label htmlFor="password">Password *</label>
                         <input
+                            name="user_password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}

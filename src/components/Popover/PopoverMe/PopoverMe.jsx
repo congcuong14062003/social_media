@@ -11,22 +11,15 @@ import AvatarUser from '../../AvatarUser/AvatarUser';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRightFromBracket, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { deleteData } from '../../../ultils/fetchAPI/fetch_API';
+import { API_LOGOUT } from '../../../API/api_server';
 function PopoverMe() {
     const navigate = useNavigate();
     const handleLogout = async () => {
-        const response = await fetch('http://localhost:5000/users/logout', {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-        let res = await response.json();
-        if(res.status === 200) {
+        const respone = await deleteData(API_LOGOUT)
+        if (respone.status === 200) {
             navigate('/login');
         }
-        
-        
     }
     return (
         <Popover className="popover_me" title="">

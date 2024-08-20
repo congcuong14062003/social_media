@@ -6,6 +6,9 @@ import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import axios from 'axios'; // Import axios
 import './Signup.scss';
 import config from '../../configs';
+import { postData } from '../../ultils/fetchAPI/fetch_API';
+import { API_SIGNUP_POST } from '../../API/api_server';
+import getDataForm from '../../ultils/getDataForm/get_data_form';
 
 function Signup() {
     const [email, setEmail] = useState('');
@@ -16,44 +19,29 @@ function Signup() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Kiểm tra nếu thiếu thông tin
         if (!email || !username || !password) {
             console.log('vào');
             toast.error('Vui lòng nhập đầy đủ thông tin');
             return;
         }
-
         if (password !== confirmPassword) {
             toast.error('Mật khẩu xác nhận không khớp');
             return;
         }
-        const payload = {
-            user_email: email,
-            user_name: username,
-            user_password: password,
-        };
-        try {
-            const response = await axios.post('http://localhost:5000/users/signup', payload);
-            if (response.data.status === 200) {
-                toast.success(response.data.message);
-                setTimeout(() => {
-                    navigate('/login');
-                }, 1000);
-            } else {
-                toast.error(response.data.message || 'An error occurred');
-            }
-        } catch (error) {
-            toast.error(error?.response?.data?.message);
+        const data = getDataForm('.form_signup');
+        const respone = await postData(API_SIGNUP_POST, data)
+        if (respone.status === 200) {
+            navigate('/login');
         }
     };
-
     return (
         <div className="login_container">
             <div className="bt-form-login-simple-1">
-                <form className="form" autoComplete="off" onSubmit={handleSubmit}>
+                <form className="form_signup form" autoComplete="off" onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="email">Email: </label>
                         <input
+                            name="user_email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -64,6 +52,7 @@ function Signup() {
                     <div className="form-group">
                         <label htmlFor="password">Username: </label>
                         <input
+                            name="user_name"
                             type="text"
                             onChange={(e) => setUsername(e.target.value)}
                             placeholder="Username"
@@ -73,6 +62,7 @@ function Signup() {
                     <div className="form-group">
                         <label htmlFor="password">Password </label>
                         <input
+                            name="user_password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -83,6 +73,7 @@ function Signup() {
                     <div className="form-group">
                         <label htmlFor="password">Confirm password </label>
                         <input
+                            name="confirm_password"
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}

@@ -1,11 +1,8 @@
 import { toast } from "react-toastify";
 import getToken from "../getToken/get_token";
-
-
 const fetchData = async (url, options = {}) => {
   try {
     const token = getToken();
-
     const mergedOptions = {
       ...options,
       credentials: 'include',
@@ -14,34 +11,20 @@ const fetchData = async (url, options = {}) => {
         ...(token && { 'Authorization': `Bearer ${token}` }),
       },
     };
-
     const response = await fetch(url, mergedOptions);
-    console.log("Response: ", (response));
-    if (!response.ok) {
-      throw new Error(response.message);
-    }
-    // Kiểm tra xem phản hồi có nội dung không
-    let data;
-    try {
-      data = await response.json();
-    } catch (e) {
-      // Nếu không phải JSON hợp lệ, sử dụng phản hồi gốc
-      data = response;
-    }
-
-    if (data?.status === false && data.data?.message) {
-      toast.error(data?.message);
-    } else if (data?.message && data?.message) {
-      toast.success(data?.message);
+    const data = await response.json();
+    console.log(data);
+    
+    if(data.status === 200) {
+      toast.success(data.message);
+    } else {
+      toast.error(data.message)
     }
     return data;
   } catch (error) {
-    console.log(error.message ?? error);
-    toast.error(error.message ?? error);
+    console.log(error);
   }
 };
-
-
 export const getData = async (url_endpoint, headers = {}) => {
   const url = url_endpoint;
   const options = {
@@ -50,10 +33,8 @@ export const getData = async (url_endpoint, headers = {}) => {
       ...headers,
     },
   };
-
   return await fetchData(url, options);
 };
-
 export const postData = async (url_endpoint, payload, headers = {}) => {
   const url = url_endpoint;
   const options = {
@@ -66,7 +47,6 @@ export const postData = async (url_endpoint, payload, headers = {}) => {
   };
   return await fetchData(url, options);
 };
-
 export const putData = async (url_endpoint, payload, headers = {}) => {
   const url = url_endpoint;
   const options = {
@@ -79,7 +59,6 @@ export const putData = async (url_endpoint, payload, headers = {}) => {
   };
   return await fetchData(url, options);
 };
-
 export const deleteData = async (url_endpoint, headers = {}) => {
   const url = url_endpoint;
   const options = {
