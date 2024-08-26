@@ -101,7 +101,7 @@ static async validate(token, secret_key = SECRET_KEY) {
             const userId = decodedToken?.user_id;
 
             // Fetch user and return
-            const user = userId ? await Users.getById(userId) : null;
+            const user = userId ? await Users.findUserById(userId) : null;
             return {
                 valid: false,
                 msg: error.name,

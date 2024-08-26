@@ -34,11 +34,44 @@ const userSignup = async (req, res) => {
     res.status(400).json({ status: 500, message: "Dịch vụ tạm thời gián đoạn" });
   }
 };
+// đăng ký bằng sgg, fb
+const createUsersBySocialAccount = async (req, res) => {
+  try {
+    const data = req.body;
+    const users = new Users({ ...data, user_id: `uid_${data?.user_id}` });
+    const user_id = await users.signup();
+    // console.log(user_id);
+
+    if (user_id) {
+      // new ProfileMedia({
+      //     user_id: user_id,
+      //     media_type: data?.media?.media_type,
+      //     media_link: data?.media?.media_link
+      // }).create();
+      // new ProfileMedia({
+      //     user_id: user_id,
+      //     media_type: 'cover',
+      //     media_link: 'https://res-console.cloudinary.com/der2ygna3/media_explorer_thumbnails/0383e0bb9a4df2d70d94b18c64b34c56/detailed'
+      // }).create();
+      // const userSetting = new UserSetting({
+      //     user_id: user_id,
+      //     ...data
+      // });
+      // await userSetting.create();
+      res.status(200).json({ status: true });
+    } else {
+      throw new Error(usersResponse);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ status: false, message: error.message ?? error });
+  }
+};
 
 // đăng nhập
 const userLogin = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const { user_email, user_password } = req.body;
 
     // Kiểm tra nếu thiếu thông tin
@@ -87,7 +120,7 @@ async function userLogout(req, res) {
 // tất cả bạn bè
 const findAllFriend = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const { user_id } = req.body;
 
     const user = await Users.findUserById(user_id);
@@ -109,11 +142,34 @@ const findAllFriend = async (req, res) => {
   }
 };
 
+// tất cả người dùng 
+const findAllUser = async (req, res) => {
+  try {
 
+    const user_id = req.body?.data?.user_id;
+    console.log("user_id: ", user_id);
+    const data = await Users.getAllUser(user_id);
+    console.log("data: ", data);
+    if (data) {
+      res
+        .status(200)
+        .json({ status: 200, users: data });
+    } else {
+      res
+        .status(401)
+        .json({ status: 401});
+    }
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+  }
+}
 
 const findUserById = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const { user_id } = req.body;
 
 
@@ -140,9 +196,9 @@ async function getInfoProfileUser(req, res) {
 
 
     const id = req.params.id ?? req.body?.data?.user_id;
-    console.log("user_id:", id)
+    // console.log("user_id:", id)
     const dataUser = await Users.findUserById(id);
-    console.log(dataUser);
+    // console.log(dataUser);
     if (dataUser?.user_id) {
       return res.status(200).json({ status: 200, data: dataUser });
     } else {
@@ -174,6 +230,83 @@ async function getInfoProfileUser(req, res) {
     });
   }
 }
-export { userSignup, userLogin, findUserById, userLogout, findAllFriend, getInfoProfileUser };
+
+// Get a user by ID
+const getUserById = async (req, res) => {
+  try {
+    const user = await Users.findUserById(req.params.id);
+    if (user) {
+      res.status(200).json({ status: true, data: user });
+    } else {
+      res.status(404).json({ status: false });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ status: false, message: error.message ?? error });
+  }
+};
+
+// add bạn bè
+const addFriend = async (req, res) => {
+  try {
+    // console.log(req.body);
+    const friend_id = req.params.id;
+    const user_id = req.body?.data?.user_id;
+
+    // console.log(req.body);
+
+
+    const user = await Users.findUserById(user_id);
+    const friend = await Users.findUserById(friend_id);
+
+    if (!user || !friend) {
+      return res
+        .status(401)
+        .json({ status: 401, message: "Không tồn tại người dùng" });
+    }
+    const addFriend = await Users.addFriendById(user_id, friend_id)
+    if (addFriend === 1) {
+      res.status(200).json({ status: 200, message: "Gửi lời mời kết bạn thành công" })
+    } else {
+      res.status(401).json({ status: 401, message: "Lỗi khi gửi lời mời" })
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ status: false, message: error.message ?? error });
+  }
+}
+
+// chấp nhận lời mời
+const AcceptFriend = async (req, res) => {
+  try {
+    // console.log(req.body);
+    const friend_id = req.params.id;
+    const user_id = req.body?.data?.user_id;
+
+    console.log(req.body);
+
+
+    const user = await Users.findUserById(user_id);
+    const friend = await Users.findUserById(friend_id);
+
+    if (!user || !friend) {
+      return res
+        .status(401)
+        .json({ status: 401, message: "Không tồn tại người dùng" });
+    }
+    const addFriend = await Users.AcceptFriendById(user_id, friend_id)
+    if (addFriend === 1) {
+      res.status(200).json({ status: 200, message: "Gửi lời mời kết bạn thành công" })
+    } else {
+      res.status(401).json({ status: 401, message: "Lỗi khi gửi lời mời" })
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ status: false, message: error.message ?? error });
+  }
+}
+
+
+export { userSignup, userLogin, findUserById, userLogout, findAllFriend, getInfoProfileUser, getUserById, createUsersBySocialAccount, addFriend, AcceptFriend, findAllUser };
 
 

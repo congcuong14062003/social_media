@@ -36,11 +36,11 @@ const createToken = async (req, res) => {
             //Kiểm tra validate của token đó cũng như key người dùng gửi 
             const isValidated = await Token.validate(token, KeyRefreshTokenDecode); const infoUser = isValidated.data ?? isValidated.decoded;
             const randomKeyRefreshToken = generateRandomString();
-            console.log("Key sau khi tạo mới: ", randomKeyRefreshToken);
+            // console.log("Key sau khi tạo mới: ", randomKeyRefreshToken);
 
             const key_encode = encryptAES(randomKeyRefreshToken);
             const new_refresh_token = new Token(infoUser).generateRefreshToken(randomKeyRefreshToken);
-            console.log("Token generated: ", new_refresh_token);
+            // console.log("Token generated: ", new_refresh_token);
 
             if ((await new Token(infoUser).create(new_refresh_token, randomKeyRefreshToken)) === 1) {
                 const new_access_token = new Token(infoUser).generateAccessToken();
@@ -70,11 +70,11 @@ const decodeRefreshToken = async (req, res) => {
         if (tokenExists !== null) {
             //Giải mã key Token từ người dùng gửi
             const KeyRefreshTokenDecode = decryptAES(key_refresh_token_encode);
-            console.log("Key sau decode:", KeyRefreshTokenDecode);
+            // console.log("Key sau decode:", KeyRefreshTokenDecode);
 
             //Kiểm tra validate của token đó cũng như key người dùng gửi 
             const isValidated = await Token.validate(refresh_token, KeyRefreshTokenDecode);
-            console.log("isValidate:  ", isValidated);
+            // console.log("isValidate:  ", isValidated);
 
             res.status(200).json({
                 status: true,

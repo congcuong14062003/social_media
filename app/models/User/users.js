@@ -16,13 +16,13 @@ class Users {
     try {
       const createUserQuery =
         "INSERT INTO users (user_id, user_name, user_email, user_password) VALUES (?, ?, ?, ?);";
-      const result = await pool.execute(createUserQuery, [
+      const [result] = await pool.execute(createUserQuery, [
         this.user_id,
         this.user_name,
         this.user_email,
         this.user_password,
       ]);
-      return result[0].affectedRows === 1; // Kiểm tra kết quả và trả về boolean
+      return result.affectedRows === 1; // Kiểm tra kết quả và trả về boolean
     } catch (error) {
       console.error("Database error:", error); // Ghi log lỗi để dễ debug
       return false;
@@ -31,8 +31,8 @@ class Users {
 
   // tìm người dùng
   static async login(user_email, user_password) {
-    console.log("vào");
-    
+    // console.log("vào");
+
     try {
       const findUserQuery =
         "SELECT * FROM users WHERE user_email = ? and user_password = ?;";
@@ -50,7 +50,18 @@ class Users {
       const findUserQuery =
         "SELECT * FROM users WHERE user_id = ?";
       const [rows] = await pool.execute(findUserQuery, [id_user]);
-      return rows.length > 0 ? rows[0] : null; 
+      return rows.length > 0 ? rows[0] : null;
+    } catch (error) {
+      console.error("Database error:", error);
+      return null;
+    }
+  }
+  static async getAllUser(user_id) {
+    try {
+      const findUserQuery =
+        "SELECT * FROM users WHERE user_id != ?";
+      const [rows] = await pool.execute(findUserQuery, [user_id]);
+      return rows.length > 0 ? rows : null;
     } catch (error) {
       console.error("Database error:", error);
       return null;
@@ -65,6 +76,32 @@ class Users {
         "SELECT COUNT(*) as count FROM users WHERE user_email = ?;";
       const [rows] = await pool.execute(checkEmailQuery, [email]);
       return rows[0].count > 0;
+    } catch (error) {
+      console.error("Database error:", error);
+      throw error;
+    }
+  }
+  // kết bạn
+  static async addFriendById(id_user, friend_id) {
+    try {
+      // console.log(id_user, friend_id);
+      
+      const add_friend = "insert into friend(requestor_id, receiver_id, relationship_status) values(?, ?, ?)";
+      const [rows] = await pool.execute(add_friend, [id_user, friend_id, 0]);
+      return rows.affectedRows;
+    } catch (error) {
+      console.error("Database error:", error);
+      throw error;
+    }
+  }
+  // chấp nhận lời mời
+  static async AcceptFriendById(id_user, friend_id) {
+    try {
+      // console.log(id_user, friend_id);
+      
+      const add_friend = "update friend set relationship_status = 1 where requestor_id = ? and receiver_id = ?";
+      const [rows] = await pool.execute(add_friend, [id_user, friend_id, 0]);
+      return rows.affectedRows;
     } catch (error) {
       console.error("Database error:", error);
       throw error;

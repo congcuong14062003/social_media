@@ -1,12 +1,12 @@
-CREATE DATABASE VibeDatabase;
+-- CREATE DATABASE socialmedia;
 
-USE VibeDatabase;
+-- USE socialmedia;
 
 CREATE TABLE
-    User (
+    users (
         user_id VARCHAR(255) PRIMARY KEY,
         user_name VARCHAR(255) NOT NULL,
-        user_nickname VARCHAR(255) NOT NULL UNIQUE,
+        user_nickname VARCHAR(255),
         user_email VARCHAR(255) NOT NULL,
         user_password VARCHAR(255) NOT NULL,
         user_status INT DEFAULT 1,
@@ -23,7 +23,7 @@ CREATE TABLE
         user_address VARCHAR(255),
         user_school VARCHAR(255),
         user_slogan VARCHAR(1000),
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -32,14 +32,14 @@ CREATE TABLE
         post_privacy INT DEFAULT 1,
         story_privacy INT DEFAULT 1,
         dark_theme INT DEFAULT 1,
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
     UserFaceData (
         user_id VARCHAR(255) NOT NULL,
         media_link VARCHAR(1000) NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -48,7 +48,7 @@ CREATE TABLE
         media_type VARCHAR(255),
         media_link VARCHAR(1000),
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -56,8 +56,8 @@ CREATE TABLE
         user_id VARCHAR(255) NOT NULL,
         hearted_user_id VARCHAR(255) NOT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (hearted_user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (hearted_user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -65,8 +65,8 @@ CREATE TABLE
         requestor_id VARCHAR(255) NOT NULL,
         receiver_id VARCHAR(255) NOT NULL,
         relationship_status INT DEFAULT 0,
-        FOREIGN KEY (requestor_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (receiver_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (requestor_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (receiver_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -77,7 +77,7 @@ CREATE TABLE
         story_privacy INT DEFAULT 1,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         heart_quantity INT DEFAULT 0,
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -88,14 +88,14 @@ CREATE TABLE
         post_text TEXT DEFAULT NULL,
         react_emoji VARCHAR(255) DEFAULT NULL,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
     UserPost (
         user_id VARCHAR(255) NOT NULL,
         post_id VARCHAR(255) NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
         FOREIGN KEY (post_id) REFERENCES Post (post_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
@@ -113,7 +113,7 @@ CREATE TABLE
         user_id VARCHAR(255) NOT NULL,
         react VARCHAR(255) NOT NULL,
         FOREIGN KEY (post_id) REFERENCES Post (post_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -124,7 +124,7 @@ CREATE TABLE
         comment_text TEXT NOT NULL,
         media_link VARCHAR(1000),
         FOREIGN KEY (post_id) REFERENCES Post (post_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (commenting_user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (commenting_user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -132,7 +132,7 @@ CREATE TABLE
         comment_id VARCHAR(255) NOT NULL,
         hearted_user_id VARCHAR(255) NOT NULL,
         FOREIGN KEY (comment_id) REFERENCES PostComment (comment_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (hearted_user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (hearted_user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -143,7 +143,7 @@ CREATE TABLE
         comment_text TEXT NOT NULL,
         media_link VARCHAR(1000),
         FOREIGN KEY (comment_id) REFERENCES PostComment (comment_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (replying_user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (replying_user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -151,7 +151,7 @@ CREATE TABLE
         sub_comment_id VARCHAR(255) NOT NULL,
         hearted_user_id VARCHAR(255) NOT NULL,
         FOREIGN KEY (sub_comment_id) REFERENCES SubComment (sub_comment_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (hearted_user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (hearted_user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -171,7 +171,7 @@ CREATE TABLE
         member_status INT DEFAULT 0,
         member_role INT DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (member_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (member_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -195,8 +195,8 @@ CREATE TABLE
         sender_id VARCHAR(255) NOT NULL,
         receiver_id VARCHAR(255) NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (sender_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
-        FOREIGN KEY (receiver_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (sender_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+        FOREIGN KEY (receiver_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -223,7 +223,7 @@ CREATE TABLE
         product_location VARCHAR(1000) NOT NULL,
         product_longitude VARCHAR(1000) NOT NULL,
         product_latitude VARCHAR(1000) NOT NULL,
-        FOREIGN KEY (seller_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (seller_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
 
 CREATE TABLE
@@ -250,5 +250,5 @@ CREATE TABLE
         token_key_encode VARCHAR(1000) NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (user_id),
-        FOREIGN KEY (user_id) REFERENCES User (user_id) ON DELETE CASCADE ON UPDATE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE ON UPDATE CASCADE
     );
