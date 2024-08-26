@@ -13,6 +13,8 @@ import { faArrowRightFromBracket, faMoon } from '@fortawesome/free-solid-svg-ico
 import { useNavigate } from 'react-router-dom';
 import { deleteData } from '../../../ultils/fetchAPI/fetch_API';
 import { API_LOGOUT } from '../../../API/api_server';
+import { useContext } from 'react';
+import { OwnDataContext } from '../../../provider/own_data';
 function PopoverMe() {
     const navigate = useNavigate();
     const handleLogout = async () => {
@@ -21,10 +23,12 @@ function PopoverMe() {
             navigate('/login');
         }
     }
+    const dataUser = useContext(OwnDataContext);
+
     return (
         <Popover className="popover_me" title="">
             <div className="popover_me_container">
-                <HorizontalItem className="item_user_main" avt={<AvatarUser />} title="Dương mạnh" />
+                <HorizontalItem className="item_user_main" avt={<AvatarUser  />} title={dataUser && dataUser?.user_name} />
                 <div className='line'></div>
                 <HorizontalItem dark icon={<PrimaryIcon icon={<FontAwesomeIcon icon={faMoon} />} />} title="Chế độ tối" />
                 <HorizontalItem icon={<PrimaryIcon icon={<IoMdSettings />} />} title="Cài đặt" />

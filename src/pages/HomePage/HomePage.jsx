@@ -5,34 +5,33 @@ import CreatePost from '../../components/CreatePost/CreatePost';
 import AvatarUser from '../../components/AvatarUser/AvatarUser';
 import PostItem from '../../components/PostItem/PostItem';
 import ListStory from '../../components/ListStory/ListStory';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import FriendList from '../../components/Friend/FriendList/FriendList';
+import { OwnDataContext } from '../../provider/own_data';
+import { API_GET_ALL_USERS } from '../../API/api_server';
+import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 function HomePage() {
-    // const [dataUser, setDataUser] = useState()
-    // useEffect(() => {
-    //     fetch('http://localhost:5000/users/me', {
-    //         method: 'GET',
-    //         credentials: 'include',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //     })
-    //         .then((res) => res.json())
-    //         .then((me) => {
-    //             setDataUser(me.user);
-    //         });
-    // }, []);
+    const [allUser, setAllUser] = useState([])
+    const getAllFriend = async () => {
+        const response = await getData(API_GET_ALL_USERS);
+        setAllUser(response.users);
+    }
+    useEffect(() => {
+        getAllFriend()
+    }, [])
+    const dataUser = useContext(OwnDataContext);
     return (
         <div className="home__container">
             <div className="left__container">
                 <div className="content">
                     <ul className="list_items_left">
                         <li>
-                            <Link to={config.routes.profile}>
+                            <Link to={`${config.routes.profile}/${dataUser && dataUser?.user_id}`}>
                                 <AvatarUser />
-                                <div className="text_content">Công Cường</div>
+                                <div className="text_content">{dataUser && dataUser?.user_name}</div>
                             </Link>
                         </li>
+                        <FriendList ListUser={allUser} />
                     </ul>
                 </div>
             </div>

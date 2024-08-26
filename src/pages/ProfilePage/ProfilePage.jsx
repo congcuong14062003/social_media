@@ -5,13 +5,16 @@ import AddIcon from '@mui/icons-material/Add';
 import CreateIcon from '@mui/icons-material/Create';
 import { Box, Button, Tab, Tabs } from '@mui/material';
 import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import PostProfile from '../../components/PostProfile/PostProfile';
 import ContentProfileUser from '../../components/ContentProfileUser/ContentProfileUser';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
 import routes from '../../configs/routes';
 import config from '../../configs';
+import { OwnDataContext } from '../../provider/own_data';
+import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
+import { API_ACCEPT_INVITE, API_ADD_FRIEND, API_GET_INFO_OWNER_PROFILE_BY_ID, API_GET_INFO_USER_PROFILE_BY_ID } from '../../API/api_server';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -35,6 +38,9 @@ function a11yProps(index) {
 function ProfilePage() {
     const location = useLocation();
     const [value, setValue] = useState(0);
+    const { id_user } = useParams();
+
+    const myData = useContext(OwnDataContext);
 
     useEffect(() => {
         switch (location.pathname) {
@@ -54,6 +60,33 @@ function ProfilePage() {
         setValue(newValue);
     };
 
+
+    const [dataUser, setDataUser] = useState(null);
+    console.log(id_user);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getData(API_GET_INFO_USER_PROFILE_BY_ID(id_user));
+                console.log(response);
+                if (response.status === 200) {
+                    setDataUser(response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching data: ", error);
+            }
+        };
+        fetchData();
+    }, [id_user]);
+    const handleAddFriend = async () => {
+        const response = await postData(API_ADD_FRIEND(id_user));
+        console.log(response);
+
+    }
+    const handleAcceptInvite = async () => {
+        const response = await postData(API_ACCEPT_INVITE(id_user));
+        console.log(response);
+    }
     return (
         <div className="profile_container">
             <div className="profile_header">
@@ -74,17 +107,48 @@ function ProfilePage() {
                             <img src={images.avt} alt="" />
                         </div>
                         <div className="infor_header_user">
-                            <div className="user_name_header">Công Cường</div>
+                            <div className="user_name_header">{dataUser && dataUser?.user_name}</div>
                             <div className="count_friend">385 bạn bè</div>
                             <div className="action_user_container">
-                                <Link to={config.routes.createStory}>
+                                {/* <Link to={config.routes.createStory}>
                                     <ButtonCustom className="primary" title="Thêm vào tin" startIcon={<AddIcon />} />
-                                </Link>
-                                <ButtonCustom
+                                </Link> */}
+                                {/* <ButtonCustom
                                     className="secondary"
                                     title="Chỉnh sửa trang cá nhân"
                                     startIcon={<CreateIcon />}
-                                />
+                                /> */}
+                                {dataUser?.user_id === myData?.user_id ? (
+                                    <>
+
+                                        <ButtonCustom
+                                            className="secondary"
+                                            title="Chỉnh sửa trang cá nhân"
+                                            startIcon={<CreateIcon />}
+
+                                        />
+                                        <Link to={config.routes.createStory}>
+                                            <ButtonCustom className="primary" title="Thêm vào tin" startIcon={<AddIcon />} />
+                                        </Link>
+
+                                        {/* <ButtonCustom
+                                            onClick={handleAddFriend}
+                                            className="secondary"
+                                            title="Xoá lời mời"
+                                        /> */}
+                                    </>
+                                ) : (
+                                    <ButtonCustom
+                                        onClick={handleAddFriend}
+                                        className="secondary"
+                                        title="Thêm bạn bè"
+                                    />
+                                    // <ButtonCustom
+                                    //     onClick={handleAcceptInvite}
+                                    //     className="secondary"
+                                    //     title="Chấp nhận"
+                                    // />
+                                )}
                             </div>
                         </div>
                     </div>

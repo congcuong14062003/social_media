@@ -49,7 +49,7 @@ const publicRouter = [
         requireAuth: true,
     },
     {
-        path: '/profile',
+        path: '/profile/:id_user',
         component: ProfilePage,
         requireAuth: true,
         childrenRouter: [

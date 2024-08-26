@@ -15,6 +15,7 @@ export default async function ShowPopupLoginWithGoogle() {
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
+        console.log(user);
         
         return {
             user_id: user.providerData[0].uid,
@@ -25,7 +26,8 @@ export default async function ShowPopupLoginWithGoogle() {
             media: {
                 media_type: 'avatar',
                 media_link: user.providerData[0].photoURL
-            }
+            },
+            type_account: 'google'
         };
     } catch (error) {
         console.error('Error Code:', error.code);

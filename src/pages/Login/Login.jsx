@@ -9,9 +9,10 @@ import config from '../../configs';
 import signUpWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
 import getToken from '../../ultils/getToken/get_token';
 import ShowPopupLoginWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
-import { API_LOGIN_POST } from '../../API/api_server';
-import { postData } from '../../ultils/fetchAPI/fetch_API';
+import { API_CHECK_EXIST_USER, API_LOGIN_POST, API_SIGNUP_SOCIALNETWORK_POST } from '../../API/api_server';
+import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import getDataForm from '../../ultils/getDataForm/get_data_form';
+import ShowPopupLoginWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -40,45 +41,21 @@ function Login() {
 
     const handleLoginSocial = async (payload) => {
         try {
-            const response = await fetch('http://localhost:5000/users/check-account', {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-            if (response.status !== 200) {
-                const inforUser = {
+            const response = await getData(API_CHECK_EXIST_USER(`uid_${payload?.user_id}`));
+            console.log("check", response);
+            if (response?.status) {
+                const responseLogin = await postData(API_LOGIN_POST, {
                     user_email: payload?.user_email,
-                    user_password: payload?.user_password,
-                };
-                const responseLogin = await fetch('http://localhost:5000/users/login', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(inforUser),
+                    user_password: payload?.user_password
                 });
-                console.log(responseLogin);
-
-                if (responseLogin.status === 200) {
-                    navigate('/');
+                if (responseLogin?.status) {
+                    navigate("/");
                 } else {
-                    toast.error('Lỗi đăng nhập, vui lòng thử lại hoặc dùng phương thức đăng nhập khác');
+                    toast.error("Lỗi đăng nhập, vui lòng thử lại hoặc dùng phương thức đăng nhập khác")
                 }
             } else {
-                const responseSignup = await fetch('http://localhost:5000/users/signup', {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload),
-                });
-
-                if (responseSignup.ok) {
+                const responseSignup = await postData(API_SIGNUP_SOCIALNETWORK_POST, payload);
+                if (responseSignup?.status) {
                     await handleLoginSocial(payload);
                 }
             }
@@ -90,8 +67,10 @@ function Login() {
         const payload = await ShowPopupLoginWithGoogle();
         await handleLoginSocial(payload);
     };
-    const handleLoginWithFaceBook = () => {
-        signUpWithFacebook();
+    const handleLoginWithFaceBook = async () => {
+        const data = await ShowPopupLoginWithFacebook();
+        console.log(data);
+        await handleLoginSocial(data);
     };
 
     return (
@@ -118,7 +97,7 @@ function Login() {
                     </svg>
                     Login in with Google
                 </a>
-                <a onClick={handleLoginWithFaceBook} href="#" className="btn-login-google">
+                {/* <a onClick={handleLoginWithFaceBook} href="#" className="btn-login-google">
                     <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25" height="25" viewBox="0 0 64 64">
                         <radialGradient
                             id="nT5WH7nXAOiS46rXmee3Oa_msQ6HdxpqUmi_gr1"
@@ -162,7 +141,7 @@ function Login() {
                         ></path>
                     </svg>
                     Login in with Facebook
-                </a>
+                </a> */}
                 <div className="text-wrap">
                     <div className="text-line"></div>
                     <p className="text">or</p>

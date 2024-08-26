@@ -1,9 +1,9 @@
 import images from '../../assets/imgs';
 import './AvatarUser.scss';
-function AvatarUser() {
+function AvatarUser({avatar}) {
     return (
         <div className="avatar_user">
-            <img src={images.avt} alt="" />
+            <img src={avatar} alt="" />
         </div>
     );
 }

@@ -1,41 +1,42 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth";
-function signUpWithFacebook() {
+import { getAuth, signInWithPopup, FacebookAuthProvider } from "firebase/auth";
+async function ShowPopupLoginWithFacebook() {
     const provider = new FacebookAuthProvider();
+    provider.addScope('email');
 
     const auth = getAuth();
-    auth.languageCode = 'it';  // Setting the language to Italian, you can change this as needed.
-
-    // Optional: Apply the default browser preference instead of explicitly setting it.
-    // auth.useDeviceLanguage();
+    auth.useDeviceLanguage();
 
     provider.setCustomParameters({
-        'login_hint': 'user@example.com'
+        'display': 'popup'
     });
 
-    signInWithPopup(auth, provider)
-        .then((result) => {
-            // This gives you a Google Access Token. You can use it to access the Google API.
-            const credential = FacebookAuthProvider.credentialFromResult(result);
-            const token = credential.accessToken;
-            // The signed-in user info.
-            const user = result.user;
-            console.log('Success:', user);
-
-            // Optional: Retrieve IdP data if needed
-            // const additionalUserInfo = getAdditionalUserInfo(result);
-
-            // Handle additional tasks or route user to another part of your app
-        })
-        .catch((error) => {
-            // Handle Errors here.
-            console.error('Error Code:', error.code);
-            console.error('Error Message:', error.message);
-            // Optional: Handle email and credential info from the error
-            const email = error.customData?.email;
-            const credential = FacebookAuthProvider.credentialFromError(error);
-            console.error('Error Email:', email);
-            console.error('Credential used:', credential);
-        });
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        console.log("user: ", user);
+        
+        return {
+            user_id: user.providerData[0].uid,
+            user_name: user.providerData[0].displayName,
+            user_email: user.providerData[0].email,
+            created_at: user.metadata.createdAt,
+            user_password: user.providerData[0].displayName,
+            media: {
+                media_type: 'avatar',
+                media_link: user.providerData[0].photoURL
+            },
+            type_account: 'facebook'
+        };
+        
+    } catch (error) {
+        console.error('Error Code:', error.code);
+        console.error('Error Message:', error.message);
+        const email = error.customData?.email;
+        const credential = FacebookAuthProvider.credentialFromError(error);
+        console.error('Error Email:', email);
+        console.error('Credential used:', credential);
+        throw error;  // Throw error to be handled by the caller
+    }
 }
 
-export default signUpWithFacebook;
+export default ShowPopupLoginWithFacebook;
