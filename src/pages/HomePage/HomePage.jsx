@@ -10,15 +10,19 @@ import FriendList from '../../components/Friend/FriendList/FriendList';
 import { OwnDataContext } from '../../provider/own_data';
 import { API_GET_ALL_USERS } from '../../API/api_server';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
+import { FaUser } from 'react-icons/fa';
+import HorizontalItem from '../../components/HorizontalItem/HorizontalItem';
+import images from '../../assets/imgs';
+import PrimaryIcon from '../../components/PrimaryIcon/PrimaryIcon';
 function HomePage() {
-    const [allUser, setAllUser] = useState([])
-    const getAllFriend = async () => {
-        const response = await getData(API_GET_ALL_USERS);
-        setAllUser(response.users);
-    }
-    useEffect(() => {
-        getAllFriend()
-    }, [])
+    // const [allUser, setAllUser] = useState([]);
+    // const getAllFriend = async () => {
+    //     const response = await getData(API_GET_ALL_USERS);
+    //     setAllUser(response.users);
+    // };
+    // useEffect(() => {
+    //     getAllFriend();
+    // }, []);
     const dataUser = useContext(OwnDataContext);
     return (
         <div className="home__container">
@@ -26,12 +30,16 @@ function HomePage() {
                 <div className="content">
                     <ul className="list_items_left">
                         <li>
-                            <Link to={`${config.routes.profile}/${dataUser && dataUser?.user_id}`}>
-                                <AvatarUser />
-                                <div className="text_content">{dataUser && dataUser?.user_name}</div>
-                            </Link>
+                            <HorizontalItem
+                                to={`${config.routes.profile}/${dataUser && dataUser?.user_id}`}
+                                avt={images.avt}
+                                title={dataUser && dataUser?.user_name}
+                            />
                         </li>
-                        <FriendList ListUser={allUser} />
+                        <li>
+                            <HorizontalItem to={config.routes.friends} icon={<PrimaryIcon icon={<FaUser />} />} title="Bạn bè" />
+                        </li>
+                        {/* <FriendList ListUser={allUser} /> */}
                     </ul>
                 </div>
             </div>

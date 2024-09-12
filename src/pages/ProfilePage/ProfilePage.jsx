@@ -14,7 +14,14 @@ import routes from '../../configs/routes';
 import config from '../../configs';
 import { OwnDataContext } from '../../provider/own_data';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
-import { API_ACCEPT_INVITE, API_ADD_FRIEND, API_GET_INFO_OWNER_PROFILE_BY_ID, API_GET_INFO_USER_PROFILE_BY_ID } from '../../API/api_server';
+import { FaFacebookMessenger } from "react-icons/fa";
+import {
+    API_ACCEPT_INVITE,
+    API_ADD_FRIEND,
+    API_GET_INFO_OWNER_PROFILE_BY_ID,
+    API_GET_INFO_USER_PROFILE_BY_ID,
+} from '../../API/api_server';
+import { MessageIcon } from '../../assets/icons/icons';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -44,10 +51,10 @@ function ProfilePage() {
 
     useEffect(() => {
         switch (location.pathname) {
-            case '/profile/anh':
+            case `/profile/${id_user}/anh`:
                 setValue(1);
                 break;
-            case '/profile/ban-be':
+            case `/profile/${id_user}/ban-be`:
                 setValue(2);
                 break;
             default:
@@ -60,9 +67,7 @@ function ProfilePage() {
         setValue(newValue);
     };
 
-
     const [dataUser, setDataUser] = useState(null);
-    console.log(id_user);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -73,7 +78,7 @@ function ProfilePage() {
                     setDataUser(response.data);
                 }
             } catch (error) {
-                console.error("Error fetching data: ", error);
+                console.error('Error fetching data: ', error);
             }
         };
         fetchData();
@@ -81,12 +86,11 @@ function ProfilePage() {
     const handleAddFriend = async () => {
         const response = await postData(API_ADD_FRIEND(id_user));
         console.log(response);
-
-    }
+    };
     const handleAcceptInvite = async () => {
         const response = await postData(API_ACCEPT_INVITE(id_user));
         console.log(response);
-    }
+    };
     return (
         <div className="profile_container">
             <div className="profile_header">
@@ -110,44 +114,41 @@ function ProfilePage() {
                             <div className="user_name_header">{dataUser && dataUser?.user_name}</div>
                             <div className="count_friend">385 bạn bè</div>
                             <div className="action_user_container">
-                                {/* <Link to={config.routes.createStory}>
-                                    <ButtonCustom className="primary" title="Thêm vào tin" startIcon={<AddIcon />} />
-                                </Link> */}
-                                {/* <ButtonCustom
-                                    className="secondary"
-                                    title="Chỉnh sửa trang cá nhân"
-                                    startIcon={<CreateIcon />}
-                                /> */}
                                 {dataUser?.user_id === myData?.user_id ? (
                                     <>
-
                                         <ButtonCustom
                                             className="secondary"
                                             title="Chỉnh sửa trang cá nhân"
                                             startIcon={<CreateIcon />}
-
                                         />
                                         <Link to={config.routes.createStory}>
-                                            <ButtonCustom className="primary" title="Thêm vào tin" startIcon={<AddIcon />} />
+                                            <ButtonCustom
+                                                className="primary"
+                                                title="Thêm vào tin"
+                                                startIcon={<AddIcon />}
+                                            />
                                         </Link>
-
+                                    </>
+                                ) : (
+                                    <>
+                                        <ButtonCustom
+                                            onClick={handleAddFriend}
+                                            className="secondary"
+                                            title="Thêm bạn bè"
+                                        />
+                                        <Link to={config.routes.createStory}>
+                                            <ButtonCustom
+                                                className="primary"
+                                                title="Nhắn tin"
+                                                startIcon={<FaFacebookMessenger />}
+                                            />
+                                        </Link>
                                         {/* <ButtonCustom
                                             onClick={handleAddFriend}
                                             className="secondary"
                                             title="Xoá lời mời"
                                         /> */}
                                     </>
-                                ) : (
-                                    <ButtonCustom
-                                        onClick={handleAddFriend}
-                                        className="secondary"
-                                        title="Thêm bạn bè"
-                                    />
-                                    // <ButtonCustom
-                                    //     onClick={handleAcceptInvite}
-                                    //     className="secondary"
-                                    //     title="Chấp nhận"
-                                    // />
                                 )}
                             </div>
                         </div>
@@ -160,9 +161,24 @@ function ProfilePage() {
                         <Box sx={{ width: '100%' }}>
                             <Box className="tab_profile_content" sx={{ borderBottom: 1, borderColor: 'divider' }}>
                                 <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                                    <Tab label="Bài viết" {...a11yProps(0)} component={Link} to="/profile" />
-                                    <Tab label="Ảnh" {...a11yProps(1)} component={Link} to="/profile/anh" />
-                                    <Tab label="Bạn bè" {...a11yProps(2)} component={Link} to="/profile/ban-be" />
+                                    <Tab
+                                        label="Bài viết"
+                                        {...a11yProps(0)}
+                                        component={Link}
+                                        to={`/profile/${id_user}`}
+                                    />
+                                    <Tab
+                                        label="Ảnh"
+                                        {...a11yProps(1)}
+                                        component={Link}
+                                        to={`/profile/${id_user}/anh`}
+                                    />
+                                    <Tab
+                                        label="Bạn bè"
+                                        {...a11yProps(2)}
+                                        component={Link}
+                                        to={`/profile/${id_user}/ban-be`}
+                                    />
                                 </Tabs>
                             </Box>
                             <CustomTabPanel className="tab_profile_user" value={value} index={0}>

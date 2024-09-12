@@ -1,0 +1,33 @@
+.friend_home_container {
+    display: flex;
+    width: 100vw;
+    height: 100%;
+    .left_container {
+        height: 100%;
+        box-shadow: 10px 0 5px -2px #888;
+        width: 360px;
+        background-color: var(--navbar-background-color);
+        border-right: 1px solid var(--comment-backgroud);
+        .content {
+            padding: 10px;
+            .list_items_left {
+                li {
+                    margin-bottom: 5px;
+                }
+            }
+        }
+    }
+    .right_container {
+        height: 100%;
+        overflow: auto;
+        flex: 1;
+        display: flex;
+        background-color: var(--right-background-story);
+        padding: 20px;
+        .friend_invitation {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 10px;
+        }
+    }
+}
