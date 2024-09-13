@@ -1,4 +1,4 @@
-import { Users } from "../../models/User/users.js";
+import { Users } from "../../models/User/users.router.js";
 
 // Tạo người dùng
 const userSignup = async (req, res) => {

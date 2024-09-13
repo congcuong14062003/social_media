@@ -1,5 +1,5 @@
 import { Token } from "../models/Token/token.js";
-import { Users } from "../models/User/users.js";
+import { Users } from "../models/User/users.router.js";
 import { encryptAES, generateRandomString } from "../ultils/crypto.js";
 require("dotenv").config();
 export default async function Authentication(req, res, next) {

@@ -1,5 +1,5 @@
 import pool from "../../../configs/database/database.js";
-import { Users } from "../User/users.js";
+import { Users } from "../User/users.router.js";
 
 const jwt = require("jsonwebtoken");
 
