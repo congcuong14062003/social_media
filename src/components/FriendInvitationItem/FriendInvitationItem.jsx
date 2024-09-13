@@ -8,7 +8,7 @@ function FriendInvitationItem({ data }) {
                 <img src={images.avt} alt="" />
             </div>
             <div className="description_invite">
-                <div className="name_invite">Công Cường</div>
+                <div className="name_invite"></div>
                 <div className="count_mutual_friend">100 bạn chung</div>
                 <div className="button_action_invite">
                     <ButtonCustom title="Xác nhận" className="primary" />

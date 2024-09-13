@@ -7,20 +7,26 @@ import './Friends.scss';
 import FriendInvitationItem from '../../components/FriendInvitationItem/FriendInvitationItem';
 import FriendSuggestItem from '../../components/FriendSuggestItem/FriendSuggestItem';
 import { getData } from '../../ultils/fetchAPI/fetch_API';
-import { API_GET_ALL_USERS } from '../../API/api_server';
+import { API_GET_ALL_USERS, API_LIST_FRIEND_INVITE } from '../../API/api_server';
 
 function Friends() {
     const [activeTab, setActiveTab] = useState('suggestions'); // state để lưu tab đang active
     const [allUser, setAllUser] = useState([]);
+    const [listFriendInvite, setListFriendInvite] = useState([]);
     const getAllFriend = async () => {
         const response = await getData(API_GET_ALL_USERS);
         setAllUser(response.users);
     };
+    const getListFriendInvite = async () => {
+        const response = await getData(API_LIST_FRIEND_INVITE);
+        setListFriendInvite(response);
+    }
     useEffect(() => {
         getAllFriend();
-    }, []);
-    console.log('all user: ', allUser);
-
+        getListFriendInvite();
+    }, [activeTab]);
+    console.log("invite: ", listFriendInvite);
+    
     return (
         <div className="friend_home_container">
             <div className="left_container">
@@ -46,8 +52,9 @@ function Friends() {
             <div className="right_container">
                 {activeTab === 'invitations' && (
                     <div className="friend_invitation">
-                        <FriendInvitationItem />
-                        <FriendInvitationItem />
+                        {/* {listFriendInvite && listFriendInvite.map((user, index) => <FriendInvitationItem key={index} data={user} />)} */}
+                        {/* <FriendInvitationItem />
+                        <FriendInvitationItem /> */}
                         {/* Thêm các item khác */}
                     </div>
                 )}

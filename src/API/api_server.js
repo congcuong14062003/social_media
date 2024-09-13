@@ -20,6 +20,8 @@ const API_CHECK_EXIST_USER = (id) => `${API_HOST}/users/is-existed/${id}`;
 const API_ADD_FRIEND = (id) => `${API_HOST}/users/add-friend/${id}`;
 const API_ACCEPT_INVITE = (id) => `${API_HOST}/users/accept-add-friend/${id}`;
 
+
+const API_LIST_FRIEND_INVITE = API_HOST + '/users/list-friend-invite'
 // User infomanation API endpoint
 const API_GET_INFO_USER_PROFILE_BY_ID = (id) => `${API_HOST}/users/info-profile/${id}`;
 const API_GET_INFO_OWNER_PROFILE_BY_ID = `${API_HOST}/users/info-profile/`;
@@ -56,5 +58,6 @@ export {
     API_CREATE_OTP,
     API_CREATE_LINK_OTP,
     API_CREATE_OTP_SIGNUP,
-    API_VERIFY_OTP
+    API_VERIFY_OTP,
+    API_LIST_FRIEND_INVITE
 };
