@@ -19,14 +19,14 @@ function Friends() {
     };
     const getListFriendInvite = async () => {
         const response = await getData(API_LIST_FRIEND_INVITE);
-        setListFriendInvite(response);
-    }
+        setListFriendInvite(response.data);
+    };
     useEffect(() => {
         getAllFriend();
         getListFriendInvite();
-    }, [activeTab]);
-    console.log("invite: ", listFriendInvite);
-    
+    }, []);
+    console.log('invite: ', listFriendInvite);
+
     return (
         <div className="friend_home_container">
             <div className="left_container">
@@ -50,18 +50,25 @@ function Friends() {
                 </div>
             </div>
             <div className="right_container">
-                {activeTab === 'invitations' && (
-                    <div className="friend_invitation">
-                        {/* {listFriendInvite && listFriendInvite.map((user, index) => <FriendInvitationItem key={index} data={user} />)} */}
-                        {/* <FriendInvitationItem />
-                        <FriendInvitationItem /> */}
-                        {/* Thêm các item khác */}
-                    </div>
-                )}
+                {activeTab === 'invitations' &&
+                    (listFriendInvite && listFriendInvite.length > 0 ? (
+                        <div className="friend_invitation">
+                            {listFriendInvite.map((user, index) => (
+                                <FriendInvitationItem key={index} data={user} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="blank_content">
+                            <p>Danh sách trống</p>
+                        </div>
+                    ))}
                 {activeTab === 'suggestions' && (
                     <div className="friend_suggest friend_invitation">
-                        {allUser && allUser.map((user, index) => <FriendSuggestItem key={index} data={user} />)}
-                        {/* Thêm các item khác */}
+                        {allUser && allUser.length > 0 ? (
+                            allUser.map((user, index) => <FriendSuggestItem key={index} data={user} />)
+                        ) : (
+                            <p>Không có gợi ý kết bạn</p>
+                        )}
                     </div>
                 )}
             </div>

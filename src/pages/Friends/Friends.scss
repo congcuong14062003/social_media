@@ -29,5 +29,16 @@
             grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
             gap: 10px;
         }
+        .blank_content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            p {
+                color: var(--primary-text);
+                font-size: 30px;
+                font-weight: bold;
+            }
+        }
     }
 }

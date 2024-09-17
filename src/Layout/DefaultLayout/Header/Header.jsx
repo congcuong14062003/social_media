@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './Header.scss';
 import images from '../../../assets/imgs';
@@ -11,6 +11,7 @@ import config from '../../../configs';
 import PopoverNotice from '../../../components/Popover/PopoverNotice/PopoverNotice';
 import PopoverChat from '../../../components/Popover/PopoverChat/PopoverChat';
 import PopoverMe from '../../../components/Popover/PopoverMe/PopoverMe';
+import { OwnDataContext } from '../../../provider/own_data';
 
 function Header() {
     const [darkMode, setDarkMode] = useState(false);
@@ -64,6 +65,7 @@ function Header() {
 
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
+    const dataUser = useContext(OwnDataContext);
 
     return (
         <div className="header_container">
@@ -120,7 +122,7 @@ function Header() {
                     onClick={(e) => handleClickPopover(e, 'notice')}
                 />
                 <div className="avatar_me" onClick={(e) => handleClickPopover(e, 'me')}>
-                    <AvatarUser />
+                    <AvatarUser avatar={dataUser?.avatar} />
                 </div>                
                 <Popover
                     id={id}

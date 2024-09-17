@@ -32,7 +32,7 @@ function HomePage() {
                         <li>
                             <HorizontalItem
                                 to={`${config.routes.profile}/${dataUser && dataUser?.user_id}`}
-                                avt={images.avt}
+                                avt={dataUser && dataUser?.avatar}
                                 title={dataUser && dataUser?.user_name}
                             />
                         </li>

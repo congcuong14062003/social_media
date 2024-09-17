@@ -108,7 +108,7 @@ function ProfilePage() {
                 <div className="infor_user_container">
                     <div className="infor_user_content">
                         <div className="avatar_user">
-                            <img src={images.avt} alt="" />
+                            <img src={myData?.avatar} alt="" />
                         </div>
                         <div className="infor_header_user">
                             <div className="user_name_header">{dataUser && dataUser?.user_name}</div>
