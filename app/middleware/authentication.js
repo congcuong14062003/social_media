@@ -1,5 +1,5 @@
 import { Token } from "../models/Token/token.js";
-import { Users } from "../models/User/users.router.js";
+import { Users } from "../models/User/users.model.js";
 import { encryptAES, generateRandomString } from "../ultils/crypto.js";
 require("dotenv").config();
 export default async function Authentication(req, res, next) {
@@ -20,6 +20,8 @@ export default async function Authentication(req, res, next) {
           const { user_email, user_password } = req.body;
           if (user_email && user_password) {
               const infoUser = await Users.login(user_email, user_password);
+              console.log("infoUser:", infoUser);
+              
               if (infoUser?.user_id) {
                   const randomKeyRefreshToken = generateRandomString(); // Tạo chuỗi tự sinh 8 ký tự
                 //   console.log("key chưa encode sau đăng nhập:", randomKeyRefreshToken);
@@ -32,6 +34,7 @@ export default async function Authentication(req, res, next) {
                   res.cookie('refreshToken', new_refresh_token, { maxAge: parseInt(process.env.TIME_EXPIRED_REFRESH_TOKEN) * 24 * 60 * 60 * 1000, httpOnly: false, secure: true, sameSite: 'None' });
                   req.body.accessToken = new_access_token;
                   next();
+                  console.log("vào 2");
               } else {
                   throw new Error('Email hoặc mật khẩu không hợp lệ');
               }
