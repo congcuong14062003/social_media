@@ -22,7 +22,7 @@ const API_ACCEPT_INVITE = (id) => `${API_HOST}/users/accept-add-friend/${id}`;
 
 const API_CHECK_FRIEND_REQUEST = (id) => `${API_HOST}/users/check-request/${id}`;
 
-const API_CANCEL_FRIEND_REQUEST = (id) => `${API_HOST}/users/check-request/${id}`;
+const API_CANCEL_FRIEND_REQUEST = (id) => `${API_HOST}/users/cancel-request/${id}`;
 
 
 const API_LIST_FRIEND_INVITE = API_HOST + '/users/list-user-invite'

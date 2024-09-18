@@ -88,55 +88,74 @@ function PostItem() {
                                 <div className="item_status like_comment">Thích</div>
                                 <div className="item_status responsive_comment">Phản hồi</div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="user_comment_container">
-                        <div className="avatar_user_comment">
-                            <AvatarUser />
-                        </div>
-                        <div className="main_comment">
-                            <div className="container_comment">
-                                <div className="username_comment">Công Cường</div>
-                                <div className="content_comment">
-                                    <p>
-                                        Kiến thức cơ bản thì codelearn sau đó là vnoi wiki Web luyện thì có codeforces,
-                                        leetcode, hackkerrank... Nếu bạn cần người kèm 1vs1 thì ib mình nha
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="status_post_comment">
-                                <div className="item_status time_comment">17 giờ</div>
-                                <div className="item_status like_comment">Thích</div>
-                                <div className="item_status responsive_comment">Phản hồi</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="user_comment_container">
-                        <div className="avatar_user_comment">
-                            <AvatarUser />
-                        </div>
-                        <div className="main_comment">
-                            <div className="container_comment">
-                                <div className="username_comment">Công Cường</div>
-                                <div className="content_comment">
-                                    <p>
-                                        Kiến thức cơ bản thì codelearn sau đó là vnoi wiki Web luyện thì có codeforces,
-                                        leetcode, hackkerrank... Nếu bạn cần người kèm 1vs1 thì ib mình nha
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="img_comment">
-                                <img src={images.baochi} alt="" />
-                            </div>
 
-                            <div className="status_post_comment">
-                                <div className="item_status time_comment">17 giờ</div>
-                                <div className="item_status like_comment">Thích</div>
-                                <div className="item_status responsive_comment">Phản hồi</div>
+                            {/* Bình luận cấp 2 */}
+                            <div className="sub_comment_container">
+                                <div className="user_comment_container">
+                                    <div className="avatar_user_comment">
+                                        <AvatarUser />
+                                    </div>
+                                    <div className="main_comment">
+                                        <div className="container_comment">
+                                            <div className="username_comment">Người dùng khác</div>
+                                            <div className="content_comment">
+                                                <p>Đồng ý với bạn. Codeforces là một nền tảng rất tốt!</p>
+                                            </div>
+                                        </div>
+                                        <div className="status_post_comment">
+                                            <div className="item_status time_comment">15 giờ</div>
+                                            <div className="item_status like_comment">Thích</div>
+                                            <div className="item_status responsive_comment">Phản hồi</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                              {/* Bình luận cấp 2 */}
+                              <div className="sub_comment_container">
+                                <div className="user_comment_container">
+                                    <div className="avatar_user_comment">
+                                        <AvatarUser />
+                                    </div>
+                                    <div className="main_comment">
+                                        <div className="container_comment">
+                                            <div className="username_comment">Người dùng khác</div>
+                                            <div className="content_comment">
+                                                <p>Đồng ý với bạn. Codeforces là một nền tảng rất tốt!</p>
+                                            </div>
+                                        </div>
+                                        <div className="status_post_comment">
+                                            <div className="item_status time_comment">15 giờ</div>
+                                            <div className="item_status like_comment">Thích</div>
+                                            <div className="item_status responsive_comment">Phản hồi</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                              {/* Bình luận cấp 2 */}
+                              <div className="sub_comment_container">
+                                <div className="user_comment_container">
+                                    <div className="avatar_user_comment">
+                                        <AvatarUser />
+                                    </div>
+                                    <div className="main_comment">
+                                        <div className="container_comment">
+                                            <div className="username_comment">Người dùng khác</div>
+                                            <div className="content_comment">
+                                                <p>Đồng ý với bạn. Codeforces là một nền tảng rất tốt!</p>
+                                            </div>
+                                        </div>
+                                        <div className="status_post_comment">
+                                            <div className="item_status time_comment">15 giờ</div>
+                                            <div className="item_status like_comment">Thích</div>
+                                            <div className="item_status responsive_comment">Phản hồi</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <div className="my_comment_footer">
                     <AvatarUser />
                     <Search placeholder="Bình luận với vai trò Công Cường" icon />

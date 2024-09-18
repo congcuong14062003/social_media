@@ -50,7 +50,7 @@ const publicRouter = [
         requireAuth: true,
     },
     {
-        path: '/messages/:id',
+        path: '/messages/:id_user',
         component: MessagesPage,
         requireAuth: true,
     },

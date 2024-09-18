@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import AvatarUser from '../../AvatarUser/AvatarUser';
 import './FriendItem.scss';
-function FriendItem({to, nameUser, avatarUser}) {
+function FriendItem({data}) {
     return (
-        <Link to={to}>
+        <Link>
             <div className="friend_item">
-                <AvatarUser />
-                <div className="name_friend">{nameUser}</div>
+                <AvatarUser avatar={data && data?.avatar} />
+                <div className="name_friend">{data && data?.user_name}</div>
             </div>
         </Link>
     );

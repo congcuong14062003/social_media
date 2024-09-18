@@ -73,7 +73,7 @@ export const CuoiIcon = ({ fill }) => (
                 fill="url(#paint3_linear_15251_63610)"
             />
             <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 clip-rule="evenodd"
                 d="M13.3049 5.8793c.1614-1.1485-.6387-2.2103-1.7872-2.3717l-.0979-.0138c-1.1484-.1614-2.2103.6388-2.3717 1.7872l-.0163.1164a.5.5 0 0 0 .9902.1392l.0163-.1164c.0846-.6016.6408-1.0207 1.2424-.9362l.0978.0138c.6016.0845 1.0207.6407.9362 1.2423l-.0164.1164a.5.5 0 0 0 .9903.1392l.0163-.1164ZM2.6902 5.8793c-.1614-1.1485.6387-2.2103 1.7872-2.3717l.0979-.0138c1.1484-.1614 2.2103.6388 2.3717 1.7872l.0164.1164a.5.5 0 1 1-.9903.1392l-.0163-.1164c-.0846-.6016-.6408-1.0207-1.2423-.9362l-.098.0138c-.6015.0845-1.0206.6407-.936 1.2423l.0163.1164a.5.5 0 0 1-.9902.1392l-.0164-.1164Z"
                 fill="#1C1C1D"
@@ -133,7 +133,7 @@ export const CuoiIcon = ({ fill }) => (
 );
 export const PhoneIcon = ({ fill }) => (
     <svg viewBox="0 0 12 13" width="20" height="20" fill="currentColor">
-        <g stroke="none" stroke-width="1" fill-rule="evenodd">
+        <g stroke="none" strokeWidth="1" fillRule="evenodd">
             <path
                 d="M109.492 925.682a1.154 1.154 0 0 0-.443-.81 10.642 10.642 0 0 0-1.158-.776l-.211-.125c-.487-.29-.872-.514-1.257-.511a3.618 3.618 0 0 0-.693.084c-.304.07-.6.302-.88.69a3.365 3.365 0 0 0-.297.494l.449.22-.507-.202-.13-.074a8.53 8.53 0 0 1-3.04-3.043l-.071-.124.019-.057v-.001c.168-.083.334-.183.492-.297.162-.117.552-.432.681-.842.063-.2.075-.407.086-.59l.007-.116c.029-.389-.197-.764-.482-1.237l-.153-.256c-.322-.55-.6-.933-.775-1.158a1.155 1.155 0 0 0-.811-.443c-.36-.031-1.066.01-1.748.608-1.018.896-1.326 2.25-.845 3.714a11.734 11.734 0 0 0 2.834 4.612 11.732 11.732 0 0 0 4.61 2.833c.455.149.897.222 1.32.222.94 0 1.777-.364 2.395-1.067.599-.681.639-1.387.608-1.748"
                 transform="translate(-450 -1073) translate(352.5 157)"
@@ -144,7 +144,7 @@ export const PhoneIcon = ({ fill }) => (
 
 export const VideoCallIcon = ({ fill }) => (
     <svg viewBox="0 0 12 13" width="20" height="20" fill="currentColor">
-        <g fill-rule="evenodd" transform="translate(-450 -1073)">
+        <g fillRule="evenodd" transform="translate(-450 -1073)">
             <path d="M461.583 1076.078a.732.732 0 0 0-.774.073l-.612.466a.498.498 0 0 0-.197.398v4.97c0 .157.072.304.197.398l.612.466a.736.736 0 0 0 .774.073.749.749 0 0 0 .417-.677v-5.49a.75.75 0 0 0-.417-.677m-4.562-1.557h-5.043A1.98 1.98 0 0 0 450 1076.5v6.021a1.98 1.98 0 0 0 1.978 1.979h5.043a1.98 1.98 0 0 0 1.979-1.979v-6.021a1.98 1.98 0 0 0-1.978-1.979"></path>
         </g>
     </svg>
@@ -159,7 +159,7 @@ export const ExtendChatIcon = ({ fill }) => (
 );
 export const SendFileIcon = ({ fill }) => (
     <svg className="x1lliihq x1tzjh5l" height="20px" viewBox="0 -1 17 17" width="20px">
-        <g fill="none" fill-rule="evenodd">
+        <g fill="none" fillRule="evenodd">
             <path
                 d="M2.882 13.13C3.476 4.743 3.773.48 3.773.348L2.195.516c-.7.1-1.478.647-1.478 1.647l1.092 11.419c0 .5.2.9.4 1.3.4.2.7.4.9.4h.4c-.6-.6-.727-.951-.627-2.151z"
                 fill="#0866ff"
@@ -172,8 +172,8 @@ export const SendFileIcon = ({ fill }) => (
             <path
                 d="M13.9 15.5l-8.2-.7c-.7-.1-1.3-.8-1.3-1.6l1-11.4C5.5 1 6.2.5 7 .5l8.2.7c.8.1 1.3.8 1.3 1.6l-1 11.4c-.1.8-.8 1.4-1.6 1.3z"
                 stroke="#0866ff"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
             ></path>
         </g>
     </svg>
@@ -203,7 +203,7 @@ export const LikeMessageIcon = ({ fill }) => (
 
 export const UserIcon = ({ fill }) => (
     <svg viewBox="0 0 12 13" width="20" height="20" fill="currentColor">
-        <g fill-rule="evenodd" transform="translate(-450 -1073)">
+        <g fillRule="evenodd" transform="translate(-450 -1073)">
             <g>
                 <path
                     d="M104 923.75c-.69 0-1.25-.673-1.25-1.5 0-1.5.908-1.5 1.25-1.5.342 0 1.25 0 1.25 1.5 0 .827-.56 1.5-1.25 1.5"
@@ -214,12 +214,12 @@ export const UserIcon = ({ fill }) => (
                     transform="translate(352 156)"
                 ></path>
                 <path
-                    fill-rule="nonzero"
+                    fillRule="nonzero"
                     d="M110 923.5a6 6 0 1 1-12 0 6 6 0 0 1 12 0zm-1 0a5 5 0 1 0-10 0 5 5 0 0 0 10 0z"
                     transform="translate(352 156)"
                 ></path>
                 <path
-                    fill-rule="nonzero"
+                    fillRule="nonzero"
                     d="M108.247 927.568c-.15-1.457-1.501-2.568-3.092-2.568h-2.31c-1.59 0-2.942 1.111-3.092 2.568l.994.103c.096-.927 1.001-1.67 2.098-1.67h2.31c1.097 0 2.002.743 2.098 1.67l.994-.103z"
                     transform="translate(352 156)"
                 ></path>
@@ -234,8 +234,8 @@ export const UserIcon = ({ fill }) => (
 
 export const SearchIcon = ({ fill }) => (
     <svg viewBox="0 0 12 13" width="20" height="20" fill="currentColor">
-        <g fill-rule="evenodd" transform="translate(-450 -1073)">
-            <g fill-rule="nonzero">
+        <g fillRule="evenodd" transform="translate(-450 -1073)">
+            <g fillRule="nonzero">
                 <path
                     d="m104.609 929.891.103.106a4.75 4.75 0 1 1-.103-.106zm-1.155.97a3.25 3.25 0 1 0 .185.185l-.09-.094-.095-.09z"
                     transform="translate(353.5 145)"
@@ -264,7 +264,7 @@ export const BlockIcon = ({ fill }) => (
         height="20"
         fill="currentColor"
     >
-        <g fill-rule="evenodd" transform="translate(-450 -1073)">
+        <g fillRule="evenodd" transform="translate(-450 -1073)">
             <path d="M459 1080.25h-6a.752.752 0 0 1-.75-.75c0-.412.337-.75.75-.75h6c.413 0 .75.338.75.75s-.337.75-.75.75m-3-6.75c-3.308 0-6 2.691-6 6s2.692 6 6 6 6-2.691 6-6-2.692-6-6-6"></path>
         </g>
     </svg>

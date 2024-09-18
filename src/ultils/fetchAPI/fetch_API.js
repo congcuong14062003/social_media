@@ -13,8 +13,6 @@ const fetchData = async (url, options = {}) => {
     };
     const response = await fetch(url, mergedOptions);
     const data = await response.json();
-    
-    console.log(data);
     if(data.status === 200) {
       toast.success(data.message);
     } else {

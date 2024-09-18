@@ -6,7 +6,7 @@ import './ToolTip.scss';
 function ToolTip({ children, title, onClick }) {
     return (
         <Tooltip
-        onClick={onClick}
+            onClick={onClick}
             className="main_tooltip"
             title={<span className="tooltip_title">{title}</span>}
             arrow
