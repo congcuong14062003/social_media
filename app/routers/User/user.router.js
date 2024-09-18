@@ -1,4 +1,4 @@
-import { AcceptFriend, addFriend, checkFriendRequest, createUsersBySocialAccount, findAllFriend, findAllUser, findUserById, getInfoProfileUser, getUserById, ListUserInvite, userLogin, userLogout, userSignup } from "../../controllers/User/user.controller.js";
+import { AcceptFriend, addFriend, cancelFriendRequest, checkFriendRequest, createUsersBySocialAccount, findAllFriend, findAllUser, findUserById, getInfoProfileUser, getUserById, ListUserInvite, userLogin, userLogout, userSignup } from "../../controllers/User/user.controller.js";
 import Authentication from "../../middleware/authentication.js";
 import { Authorization } from "../../middleware/authorization_token.js";
 
@@ -18,7 +18,7 @@ export default function UserRouter(app) {
   app.post('/accept-add-friend/:id', Authentication, Authorization, AcceptFriend);
   app.post('/add-friend/:id', Authentication, Authorization, addFriend);
   app.get('/check-request/:id', Authentication, Authorization, checkFriendRequest);
-  
+  app.post('/cancel-request/:id', Authentication, Authorization, cancelFriendRequest);
 
 
   app.get('/all-user', Authentication, Authorization, findAllUser);

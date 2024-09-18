@@ -352,6 +352,26 @@ export async function checkFriendRequest(req, res) {
   }
 }
 
+// controllers/User/user.controller.js
+export async function cancelFriendRequest(req, res) {
+  const requestor_id = req.params.id;
+  const receiver_id = req.body?.data?.user_id;
+
+  try {
+      const query = `
+          DELETE FROM friend 
+          WHERE requestor_id = ? AND receiver_id = ? 
+             OR requestor_id = ? AND receiver_id = ?
+      `;
+      await pool.execute(query, [requestor_id, receiver_id, receiver_id, requestor_id]);
+
+      res.json({ success: true });
+  } catch (error) {
+      console.error("Database error:", error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 
 export {
   userSignup,
