@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
     ExtendChatIcon,
     LikeMessageIcon,
@@ -16,10 +16,11 @@ import MessagesItems from '../../components/MessagesItems/MessagesItems';
 import SettingMessages from '../../components/SettingMessages/SettingMessages';
 import ToolTip from '../../components/ToolTip/ToolTip';
 import { useParams } from 'react-router-dom';
-import { API_GET_INFO_USER_PROFILE_BY_ID } from '../../API/api_server';
+import { API_GET_INFO_USER_PROFILE_BY_ID, API_GET_MESSAGES } from '../../API/api_server';
 import { getData } from '../../ultils/fetchAPI/fetch_API';
 import { io } from 'socket.io-client'; // Import Socket.IO client
 import { OwnDataContext } from '../../provider/own_data';
+import { useSocket } from '../../provider/socket_context';
 
 function MessagesPage() {
     const [message, setMessage] = useState(''); // Tin nhắn hiện tại
@@ -27,49 +28,73 @@ function MessagesPage() {
     const [openSettingChat, setOpenSettingChat] = useState(false);
     const { id_user } = useParams();
     const [dataFriend, setDataFriend] = useState();
-    const [socket, setSocket] = useState(null); // Socket instance
+    const socket = useSocket();
     const dataUser = useContext(OwnDataContext);
 
+    // Ref để cuộn đến tin nhắn mới nhất
+    const messagesEndRef = useRef(null);
+
+    // Hàm cuộn đến tin nhắn mới nhất
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // Cuộn đến tin nhắn mới nhất mỗi khi danh sách tin nhắn thay đổi
     useEffect(() => {
-        console.log("Current User Data:", dataUser); // In ra để kiểm tra xem dataUser có undefined không
-    }, [dataUser]);
-    
+        scrollToBottom();
+    }, [messages]);
+
+    // Lấy tin nhắn
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getData(API_GET_MESSAGES(id_user));
+                if (response.status === 200) {
+                    setMessages(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching data: ', error);
+            }
+        };
+        fetchData();
+    }, [id_user]);
+
     // Xử lý khi thay đổi tin nhắn
     const handleInputChange = (e) => {
         setMessage(e.target.value);
     };
 
-    // Kết nối với Socket.IO khi component mount
-    useEffect(() => {
-        const newSocket = io('http://localhost:8900'); // Kết nối tới server Socket.IO
-        setSocket(newSocket);
-
-        return () => newSocket.disconnect(); // Ngắt kết nối khi component unmount
-    }, []);
-
     // Gửi thông tin user đến server khi socket kết nối
     useEffect(() => {
-        if (socket) {
-            socket.emit('addUser', id_user); // Gửi id_user tới server
-        }
-    }, [socket, id_user]);
-
-    // Nhận tin nhắn từ server
-    useEffect(() => {
         if (socket && dataUser?.user_id) {
-            socket.on('getMessage', (data) => {
+            socket.emit('addUser', dataUser?.user_id); // Gửi id_user tới server
+        }
+    }, [socket, dataUser]);
 
+    // Đăng ký sự kiện nhận tin nhắn
+    useEffect(() => {
+        if (socket) {
+            socket.on('connect', () => {
+                console.log('Connected to the server', socket.id);
+            });
+            socket.on('getMessage', (data) => {
+                console.log('Received message:', data);
                 setMessages((prevMessages) => [
                     ...prevMessages,
                     {
-                        senderId: data?.senderId,
+                        senderId: data.senderId,
                         text: data.text,
-                        isSender: data.senderId == dataUser?.user_id, // Xác định người gửi
+                        isSender: data.senderId === dataUser?.user_id,
                     },
                 ]);
             });
+
+            return () => {
+                socket.off('getMessage'); // Ngừng lắng nghe sự kiện khi component unmount
+            };
         }
-    }, [socket, id_user, dataUser]);
+    }, [socket, dataUser]);
+
     // Gửi tin nhắn khi click vào icon gửi tin nhắn
     const handleSendMessage = () => {
         if (socket && message.trim()) {
@@ -79,6 +104,14 @@ function MessagesPage() {
                 receiverId,
                 text: message,
             });
+            setMessages((prevMessages) => [
+                ...prevMessages,
+                {
+                    senderId: dataUser && dataUser?.user_id,
+                    text: message,
+                    isSender: true,
+                },
+            ]);
             setMessage(''); // Reset input
         }
     };
@@ -134,16 +167,19 @@ function MessagesPage() {
                         <div className="chat_main_infor">
                             {/* Render danh sách tin nhắn */}
                             {messages.map((msg, index) => {
-                                console.log(msg);
-
                                 return (
                                     <MessagesItems
                                         key={index}
-                                        message={msg.text}
-                                        className={msg.isSender ? 'sender' : ''}
+                                        message={msg.content_text ?? msg.text}
+                                        className={
+                                            msg.sender_id === dataUser?.user_id || msg.senderId === dataUser?.user_id
+                                                ? 'sender'
+                                                : ''
+                                        }
                                     />
                                 );
                             })}
+                            <div ref={messagesEndRef}></div> {/* Thêm ref tại đây */}
                         </div>
                     </div>
                     <div className="chat_footer">

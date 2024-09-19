@@ -7,13 +7,15 @@ import PrivateRoute from './components/PrivateRouter/PrivateRouter';
 import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Import CSS
 import OwnDataProvider from './provider/own_data';
+import { SocketProvider } from './provider/socket_context';
 
 function App() {
     return (
         <Router>
             <ToastContainer
                 autoClose={1000} // Thời gian tự động đóng (miligiây)
-            /> {/* Add ToastContainer here */}
+            />{' '}
+            {/* Add ToastContainer here */}
             <Routes>
                 {publicRouter.map((route, index) => {
                     const Layout = route.layout || DefaultLayout;
@@ -26,11 +28,12 @@ function App() {
                                     path={route.path}
                                     element={
                                         <OwnDataProvider>
-                                            <Layout>
-                                                <Page />
-                                            </Layout>
+                                            <SocketProvider>
+                                                <Layout>
+                                                    <Page />
+                                                </Layout>
+                                            </SocketProvider>
                                         </OwnDataProvider>
-
                                     }
                                 >
                                     {route.childrenRouter &&

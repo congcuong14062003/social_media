@@ -25,6 +25,12 @@ const API_CHECK_FRIEND_REQUEST = (id) => `${API_HOST}/users/check-request/${id}`
 const API_CANCEL_FRIEND_REQUEST = (id) => `${API_HOST}/users/cancel-request/${id}`;
 
 
+////// messages
+const API_GET_MESSAGES = (id) => `${API_HOST}/users/all-messages/${id}`;
+
+
+
+
 const API_LIST_FRIEND_INVITE = API_HOST + '/users/list-user-invite'
 // User infomanation API endpoint
 const API_GET_INFO_USER_PROFILE_BY_ID = (id) => `${API_HOST}/users/info-profile/${id}`;
@@ -65,5 +71,6 @@ export {
     API_VERIFY_OTP,
     API_LIST_FRIEND_INVITE,
     API_CHECK_FRIEND_REQUEST,
-    API_CANCEL_FRIEND_REQUEST
+    API_CANCEL_FRIEND_REQUEST,
+    API_GET_MESSAGES
 };
