@@ -56,3 +56,13 @@ export function decryptAES(cipherText) {
     const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
     return bytes.toString(CryptoJS.enc.Utf8);
 }
+
+
+
+export function encryptWithPublicKey(data, public_key) {
+  return crypto.publicEncrypt(public_key, Buffer.from(data)).toString('hex');
+}
+
+export function decryptWithPrivateKey(encryptedData, private_key) {
+  return crypto.privateDecrypt(private_key, Buffer.from(encryptedData, 'hex')).toString();
+}

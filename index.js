@@ -5,8 +5,10 @@ import connect from "./app/db/connect.js";
 import RouterMain from "./app/routers/router.js";
 import logger from "morgan";
 import cookieParser from "cookie-parser";
-import { createServer } from "http"; // Thêm cái này để tạo HTTP server
-import { log } from "console";
+import { createServer } from "http";
+import pool from "./configs/database/database.js";
+import { encryptWithPublicKey, decryptWithPrivateKey } from "./app/ultils/crypto.js";
+import Message from "./app/models/User/message.model.js";
 
 dotenv.config();
 const app = express();
@@ -43,47 +45,72 @@ const PORT = process.env.PORT || 5000;
 // Tạo danh sách người dùng
 let users = [];
 
+// Thêm người dùng vào danh sách
 const addUser = (userId, socketId) => {
-  !users.some((user) => user.userId === userId) &&
+  const existingUser = users.find((user) => user.userId === userId);
+  if (existingUser) {
+    existingUser.socketId = socketId;
+  } else {
     users.push({ userId, socketId });
+  }
 };
 
+// Xóa người dùng khỏi danh sách
 const removeUser = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
 };
 
+// Lấy người dùng dựa trên userId
 const getUser = (userId) => {
   return users.find((user) => user.userId === userId);
 };
 
 // Socket.IO lắng nghe kết nối
 io.on("connection", (socket) => {
-  console.log(`${users.length} user connected.`);
-
-  // Khi người dùng gửi userId
   socket.on("addUser", (userId) => {
+    console.log(`${users.length} user connected.`);
     addUser(userId, socket.id);
     io.emit("getUsers", users);
   });
 
-  // Khi gửi tin nhắn
-  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+  socket.on("sendMessage", async ({ senderId, receiverId, text }) => {
     const user = getUser(receiverId);
-    console.log(senderId, receiverId, text);
-    console.log("User online: ", users);
 
     if (user) {
-      io.to(user.socketId).emit("getMessage", {
-        senderId,
-        text,
-      });
+      try {
+        // Tìm hoặc tạo phòng trò chuyện
+        const room = await Message.getRoom(senderId, receiverId);
+
+        if (room?.private_room_id) {
+          let encodeText = encryptWithPublicKey(text, room?.public_key);
+          const newMessage = new Message({
+            private_room_id: room?.private_room_id,
+            contentText: encodeText,
+            senderId,
+            receiverId,
+            public_key: room?.public_key,
+            private_key: room?.private_key,
+          });
+
+          const result = await newMessage.create();
+          if (result?.affectedRows > 0) {
+            io.to(user.socketId).emit("getMessage", {
+              senderId,
+              receiverId,
+              text: encodeText,
+            });
+          }
+
+          console.log("Giải mã: ", decryptWithPrivateKey(encodeText, room?.private_key));
+        }
+      } catch (error) {
+        console.error("Error saving message: ", error);
+      }
     }
-    // lưu tin nhắn vào db
   });
 
-  // Khi người dùng ngắt kết nối
   socket.on("disconnect", () => {
-    console.log("a user disconnected!");
+    console.log("A user disconnected!");
     removeUser(socket.id);
     io.emit("getUsers", users);
   });

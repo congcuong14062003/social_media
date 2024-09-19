@@ -1,5 +1,6 @@
 import pool from "../../../configs/database/database.js";
 import Friend from "../../models/User/friend.model.js";
+import Message from "../../models/User/message.model.js";
 import { ProfileMedia } from "../../models/User/profile_media.model.js";
 import { UserProfile } from "../../models/User/user_profile.model.js";
 import { UserSetting } from "../../models/User/user_setting.model.js";
@@ -371,6 +372,26 @@ export async function cancelFriendRequest(req, res) {
       res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+const getallMessages = async (req, res) => {
+  try {
+    const user_id = req.body?.data?.user_id;
+    const friend_id = req.params.id;
+    
+    // Lấy tin nhắn từ cơ sở dữ liệu
+    console.log(user_id, friend_id);
+    
+    const result = await Message.getMessage(user_id, friend_id);
+
+    // Gửi phản hồi về cho client
+    res.status(200).json({ status: 200, data: result });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+  }
+}
+
 
 
 export {
@@ -386,4 +407,5 @@ export {
   AcceptFriend,
   findAllUser,
   ListUserInvite,
+  getallMessages
 };
