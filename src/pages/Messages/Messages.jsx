@@ -16,9 +16,14 @@ import MessagesItems from '../../components/MessagesItems/MessagesItems';
 import SettingMessages from '../../components/SettingMessages/SettingMessages';
 import ToolTip from '../../components/ToolTip/ToolTip';
 import { useParams } from 'react-router-dom';
-import { API_GET_INFO_USER_PROFILE_BY_ID, API_GET_MESSAGES } from '../../API/api_server';
-import { getData } from '../../ultils/fetchAPI/fetch_API';
-import { io } from 'socket.io-client'; // Import Socket.IO client
+import {
+    API_CHECK_EXIST_KEY_PAIR,
+    API_GET_INFO_USER_PROFILE_BY_ID,
+    API_GET_MESSAGES,
+    API_POST_DECODE_PRIVATE_KEY_PAIR,
+    API_POST_KEY_PAIR,
+} from '../../API/api_server';
+import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import { OwnDataContext } from '../../provider/own_data';
 import { useSocket } from '../../provider/socket_context';
 
@@ -28,6 +33,8 @@ function MessagesPage() {
     const [openSettingChat, setOpenSettingChat] = useState(false);
     const { id_user } = useParams();
     const [dataFriend, setDataFriend] = useState();
+    const [codeMessage, setCodeMessage] = useState();
+    const [hasPrivateKey, setHasPrivateKey] = useState(false);
     const socket = useSocket();
     const dataUser = useContext(OwnDataContext);
 
@@ -44,6 +51,15 @@ function MessagesPage() {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        // Kiểm tra xem "private-key" có tồn tại trong localStorage không
+        const privateKey = localStorage.getItem('private-key');
+        if (privateKey) {
+          setHasPrivateKey(true); // Cập nhật trạng thái thành true nếu tìm thấy
+        } else {
+          setHasPrivateKey(false); // Nếu không có, trạng thái là false
+        }
+      }, []);
     // Lấy tin nhắn
     useEffect(() => {
         const fetchData = async () => {
@@ -74,9 +90,9 @@ function MessagesPage() {
     // Đăng ký sự kiện nhận tin nhắn
     useEffect(() => {
         if (socket) {
-            socket.on('connect', () => {
-                console.log('Connected to the server', socket.id);
-            });
+            // socket.on('connect', () => {
+            //     console.log('Connected to the server', socket.id);
+            // });
             socket.on('getMessage', (data) => {
                 console.log('Received message:', data);
                 setMessages((prevMessages) => [
@@ -107,7 +123,7 @@ function MessagesPage() {
             setMessages((prevMessages) => [
                 ...prevMessages,
                 {
-                    senderId: dataUser && dataUser?.user_id,
+                    senderId: dataUser?.user_id,
                     text: message,
                     isSender: true,
                 },
@@ -131,74 +147,178 @@ function MessagesPage() {
         fetchData();
     }, [id_user]);
 
+    // Controlled input code verification
+    const [code, setCode] = useState(['', '', '', '', '', '']);
+
+    const handleCodeChange = (e, index) => {
+        const newCode = [...code];
+        const value = e.target.value;
+
+        // Validate input is numeric
+        if (!isNaN(value) && value !== '') {
+            newCode[index] = value;
+
+            // Automatically focus on next input
+            if (index < 5) {
+                document.getElementById(`code-input-${index + 1}`).focus();
+            }
+        } else {
+            newCode[index] = '';
+        }
+
+        setCode(newCode);
+    };
+
+    const handleBackspace = (e, index) => {
+        if (e.key === 'Backspace' && code[index] === '') {
+            if (index > 0) {
+                document.getElementById(`code-input-${index - 1}`).focus();
+            }
+        }
+    };
+
+    // Handle form submit
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+        const codeString = code.join(''); // Join the code into a single string
+        console.log('Code entered:', codeString);
+        // Send the codeString or do something with it
+        if (codeMessage === true) {
+            const createKey = await postData(API_POST_KEY_PAIR, { secret_key: codeString });
+            if (createKey.status === 200) {
+                console.log('tạo cặp key thành công');
+            }
+        } else {
+            ////// đăng nhập chỗ khác
+            const checkPrivateKey = await postData(API_POST_DECODE_PRIVATE_KEY_PAIR, { secret_key: codeString });
+            if (checkPrivateKey.status === 200) {
+                localStorage.setItem('private-key', checkPrivateKey.data.private_key);
+                setHasPrivateKey(true);
+            }
+        }
+        setCode(['', '', '', '', '', '']); // Reset code input
+    };
+
+    // const checkExistKeyPair = () => {
+    //     // Check if the key pair (public key, private key) exists in the local storage
+    //     // const publicKey = localStorage.getItem('publicKey');
+    //     // const privateKey = localStorage.getItem('privateKey');
+    //     const result = await getData()
+    // }
+    const checkExistKeyPair = async () => {
+        try {
+            const response = await getData(API_CHECK_EXIST_KEY_PAIR);
+            if (response.status === 200) {
+                setCodeMessage(false);
+            } else {
+                setCodeMessage(true);
+            }
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    };
+    useEffect(() => {
+        checkExistKeyPair();
+    }, []);
+
     return (
         <div className="messenger_container">
-            <div className="left_messenger">
-                <PopoverChat />
-            </div>
+            {hasPrivateKey && ( // Chat UI
+                <>
+                    <div className="left_messenger">
+                        <PopoverChat />
+                    </div>
+                    <div className="center_messenger">
+                        <div className="messages_container">
+                            <div className="chat_header">
+                                <FriendItem data={dataFriend} />
+                                <div className="action_call">
+                                    <ToolTip title="Bắt đầu gọi thoại">
+                                        <div className="action_chat">
+                                            <PhoneIcon />
+                                        </div>
+                                    </ToolTip>
 
-            <div className="center_messenger">
-                <div className="messages_container">
-                    <div className="chat_header">
-                        <FriendItem data={dataFriend} />
-                        <div className="action_call">
-                            <ToolTip title="Bắt đầu gọi thoại">
-                                <div className="action_chat">
-                                    <PhoneIcon />
+                                    <ToolTip title="Bắt đầu gọi video">
+                                        <div className="action_chat">
+                                            <VideoCallIcon />
+                                        </div>
+                                    </ToolTip>
+                                    <ToolTip
+                                        onClick={() => setOpenSettingChat(!openSettingChat)}
+                                        title="Thông tin về cuộc trò chuyện"
+                                    >
+                                        <div className="action_chat">
+                                            <ExtendChatIcon />
+                                        </div>
+                                    </ToolTip>
                                 </div>
-                            </ToolTip>
-
-                            <ToolTip title="Bắt đầu gọi video">
-                                <div className="action_chat">
-                                    <VideoCallIcon />
+                            </div>
+                            <div className="chat_body">
+                                <div className="chat_main_infor">
+                                    {/* Render danh sách tin nhắn */}
+                                    {messages.map((msg, index) => (
+                                        <MessagesItems
+                                            key={index}
+                                            message={msg.content_text ?? msg.text}
+                                            className={
+                                                msg.sender_id === dataUser?.user_id ||
+                                                msg.senderId === dataUser?.user_id
+                                                    ? 'sender'
+                                                    : ''
+                                            }
+                                        />
+                                    ))}
+                                    <div ref={messagesEndRef}></div>
                                 </div>
-                            </ToolTip>
-                            <ToolTip
-                                onClick={() => setOpenSettingChat(!openSettingChat)}
-                                title="Thông tin về cuộc trò chuyện"
-                            >
-                                <div className="action_chat">
-                                    <ExtendChatIcon />
+                            </div>
+                            <div className="chat_footer">
+                                <Search placeholder="Nhập tin nhắn" value={message} onChange={handleInputChange} />
+                                <div className="send_file_input">
+                                    <SendFileIcon />
                                 </div>
-                            </ToolTip>
+                                <div
+                                    className={`send_mesage_action ${message ? '' : 'hidden'}`}
+                                    onClick={handleSendMessage}
+                                >
+                                    <SendMessageIcon />
+                                </div>
+                                <div className={`like_message_action ${message ? 'hidden' : ''}`}>
+                                    <LikeMessageIcon />
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="chat_body">
-                        <div className="chat_main_infor">
-                            {/* Render danh sách tin nhắn */}
-                            {messages.map((msg, index) => {
-                                return (
-                                    <MessagesItems
-                                        key={index}
-                                        message={msg.content_text ?? msg.text}
-                                        className={
-                                            msg.sender_id === dataUser?.user_id || msg.senderId === dataUser?.user_id
-                                                ? 'sender'
-                                                : ''
-                                        }
-                                    />
-                                );
-                            })}
-                            <div ref={messagesEndRef}></div> {/* Thêm ref tại đây */}
+                    {openSettingChat && (
+                        <div className="right_messenger">
+                            <SettingMessages />
                         </div>
-                    </div>
-                    <div className="chat_footer">
-                        <Search placeholder="Nhập tin nhắn" value={message} onChange={handleInputChange} />
-                        <div className="send_file_input">
-                            <SendFileIcon />
+                    )}
+                </>
+            )}
+            {!hasPrivateKey && ( // Input Code Section
+                <div className="container_input_code">
+                    <form onSubmit={handleSubmit} className="input_code_chat">
+                        <div id="input_code" className="inputs">
+                            {code.map((digit, index) => (
+                                <input
+                                    key={index}
+                                    id={`code-input-${index}`}
+                                    className="input"
+                                    type="text"
+                                    value={digit}
+                                    maxLength="1"
+                                    onChange={(e) => handleCodeChange(e, index)}
+                                    onKeyUp={(e) => handleBackspace(e, index)}
+                                />
+                            ))}
                         </div>
-                        <div className={`send_mesage_action ${message ? '' : 'hidden'}`} onClick={handleSendMessage}>
-                            <SendMessageIcon />
+                        <div className="button_container_code">
+                            <button type="submit" disabled={code.some((digit) => digit === '')}>
+                                {codeMessage === true ? "Thêm mã code" : "Xác nhận"}
+                            </button>
                         </div>
-                        <div className={`like_message_action ${message ? 'hidden' : ''}`}>
-                            <LikeMessageIcon />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {openSettingChat && (
-                <div className="right_messenger">
-                    <SettingMessages />
+                    </form>
                 </div>
             )}
         </div>

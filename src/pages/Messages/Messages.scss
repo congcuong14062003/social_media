@@ -1,5 +1,6 @@
 .messenger_container {
     height: 100%;
+    position: relative;
     background-color: var(--card-background);
     display: flex;
     .left_messenger {
@@ -109,5 +110,46 @@
     .right_messenger {
         width: 360px;
         height: 100%;
+    }
+}
+
+/* style.css */
+.container_input_code {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    display: flex;
+    justify-content: center;
+    transform: translateY(-50%);
+    transform: translateX(-50%);
+    align-items: center;
+    .input_code_chat {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .button_container_code {
+        margin-top: 20px;
+    }
+    .input {
+        width: 40px;
+        border: none;
+        border-bottom: 3px solid rgba(0, 0, 0, 0.5);
+        margin: 0 10px;
+        text-align: center;
+        font-size: 36px;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .input:focus {
+        border-bottom: 3px solid orange;
+        outline: none;
+    }
+
+    .input:nth-child(1) {
+        cursor: pointer;
+        pointer-events: all;
     }
 }

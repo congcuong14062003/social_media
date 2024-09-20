@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './Header.scss';
 import images from '../../../assets/imgs';
-import { GroupIcon, HomeIcon, MessageIcon, NoticeIcon, VideoIcon } from '../../../assets/icons/icons';
+import { FriendIcon, GroupIcon, HomeIcon, MessageIcon, NoticeIcon, VideoIcon } from '../../../assets/icons/icons';
 import { FormControlLabel, Switch, Popover, Typography } from '@mui/material';
 import Search from '../../../components/Search/Search';
 import AvatarUser from '../../../components/AvatarUser/AvatarUser';
@@ -85,16 +85,16 @@ function Header() {
                     <HomeIcon />
                 </NavLink>
                 <NavLink
+                    to="/friends"
+                    className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')}
+                >
+                    <FriendIcon />
+                </NavLink>
+                <NavLink
                     to="/video"
                     className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')}
                 >
                     <VideoIcon />
-                </NavLink>
-                <NavLink
-                    to="/group"
-                    className={({ isActive, isPending }) => (isPending ? 'pending' : isActive ? 'active' : '')}
-                >
-                    <GroupIcon />
                 </NavLink>
             </div>
             <div className="right_header">

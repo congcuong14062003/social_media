@@ -20,6 +20,7 @@ function PopoverMe() {
     const handleLogout = async () => {
         const respone = await deleteData(API_LOGOUT)
         if (respone.status === 200) {
+            localStorage.clear();
             navigate('/login');
         }
     }

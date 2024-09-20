@@ -28,6 +28,10 @@ const API_CANCEL_FRIEND_REQUEST = (id) => `${API_HOST}/users/cancel-request/${id
 ////// messages
 const API_GET_MESSAGES = (id) => `${API_HOST}/users/all-messages/${id}`;
 
+const API_CHECK_EXIST_KEY_PAIR = `${API_HOST}/users/check-exists-keypair`;
+const API_POST_KEY_PAIR = `${API_HOST}/users/post-keypair`;
+const API_POST_DECODE_PRIVATE_KEY_PAIR = `${API_HOST}/users/post-decode-private-key`;
+
 
 
 
@@ -72,5 +76,8 @@ export {
     API_LIST_FRIEND_INVITE,
     API_CHECK_FRIEND_REQUEST,
     API_CANCEL_FRIEND_REQUEST,
-    API_GET_MESSAGES
+    API_GET_MESSAGES,
+    API_CHECK_EXIST_KEY_PAIR,
+    API_POST_KEY_PAIR,
+    API_POST_DECODE_PRIVATE_KEY_PAIR
 };
