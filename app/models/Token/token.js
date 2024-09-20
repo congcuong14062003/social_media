@@ -14,12 +14,11 @@ class Token extends Users {
     this.created_at = data.created_at;
     this.token_expiration = data.token_expiration;
   }
-
   generateAccessToken() {
     return jwt.sign({
         "user_id": this.user_id,
         "user_role": this.user_role
-    }, SECRET_KEY, { expiresIn: parseInt(process.env.TIME_EXPIRED_ACCESS_TOKEN) * 60 });
+    }, SECRET_KEY, { expiresIn: parseInt(process.env.TIME_EXPIRED_ACCESS_TOKEN) * 60  });
 }
 
 generateRefreshToken(key) {

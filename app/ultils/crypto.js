@@ -47,13 +47,13 @@ export function generateRandomString(length = 10) {
 const secretKey = process.env.KEY_AES;
 
 // Hàm mã hóa
-export function encryptAES(text) {
-    return CryptoJS.AES.encrypt(text, secretKey).toString();
+export function encryptAES(text, secretKeyAES = secretKey) {
+    return CryptoJS.AES.encrypt(text, secretKeyAES).toString();
 }
 
 // Hàm giải mã
-export function decryptAES(cipherText) {
-    const bytes = CryptoJS.AES.decrypt(cipherText, secretKey);
+export function decryptAES(cipherText, secretKeyAES = secretKey) {
+    const bytes = CryptoJS.AES.decrypt(cipherText, secretKeyAES);
     return bytes.toString(CryptoJS.enc.Utf8);
 }
 
@@ -62,7 +62,12 @@ export function decryptAES(cipherText) {
 export function encryptWithPublicKey(data, public_key) {
   return crypto.publicEncrypt(public_key, Buffer.from(data)).toString('hex');
 }
-
 export function decryptWithPrivateKey(encryptedData, private_key) {
-  return crypto.privateDecrypt(private_key, Buffer.from(encryptedData, 'hex')).toString();
+  try {
+    return crypto.privateDecrypt(private_key, Buffer.from(encryptedData, 'hex')).toString();
+  } catch (error) {
+    console.error('Decryption failed:', error.message);
+    return null; // Hoặc một giá trị khác tùy bạn xử lý khi giải mã thất bại
+  }
 }
+

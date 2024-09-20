@@ -1,12 +1,13 @@
 import pool from "../../../configs/database/database.js";
-import { generateRandomString } from "../../ultils/crypto.js";
+import {
+  encryptWithPublicKey,
+  generateRandomString,
+} from "../../ultils/crypto.js";
 import crypto from "crypto";
 
 class Message {
   constructor(data) {
     this.private_room_id = data.private_room_id;
-    this.public_key = data.public_key;
-    this.private_key = data.private_key;
     this.contentText = data.contentText;
     this.mediaLink = data.mediaLink;
     this.contentType = data.contentType;
@@ -37,19 +38,11 @@ class Message {
       if (result.length > 0) {
         return {
           private_room_id: result[0].private_room_id,
-          public_key: result[0].public_key,
-          private_key: result[0].private_key,
         };
       } else {
-        const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
-          modulusLength: 2048,
-        });
         const newRoomId = generateRandomString();
-
         return {
           private_room_id: newRoomId,
-          public_key: publicKey.export({ type: "spki", format: "pem" }),
-          private_key: privateKey.export({ type: "pkcs8", format: "pem" }),
         };
       }
     } catch (error) {
@@ -58,34 +51,63 @@ class Message {
     }
   }
 
-  async create() {
+  static async getPublicKeyReceiver(receiver_id) {
     try {
       const createMessageQuery = `
-        INSERT INTO PrivateMessage (
-          private_room_id,
-          content_text,
-          sender_id,
-          receiver_id,
-          public_key,
-          private_key
-        ) VALUES (?, ?, ?, ?, ?, ?);
+        SELECT public_key FROM userkeypair
+        WHERE 
+          (user_id = ?)
       `;
 
-      const [result] = await pool.execute(createMessageQuery, [
-        this.private_room_id,
-        this.contentText,
-        this.senderId,
-        this.receiverId,
-        this.public_key,
-        this.private_key,
-      ]);
+      const [result] = await pool.execute(createMessageQuery, [receiver_id]);
 
-      return result.affectedRows > 0 ? result : false;
+      if (result.length > 0) {
+        return {
+          public_key: result[0].public_key,
+        };
+      }
+      return null;
     } catch (error) {
       console.error("Error creating message: ", error);
       throw error;
     }
   }
+
+  async create(io, user) {
+    try {
+      const publicKeyReceiver = await Message.getPublicKeyReceiver(this.receiverId); // Use Message.getPublicKeyReceiver
+      const textEnCryptoRSA = encryptWithPublicKey(this.contentText, publicKeyReceiver.public_key);
+      
+      const createMessageQuery = `
+        INSERT INTO PrivateMessage (
+          private_room_id,
+          content_text,
+          sender_id,
+          receiver_id
+        ) VALUES (?, ?, ?, ?);
+      `;
+  
+      const [result] = await pool.execute(createMessageQuery, [
+        this.private_room_id,
+        textEnCryptoRSA,
+        this.senderId,
+        this.receiverId,
+      ]);
+  
+      return (
+        result.affectedRows > 0 &&
+        io.to(user.socketId).emit("getMessage", {
+          senderId: this.senderId,
+          receiverId: this.receiverId,
+          text: textEnCryptoRSA,
+        })
+      );
+    } catch (error) {
+      console.error("Error creating message: ", error);
+      throw error;
+    }
+  }
+  
 
   static async getMessage(user_id, friend_id) {
     try {

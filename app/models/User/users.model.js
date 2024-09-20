@@ -1,5 +1,12 @@
 import pool from "../../../configs/database/database.js";
-import { generateId, hashString } from "../../ultils/crypto.js";
+import {
+  decryptAES,
+  encryptAES,
+  generateId,
+  hashString,
+} from "../../ultils/crypto.js";
+import crypto from "crypto";
+const { generateKeyPairSync } = require("crypto");
 
 class Users {
   constructor(data) {
@@ -145,4 +152,83 @@ class Users {
   }
 }
 
-export { Users };
+class UserKeyPair extends Users {
+  constructor(data) {
+    super(data);
+    this.private_key = data.private_key;
+    this.public_key_encode = data.public_key_encode;
+  }
+
+  static async generateKeyPair(user_id, secretKey) {
+    try {
+      const existingKeyPair = await this.getKeyPair(user_id);
+
+      if (!existingKeyPair?.user_id) {
+        const { publicKey, privateKey } = generateKeyPairSync("rsa", {
+          modulusLength: 4096,
+          publicKeyEncoding: { type: "spki", format: "pem" },
+          privateKeyEncoding: { type: "pkcs8", format: "pem" },
+        });
+
+        console.log(publicKey, privateKey);
+        const privateKeyEncode = encryptAES(privateKey, secretKey);
+        const createKeyPairQuery =
+          "INSERT INTO userkeypair (user_id, public_key, private_key_encode) VALUES(?,?,?)";
+
+        const [result] = await pool.execute(createKeyPairQuery, [
+          user_id,
+          publicKey,
+          privateKeyEncode,
+        ]);
+
+        return result.affectedRows > 0;
+      }
+    } catch (error) {
+      console.error("Database error:", error);
+      return null;
+    }
+  }
+
+  static async getKeyPair(user_id) {
+    try {
+      const findUserQuery = "SELECT * FROM userkeypair WHERE user_id = ?;";
+      const [rows] = await pool.execute(findUserQuery, [user_id]);
+
+      // Log the result of the query
+      console.log("rows:", rows);
+      // Check if rows exist and return the first one
+      if (rows.length > 0) {
+        return rows[0];
+      } else {
+        console.log("No key pair found for user_id:", user_id);
+        return null;
+      }
+    } catch (error) {
+      console.error("Database error:", error);
+      return null;
+    }
+  }
+
+  static async checkPrivateKey(user_id, secret_private_key) {
+    try {
+      const keyPair = await this.getKeyPair(user_id);
+      if (keyPair) {
+        const privateKeyDecode = decryptAES(
+          keyPair.private_key_encode,
+          secret_private_key
+        );
+        if (privateKeyDecode !== null) {
+          return {
+            private_key: privateKeyDecode,
+          };
+        }
+      }
+      return null;
+    } catch (error) {
+      console.log(error.message);
+      return null;
+    }
+  }
+}
+
+export { Users, UserKeyPair };

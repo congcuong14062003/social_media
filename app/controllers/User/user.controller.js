@@ -4,7 +4,7 @@ import Message from "../../models/User/message.model.js";
 import { ProfileMedia } from "../../models/User/profile_media.model.js";
 import { UserProfile } from "../../models/User/user_profile.model.js";
 import { UserSetting } from "../../models/User/user_setting.model.js";
-import { Users } from "../../models/User/users.model.js";
+import { UserKeyPair, Users } from "../../models/User/users.model.js";
 
 // Tạo người dùng
 const userSignup = async (req, res) => {
@@ -121,6 +121,8 @@ async function userLogout(req, res) {
   try {
     // Xóa cookie (nếu bạn sử dụng cookie để lưu trữ session)
     res.clearCookie("accessToken"); // Thay đổi tên cookie tùy thuộc vào cấu hình của bạn
+    res.clearCookie("key_refresh_token_encode"); // Thay đổi tên cookie tùy thuộc vào cấu hình của bạn
+    res.clearCookie("refreshToken"); // Thay đổi tên cookie tùy thuộc vào cấu hình của bạn
 
     // Nếu bạn sử dụng token, xóa token ở đây (ví dụ xóa khỏi database nếu cần)
     // await TokenModel.deleteOne({ userId: req.user.id });
@@ -298,12 +300,10 @@ const AcceptFriend = async (req, res) => {
     if (checkRequestor?.user_id && checkReceiver?.user_id) {
       const result = await Friend.updateStatus(requestor_id, receiver_id, 1);
       if (result === 1) {
-        res
-          .status(200)
-          .json({
-            status: 200,
-            message: "Các bạn đã trở thành bạn bè, hãy trò chuyện ngay",
-          });
+        res.status(200).json({
+          status: 200,
+          message: "Các bạn đã trở thành bạn bè, hãy trò chuyện ngay",
+        });
       } else {
         res.status(404).json({ status: false, message: "Lỗi bất định" });
       }
@@ -332,24 +332,28 @@ const ListUserInvite = async (req, res) => {
   }
 };
 
-
 // controllers/User/user.controller.js
 export async function checkFriendRequest(req, res) {
   const requestor_id = req.params.id;
   const receiver_id = req.body?.data?.user_id;
   try {
-      const query = `
+    const query = `
           SELECT * FROM friend 
           WHERE requestor_id = ? AND receiver_id = ? 
              OR requestor_id = ? AND receiver_id = ?
       `;
-      const [rows] = await pool.execute(query, [requestor_id, receiver_id, receiver_id, requestor_id]);
+    const [rows] = await pool.execute(query, [
+      requestor_id,
+      receiver_id,
+      receiver_id,
+      requestor_id,
+    ]);
 
-      // Return status based on whether a request exists
-      res.json({ hasRequest: rows.length > 0 });
+    // Return status based on whether a request exists
+    res.json({ hasRequest: rows.length > 0 });
   } catch (error) {
-      console.error("Database error:", error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Database error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
 
@@ -359,27 +363,32 @@ export async function cancelFriendRequest(req, res) {
   const receiver_id = req.body?.data?.user_id;
 
   try {
-      const query = `
+    const query = `
           DELETE FROM friend 
           WHERE requestor_id = ? AND receiver_id = ? 
              OR requestor_id = ? AND receiver_id = ?
       `;
-      await pool.execute(query, [requestor_id, receiver_id, receiver_id, requestor_id]);
+    await pool.execute(query, [
+      requestor_id,
+      receiver_id,
+      receiver_id,
+      requestor_id,
+    ]);
 
-      res.json({ success: true });
+    res.json({ success: true });
   } catch (error) {
-      console.error("Database error:", error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Database error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }
 const getallMessages = async (req, res) => {
   try {
     const user_id = req.body?.data?.user_id;
     const friend_id = req.params.id;
-    
+
     // Lấy tin nhắn từ cơ sở dữ liệu
     console.log(user_id, friend_id);
-    
+
     const result = await Message.getMessage(user_id, friend_id);
 
     // Gửi phản hồi về cho client
@@ -390,9 +399,68 @@ const getallMessages = async (req, res) => {
       .status(500)
       .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
   }
-}
+};
+
+const checkExistKeyPair = async (req, res) => {
+  try {
+    const user_id = req.body?.data?.user_id;
+    const result = await UserKeyPair.getKeyPair(user_id);
+    console.log("result: ", result);
+    
+    if (result) {
+      res.status(200).json({ status: 200, message: "đã tồn tại cặp khoá"});
+    } else {
+      res.status(401).json({ status: 401, message: "chưa tồn tại cặp khoá"});
+    }
+    // Gửi phản hồi về cho client
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+  }
+};
+
+const createKeyPair = async (req, res) => {
+  try {
+    const user_id = req.body?.data?.user_id;
+    const secretKey = req.body?.secret_key;
+    const result = await UserKeyPair.generateKeyPair(user_id, secretKey);
+    console.log("result: ", result);
+    if (result) {
+      res.status(200).json({ status: 200, message: "Tạo khoá thành công"});
+    } else {
+      res.status(401).json({ status: 401, message: "Tạo khoá thất bại"});
+    }
+    // Gửi phản hồi về cho client
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+  }
+};
 
 
+const checkSecretDeCryptoPrivateKey = async (req, res) => {
+  try {
+    const user_id = req.body?.data?.user_id;
+    const secretKey = req.body?.secret_key;
+    const result = await UserKeyPair.checkPrivateKey(user_id, secretKey);
+    console.log("result: ", result);
+    if (result) {
+      res.status(200).json({ status: 200, data: result});
+    } else {
+      res.status(401).json({ status: 401, message: "Mã khoá sai"});
+    }
+    // Gửi phản hồi về cho client
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+  }
+};
 
 export {
   userSignup,
@@ -407,5 +475,8 @@ export {
   AcceptFriend,
   findAllUser,
   ListUserInvite,
-  getallMessages
+  getallMessages,
+  checkExistKeyPair,
+  createKeyPair,
+  checkSecretDeCryptoPrivateKey
 };

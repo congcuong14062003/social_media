@@ -82,26 +82,16 @@ io.on("connection", (socket) => {
         const room = await Message.getRoom(senderId, receiverId);
 
         if (room?.private_room_id) {
-          let encodeText = encryptWithPublicKey(text, room?.public_key);
           const newMessage = new Message({
             private_room_id: room?.private_room_id,
-            contentText: encodeText,
+            contentText: text,
             senderId,
             receiverId,
-            public_key: room?.public_key,
-            private_key: room?.private_key,
           });
 
-          const result = await newMessage.create();
-          if (result?.affectedRows > 0) {
-            io.to(user.socketId).emit("getMessage", {
-              senderId,
-              receiverId,
-              text: encodeText,
-            });
-          }
+          const result = await newMessage.create(io, user);
+          
 
-          console.log("Giải mã: ", decryptWithPrivateKey(encodeText, room?.private_key));
         }
       } catch (error) {
         console.error("Error saving message: ", error);
