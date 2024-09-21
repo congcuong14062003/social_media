@@ -23,10 +23,11 @@ export default function UserRouter() {
   router.post('/cancel-request/:id', Authentication, Authorization, cancelFriendRequest);
 
 
-  router.get('/all-messages/:id', Authentication, Authorization, getallMessages);
+  router.post('/all-messages/:id', Authentication, Authorization, getallMessages);
   router.get('/check-exists-keypair', Authentication, Authorization, checkExistKeyPair);
   router.post('/post-keypair', Authentication, Authorization, createKeyPair);
   router.post('/post-decode-private-key', Authentication, Authorization, checkSecretDeCryptoPrivateKey);
+  router.post('/decode-message', Authentication, Authorization, checkSecretDeCryptoPrivateKey);
 
 
 

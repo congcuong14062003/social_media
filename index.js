@@ -79,20 +79,18 @@ io.on("connection", (socket) => {
     if (user) {
       try {
         // Tìm hoặc tạo phòng trò chuyện
-        const room = await Message.getRoom(senderId, receiverId);
+      
 
-        if (room?.private_room_id) {
           const newMessage = new Message({
-            private_room_id: room?.private_room_id,
             contentText: text,
             senderId,
             receiverId,
           });
 
           const result = await newMessage.create(io, user);
-          
+         
 
-        }
+        
       } catch (error) {
         console.error("Error saving message: ", error);
       }

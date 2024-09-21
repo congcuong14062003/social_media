@@ -170,7 +170,7 @@ class UserKeyPair extends Users {
           privateKeyEncoding: { type: "pkcs8", format: "pem" },
         });
 
-        console.log(publicKey, privateKey);
+        console.log("Khoá bí mật: ", privateKey);
         const privateKeyEncode = encryptAES(privateKey, secretKey);
         const createKeyPairQuery =
           "INSERT INTO userkeypair (user_id, public_key, private_key_encode) VALUES(?,?,?)";
@@ -195,7 +195,7 @@ class UserKeyPair extends Users {
       const [rows] = await pool.execute(findUserQuery, [user_id]);
 
       // Log the result of the query
-      console.log("rows:", rows);
+
       // Check if rows exist and return the first one
       if (rows.length > 0) {
         return rows[0];
