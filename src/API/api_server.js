@@ -31,6 +31,7 @@ const API_GET_MESSAGES = (id) => `${API_HOST}/users/all-messages/${id}`;
 const API_CHECK_EXIST_KEY_PAIR = `${API_HOST}/users/check-exists-keypair`;
 const API_POST_KEY_PAIR = `${API_HOST}/users/post-keypair`;
 const API_POST_DECODE_PRIVATE_KEY_PAIR = `${API_HOST}/users/post-decode-private-key`;
+const API_DECODE_MESSAGE = `${API_HOST}/users/decode-message`;
 
 
 
@@ -79,5 +80,6 @@ export {
     API_GET_MESSAGES,
     API_CHECK_EXIST_KEY_PAIR,
     API_POST_KEY_PAIR,
-    API_POST_DECODE_PRIVATE_KEY_PAIR
+    API_POST_DECODE_PRIVATE_KEY_PAIR,
+    API_DECODE_MESSAGE
 };

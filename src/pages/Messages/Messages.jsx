@@ -11,7 +11,6 @@ import FriendItem from '../../components/Friend/FriendItem/FriendItem';
 import PopoverChat from '../../components/Popover/PopoverChat/PopoverChat';
 import Search from '../../components/Search/Search';
 import './Messages.scss';
-import AvatarUser from '../../components/AvatarUser/AvatarUser';
 import MessagesItems from '../../components/MessagesItems/MessagesItems';
 import SettingMessages from '../../components/SettingMessages/SettingMessages';
 import ToolTip from '../../components/ToolTip/ToolTip';
@@ -26,6 +25,7 @@ import {
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import { OwnDataContext } from '../../provider/own_data';
 import { useSocket } from '../../provider/socket_context';
+import { decryptRSA } from '../../ultils/crypto';
 
 function MessagesPage() {
     const [message, setMessage] = useState(''); // Tin nhắn hiện tại
@@ -37,6 +37,7 @@ function MessagesPage() {
     const [hasPrivateKey, setHasPrivateKey] = useState(false);
     const socket = useSocket();
     const dataUser = useContext(OwnDataContext);
+    const privateKey = localStorage.getItem('private-key');
 
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
@@ -55,18 +56,21 @@ function MessagesPage() {
         // Kiểm tra xem "private-key" có tồn tại trong localStorage không
         const privateKey = localStorage.getItem('private-key');
         if (privateKey) {
-          setHasPrivateKey(true); // Cập nhật trạng thái thành true nếu tìm thấy
+            setHasPrivateKey(true); // Cập nhật trạng thái thành true nếu tìm thấy
         } else {
-          setHasPrivateKey(false); // Nếu không có, trạng thái là false
+            setHasPrivateKey(false); // Nếu không có, trạng thái là false
         }
-      }, []);
+    }, []);
     // Lấy tin nhắn
     useEffect(() => {
         const fetchData = async () => {
+            const codeString = code.join(''); // Ghép mảng `code` thành chuỗi
             try {
-                const response = await getData(API_GET_MESSAGES(id_user));
+                const response = await postData(API_GET_MESSAGES(id_user), {
+                    private_key: privateKey, // Truyền code
+                });
                 if (response.status === 200) {
-                    setMessages(response.data);
+                    setMessages(response.data); // Lưu tin nhắn đã giải mã vào state
                 }
             } catch (error) {
                 console.error('Error fetching data: ', error);
@@ -94,7 +98,7 @@ function MessagesPage() {
             //     console.log('Connected to the server', socket.id);
             // });
             socket.on('getMessage', (data) => {
-                console.log('Received message:', data);
+                // console.log('Received message:', data);
                 setMessages((prevMessages) => [
                     ...prevMessages,
                     {
@@ -178,10 +182,10 @@ function MessagesPage() {
     };
 
     // Handle form submit
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const codeString = code.join(''); // Join the code into a single string
-        console.log('Code entered:', codeString);
+        // console.log('Code entered:', codeString);
         // Send the codeString or do something with it
         if (codeMessage === true) {
             const createKey = await postData(API_POST_KEY_PAIR, { secret_key: codeString });
@@ -199,12 +203,7 @@ function MessagesPage() {
         setCode(['', '', '', '', '', '']); // Reset code input
     };
 
-    // const checkExistKeyPair = () => {
-    //     // Check if the key pair (public key, private key) exists in the local storage
-    //     // const publicKey = localStorage.getItem('publicKey');
-    //     // const privateKey = localStorage.getItem('privateKey');
-    //     const result = await getData()
-    // }
+
     const checkExistKeyPair = async () => {
         try {
             const response = await getData(API_CHECK_EXIST_KEY_PAIR);
@@ -220,7 +219,6 @@ function MessagesPage() {
     useEffect(() => {
         checkExistKeyPair();
     }, []);
-
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
@@ -257,18 +255,25 @@ function MessagesPage() {
                             <div className="chat_body">
                                 <div className="chat_main_infor">
                                     {/* Render danh sách tin nhắn */}
-                                    {messages.map((msg, index) => (
-                                        <MessagesItems
-                                            key={index}
-                                            message={msg.content_text ?? msg.text}
-                                            className={
-                                                msg.sender_id === dataUser?.user_id ||
-                                                msg.senderId === dataUser?.user_id
-                                                    ? 'sender'
-                                                    : ''
-                                            }
-                                        />
-                                    ))}
+                                    {messages.map((msg, index) => {
+                                        // console.log("Text: ",msg.content_text);
+                                        // console.log("privateKey:", privateKey);
+                                        // console.log(decryptRSA(msg.content_text, privateKey));
+
+                                        return (
+                                            <MessagesItems
+                                                key={index}
+                                                message={msg.content_text ?? msg.text}
+                                                className={
+                                                    msg.sender_id === dataUser?.user_id ||
+                                                    msg.senderId === dataUser?.user_id
+                                                        ? 'sender'
+                                                        : ''
+                                                }
+                                            />
+                                        );
+                                    })}
+
                                     <div ref={messagesEndRef}></div>
                                 </div>
                             </div>
@@ -315,7 +320,7 @@ function MessagesPage() {
                         </div>
                         <div className="button_container_code">
                             <button type="submit" disabled={code.some((digit) => digit === '')}>
-                                {codeMessage === true ? "Thêm mã code" : "Xác nhận"}
+                                {codeMessage === true ? 'Thêm mã code' : 'Xác nhận'}
                             </button>
                         </div>
                     </form>

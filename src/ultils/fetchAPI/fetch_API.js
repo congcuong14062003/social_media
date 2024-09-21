@@ -23,13 +23,14 @@ const fetchData = async (url, options = {}) => {
     console.log(error);
   }
 };
-export const getData = async (url_endpoint, headers = {}) => {
+export const getData = async (url_endpoint, payload,  headers = {}) => {
   const url = url_endpoint;
   const options = {
     method: 'GET',
     headers: {
       ...headers,
     },
+    body: JSON.stringify(payload),
   };
   return await fetchData(url, options);
 };

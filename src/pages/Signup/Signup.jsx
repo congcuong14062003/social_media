@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
-import axios from 'axios'; // Import axios
 import './Signup.scss';
 import config from '../../configs';
 import { postData } from '../../ultils/fetchAPI/fetch_API';
