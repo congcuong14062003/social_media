@@ -5,7 +5,7 @@ import {
   generateRandomString,
 } from "../../ultils/crypto.js";
 import crypto from "crypto";
-import { UserKeyPair } from "./users.model.js";
+import { UserKeyPair } from "../User/users.model.js";
 
 class Message {
   constructor(data) {
@@ -41,8 +41,6 @@ class Message {
   }
 
   async create(io, user) {
-    console.log("vào đây nhé");
-    
     try {
       const publicKeyReceiver = await Message.getPublicKeyReceiver(
         this.receiverId

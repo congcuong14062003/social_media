@@ -43,7 +43,6 @@ class Users {
 
   // tìm người dùng
   static async login(user_email, user_password) {
-    console.log("vào");
     try {
       const findUserQuery =
         "SELECT * FROM users WHERE user_email = ? and user_password = ?;";
@@ -100,51 +99,6 @@ class Users {
         "SELECT COUNT(*) as count FROM users WHERE user_email = ?;";
       const [rows] = await pool.execute(checkEmailQuery, [email]);
       return rows[0].count > 0;
-    } catch (error) {
-      console.error("Database error:", error);
-      throw error;
-    }
-  }
-  // kết bạn
-  static async addFriendById(id_user, friend_id) {
-    try {
-      // console.log(id_user, friend_id);
-      const add_friend =
-        "insert into friend(requestor_id, receiver_id, relationship_status) values(?, ?, ?)";
-      const [rows] = await pool.execute(add_friend, [id_user, friend_id, 0]);
-      return rows.affectedRows;
-    } catch (error) {
-      console.error("Database error:", error);
-      throw error;
-    }
-  }
-  // chấp nhận lời mời
-  static async AcceptFriendById(id_user, friend_id) {
-    try {
-      // console.log(id_user, friend_id);
-      const add_friend =
-        "update friend set relationship_status = 1 where requestor_id = ? and receiver_id = ?";
-      const [rows] = await pool.execute(add_friend, [id_user, friend_id, 0]);
-      return rows.affectedRows;
-    } catch (error) {
-      console.error("Database error:", error);
-      throw error;
-    }
-  }
-
-  // Danh sách người gửi kết bạn đến mình
-  static async ListInviting(id_user) {
-    try {
-      const list_inviting = `
-      SELECT u.user_id, u.user_name, pm.media_link AS avatar
-      FROM friend f
-      JOIN users u ON f.requestor_id = u.user_id
-      LEFT JOIN ProfileMedia pm ON pm.user_id = u.user_id AND pm.media_type = 'avatar'
-      WHERE f.receiver_id = ?
-    `;
-      const [rows] = await pool.execute(list_inviting, [id_user]);
-      console.log("Danh sách gửi lời mời: ", rows);
-      return rows.length > 0 ? rows : null;
     } catch (error) {
       console.error("Database error:", error);
       throw error;

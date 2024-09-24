@@ -1,6 +1,6 @@
 import pool from "../../../configs/database/database.js";
-import Friend from "../../models/User/friend.model.js";
-import Message from "../../models/User/message.model.js";
+import Friend from "../../models/Friend/friend.model.js";
+import Message from "../../models/Message/message.model.js";
 import { ProfileMedia } from "../../models/User/profile_media.model.js";
 import { UserProfile } from "../../models/User/user_profile.model.js";
 import { UserSetting } from "../../models/User/user_setting.model.js";
@@ -11,7 +11,6 @@ import { decryptWithPrivateKey } from "../../ultils/crypto.js";
 const userSignup = async (req, res) => {
   try {
     const data = req.body;
-
     // Kiểm tra email đã tồn tại hay chưa
     const emailExists = await Users.checkEmailExists(data.user_email);
     if (emailExists) {
@@ -27,7 +26,7 @@ const userSignup = async (req, res) => {
         user_id: user_id,
         media_type: "avatar",
         media_link:
-          "https://static.vecteezy.com/system/resources/previews/026/266/484/original/default-avatar-profile-icon-social-media-user-photo-image-vector.jpg",
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLp9nfWGMmdEoiP4LfWxJ1s58hFwkm4B32vQ&s",
       }).create();
       new UserProfile({
         user_id,
@@ -63,7 +62,7 @@ const createUsersBySocialAccount = async (req, res) => {
         user_id: user_id,
         media_type: "avatar",
         media_link:
-          "https://static.vecteezy.com/system/resources/previews/026/266/484/original/default-avatar-profile-icon-social-media-user-photo-image-vector.jpg",
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLp9nfWGMmdEoiP4LfWxJ1s58hFwkm4B32vQ&s",
       }).create();
       new UserProfile({
         user_id,
@@ -136,31 +135,6 @@ async function userLogout(req, res) {
   }
 }
 
-// tất cả bạn bè
-const findAllFriend = async (req, res) => {
-  try {
-    // console.log(req.body);
-    const { user_id } = req.body;
-
-    const user = await Users.findUserById(user_id);
-
-    if (user) {
-      res
-        .status(200)
-        .json({ status: 200, message: "Tồn tại người dùng", user: user });
-    } else {
-      res
-        .status(401)
-        .json({ status: 401, message: "Không tồn tại người dùng" });
-    }
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
-  }
-};
-
 // tất cả người dùng
 const findAllUser = async (req, res) => {
   try {
@@ -204,6 +178,7 @@ const findUserById = async (req, res) => {
       .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
   }
 };
+
 async function getInfoProfileUser(req, res) {
   try {
     const id = req.params.id ?? req.body?.data?.user_id;
@@ -239,7 +214,6 @@ async function getInfoProfileUser(req, res) {
     });
   }
 }
-
 // Get a user by ID
 const getUserById = async (req, res) => {
   try {
@@ -255,250 +229,13 @@ const getUserById = async (req, res) => {
   }
 };
 
-// add bạn bè
-const addFriend = async (req, res) => {
-  try {
-    // console.log(req.body);
-    const friend_id = req.params.id;
-    const user_id = req.body?.data?.user_id;
-
-    // console.log(req.body);
-
-    const user = await Users.findUserById(user_id);
-    const friend = await Users.findUserById(friend_id);
-
-    if (!user || !friend) {
-      return res
-        .status(401)
-        .json({ status: 401, message: "Không tồn tại người dùng" });
-    }
-    const addFriend = await Users.addFriendById(user_id, friend_id);
-    if (addFriend === 1) {
-      res
-        .status(200)
-        .json({ status: 200, message: "Gửi lời mời kết bạn thành công" });
-    } else {
-      res.status(401).json({ status: 401, message: "Lỗi khi gửi lời mời" });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: false, message: error.message ?? error });
-  }
-};
-
-// chấp nhận lời mời
-const AcceptFriend = async (req, res) => {
-  try {
-    const requestor_id = req.params.id;
-    const receiver_id = req.body?.data?.user_id;
-
-    // Kiểm tra sự tồn tại của người gửi và người nhận
-    const [checkRequestor, checkReceiver] = await Promise.all([
-      Users.getById(requestor_id),
-      Users.getById(receiver_id),
-    ]);
-
-    if (checkRequestor?.user_id && checkReceiver?.user_id) {
-      const result = await Friend.updateStatus(requestor_id, receiver_id, 1);
-      if (result === 1) {
-        res.status(200).json({
-          status: 200,
-          message: "Các bạn đã trở thành bạn bè, hãy trò chuyện ngay",
-        });
-      } else {
-        res.status(404).json({ status: false, message: "Lỗi bất định" });
-      }
-    } else {
-      throw new Error("Người dùng không tồn tại");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({ status: false, message: error.message ?? error });
-  }
-};
-
-const ListUserInvite = async (req, res) => {
-  try {
-    // console.log(req.body);
-    const user_id = req.body?.data?.user_id;
-    const user = await Users.ListInviting(user_id);
-    if (user) {
-      res.status(200).json({ status: 200, data: user });
-    } else {
-      res.status(401).json({ status: 401 });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: false, message: error.message ?? error });
-  }
-};
-
-// controllers/User/user.controller.js
-export async function checkFriendRequest(req, res) {
-  const requestor_id = req.params.id;
-  const receiver_id = req.body?.data?.user_id;
-  try {
-    const query = `
-          SELECT * FROM friend 
-          WHERE requestor_id = ? AND receiver_id = ? 
-             OR requestor_id = ? AND receiver_id = ?
-      `;
-    const [rows] = await pool.execute(query, [
-      requestor_id,
-      receiver_id,
-      receiver_id,
-      requestor_id,
-    ]);
-
-    // Return status based on whether a request exists
-    res.json({ hasRequest: rows.length > 0 });
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-
-// controllers/User/user.controller.js
-export async function cancelFriendRequest(req, res) {
-  const requestor_id = req.params.id;
-  const receiver_id = req.body?.data?.user_id;
-
-  try {
-    const query = `
-          DELETE FROM friend 
-          WHERE requestor_id = ? AND receiver_id = ? 
-             OR requestor_id = ? AND receiver_id = ?
-      `;
-    await pool.execute(query, [
-      requestor_id,
-      receiver_id,
-      receiver_id,
-      requestor_id,
-    ]);
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error("Database error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-}
-const getallMessages = async (req, res) => {
-  try {
-    const user_id = req.body?.data?.user_id;
-    const friend_id = req.params.id;
-    const private_key = req.body?.private_key;
-    console.log("code: ", private_key);
-    
-    // Lấy tất cả tin nhắn giữa user_id và friend_id từ cơ sở dữ liệu
-    const result = await Message.getMessage(user_id, friend_id);
-
-    
-    // Khởi tạo một mảng để lưu các tin nhắn đã giải mã
-    const listMsgDecrypt = [];
-
-    // Lặp qua tất cả các tin nhắn và giải mã từng tin nhắn
-    for (const item of result) {
-      let content_text = "Tin nhắn mã hoá";
-
-      if (item.sender_id === user_id) {
-        content_text = decryptWithPrivateKey(item.content_text_encrypt_by_owner, private_key);
-      }
-
-       if (item.sender_id === friend_id) {
-        content_text = decryptWithPrivateKey(item.content_text_encrypt, private_key);
-      }
-
-      // Thêm tin nhắn đã giải mã vào mảng kết quả
-      listMsgDecrypt.push({
-        message_id: item.id, // ID của tin nhắn
-        sender_id: item.sender_id, // ID của người gửi
-        receiver_id: item.receiver_id, // ID của người nhận
-        content_text, // Nội dung tin nhắn đã giải mã
-        created_at: item.created_at, // Thời gian gửi tin nhắn
-      });
-    }
-
-    // Gửi phản hồi về client với mảng các tin nhắn đã giải mã
-    res.status(200).json({ status: 200, data: listMsgDecrypt });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
-  }
-};
-
-
-const checkExistKeyPair = async (req, res) => {
-  try {
-    const user_id = req.body?.data?.user_id;
-    const result = await UserKeyPair.getKeyPair(user_id);
-
-    if (result) {
-      res.status(200).json({ status: 200, message: "đã tồn tại cặp khoá" });
-    } else {
-      res.status(401).json({ status: 401, message: "chưa tồn tại cặp khoá" });
-    }
-    // Gửi phản hồi về cho client
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
-  }
-};
-
-const createKeyPair = async (req, res) => {
-  try {
-    const user_id = req.body?.data?.user_id;
-    const secretKey = req.body?.secret_key;
-    const result = await UserKeyPair.generateKeyPair(user_id, secretKey);
-    if (result) {
-      res.status(200).json({ status: 200, message: "Tạo khoá thành công" });
-    } else {
-      res.status(401).json({ status: 401, message: "Tạo khoá thất bại" });
-    }
-    // Gửi phản hồi về cho client
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
-  }
-};
-
-const checkSecretDeCryptoPrivateKey = async (req, res) => {
-  try {
-    const user_id = req.body?.data?.user_id;
-    const secretKey = req.body?.secret_key;
-    const result = await UserKeyPair.checkPrivateKey(user_id, secretKey);
-    if (result) {
-      res.status(200).json({ status: 200, data: result });
-    } else {
-      res.status(401).json({ status: 401, message: "Mã khoá sai" });
-    }
-    // Gửi phản hồi về cho client
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
-  }
-};
-
 export {
   userSignup,
   userLogin,
   findUserById,
   userLogout,
-  findAllFriend,
+  findAllUser,
   getInfoProfileUser,
   getUserById,
   createUsersBySocialAccount,
-  addFriend,
-  AcceptFriend,
-  findAllUser,
-  ListUserInvite,
-  getallMessages,
-  checkExistKeyPair,
-  createKeyPair,
-  checkSecretDeCryptoPrivateKey,
 };
