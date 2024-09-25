@@ -25,12 +25,13 @@
             font-size: var(--thirteen-px);
             color: var(--secondary-text);
         }
-        .button_action_invite {
-            display: flex;
-            flex-direction: column;
-            button {
-                margin-top: 5px;
-            }
+    }
+    .button_action_invite {
+        padding: 10px 15px;
+        display: flex;
+        flex-direction: column;
+        button {
+            margin-top: 5px;
         }
     }
 }

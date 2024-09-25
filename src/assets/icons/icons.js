@@ -275,3 +275,44 @@ export const FriendIcon = ({ fill }) => (
         <path d="M12.496 5a4 4 0 1 1 8 0 4 4 0 0 1-8 0zm4-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-9 2.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm-2 4a2 2 0 1 1 4 0 2 2 0 0 1-4 0zM5.5 15a5 5 0 0 0-5 5 3 3 0 0 0 3 3h8.006a3 3 0 0 0 3-3 5 5 0 0 0-5-5H5.5zm-3 5a3 3 0 0 1 3-3h4.006a3 3 0 0 1 3 3 1 1 0 0 1-1 1H3.5a1 1 0 0 1-1-1zm12-9.5a5.04 5.04 0 0 0-.37.014 1 1 0 0 0 .146 1.994c.074-.005.149-.008.224-.008h4.006a3 3 0 0 1 3 3 1 1 0 0 1-1 1h-3.398a1 1 0 1 0 0 2h3.398a3 3 0 0 0 3-3 5 5 0 0 0-5-5H14.5z"></path>
     </svg>
 );
+export const AudioIcon = ({ fill }) => (
+    <svg class="x1lliihq x1tzjh5l xsrhx6k x1dmfqyo" height="20px" viewBox="0 0 34 48" width="20px">
+        <title></title>
+        <path
+            d="M17 37v9"
+            fill="none"
+            stroke="#0866ff"
+            stroke-linejoin="round"
+            stroke-width="4"
+        ></path>
+        <path
+            d="M10 46h14"
+            fill="none"
+            stroke="#0866ff"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="4px"
+        ></path>
+        <path
+            d="M39 20v3.5A14.5 14.5 0 0124.5 38h-1A14.5 14.5 0 019 23.5V20"
+            fill="none"
+            stroke="#0866ff"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="4px"
+            transform="translate(-7)"
+        ></path>
+        <rect
+            fill="#0866ff"
+            height="28"
+            rx="6.5"
+            stroke="#0866ff"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="4"
+            width="14"
+            x="10"
+            y="2"
+        ></rect>
+    </svg>
+);

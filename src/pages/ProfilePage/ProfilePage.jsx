@@ -83,6 +83,7 @@ function ProfilePage() {
         };
         fetchData();
     }, [id_user]);
+    
     const handleAddFriend = async () => {
         const response = await postData(API_ADD_FRIEND(id_user));
         console.log(response);

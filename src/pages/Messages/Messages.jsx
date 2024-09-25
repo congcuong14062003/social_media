@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
+    AudioIcon,
     ExtendChatIcon,
     LikeMessageIcon,
     PhoneIcon,
@@ -14,9 +15,10 @@ import './Messages.scss';
 import MessagesItems from '../../components/MessagesItems/MessagesItems';
 import SettingMessages from '../../components/SettingMessages/SettingMessages';
 import ToolTip from '../../components/ToolTip/ToolTip';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     API_CHECK_EXIST_KEY_PAIR,
+    API_CHECK_IF_FRIEND,
     API_GET_INFO_USER_PROFILE_BY_ID,
     API_GET_MESSAGES,
     API_POST_DECODE_PRIVATE_KEY_PAIR,
@@ -25,20 +27,39 @@ import {
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import { OwnDataContext } from '../../provider/own_data';
 import { useSocket } from '../../provider/socket_context';
-import { decryptRSA } from '../../ultils/crypto';
+import {
+    FaUserCircle,
+    FaFacebookMessenger,
+    FaVideo,
+    FaPhoneAlt,
+    FaEllipsisV,
+    FaStop,
+    FaMicrophone,
+    FaUserLock,
+    FaFileDownload,
+} from 'react-icons/fa';
+import { FilePond } from 'react-filepond';
+import "filepond/dist/filepond.min.css";
 
 function MessagesPage() {
+    const [files, setFiles] = useState([]);
+    const [showFilePond, setShowFilePond] = useState(false);
     const [message, setMessage] = useState(''); // Tin nhắn hiện tại
     const [messages, setMessages] = useState([]); // Danh sách các tin nhắn
+    const [showAudio, setShowAudio] = useState(false); // mở audio
+    const [mediaRecorder, setMediaRecorder] = useState(null);
+    const [audioURL, setAudioURL] = useState(null);
+    const [isRecording, setIsRecording] = useState(false);
     const [openSettingChat, setOpenSettingChat] = useState(false);
     const { id_user } = useParams();
+    const audioChunks = useRef([]);
     const [dataFriend, setDataFriend] = useState();
     const [codeMessage, setCodeMessage] = useState();
     const [hasPrivateKey, setHasPrivateKey] = useState(false);
     const socket = useSocket();
-    const dataUser = useContext(OwnDataContext);
+    const myData = useContext(OwnDataContext);
     const privateKey = localStorage.getItem('private-key');
-
+    const navigate = useNavigate();
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
 
@@ -46,7 +67,24 @@ function MessagesPage() {
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
+    // check xem đã là bạn bè chưa
+    // const checkIfFriend = async () => {
+    //     try {
+    //         const response = await getData(API_CHECK_IF_FRIEND(id_user));
+    //         console.log("response: ", response);
+    //         if (response.isFriend === false) {
+    //             navigate('/')
+    //             toast.error("Bạn với người này chưa phải bạn bè vui lòng kết bạn để nhắn tin")
+    //         }
 
+    //     } catch (error) {
+    //         console.error('Error checking if friend:', error);
+    //     }
+    // };
+
+    // useEffect(()=> {
+    //     checkIfFriend()
+    // }, [id_user])
     // Cuộn đến tin nhắn mới nhất mỗi khi danh sách tin nhắn thay đổi
     useEffect(() => {
         scrollToBottom();
@@ -86,10 +124,10 @@ function MessagesPage() {
 
     // Gửi thông tin user đến server khi socket kết nối
     useEffect(() => {
-        if (socket && dataUser?.user_id) {
-            socket.emit('addUser', dataUser?.user_id); // Gửi id_user tới server
+        if (socket && myData?.user_id) {
+            socket.emit('addUser', myData?.user_id); // Gửi id_user tới server
         }
-    }, [socket, dataUser]);
+    }, [socket, myData]);
 
     // Đăng ký sự kiện nhận tin nhắn
     useEffect(() => {
@@ -104,7 +142,7 @@ function MessagesPage() {
                     {
                         senderId: data.senderId,
                         text: data.text,
-                        isSender: data.senderId === dataUser?.user_id,
+                        isSender: data.senderId === myData?.user_id,
                     },
                 ]);
             });
@@ -113,21 +151,21 @@ function MessagesPage() {
                 socket.off('getMessage'); // Ngừng lắng nghe sự kiện khi component unmount
             };
         }
-    }, [socket, dataUser]);
+    }, [socket, myData]);
 
     // Gửi tin nhắn khi click vào icon gửi tin nhắn
     const handleSendMessage = () => {
         if (socket && message.trim()) {
             const receiverId = id_user; // Lấy id người nhận từ thông tin friend
             socket.emit('sendMessage', {
-                senderId: dataUser?.user_id,
+                senderId: myData?.user_id,
                 receiverId,
                 text: message,
             });
             setMessages((prevMessages) => [
                 ...prevMessages,
                 {
-                    senderId: dataUser?.user_id,
+                    senderId: myData?.user_id,
                     text: message,
                     isSender: true,
                 },
@@ -203,7 +241,6 @@ function MessagesPage() {
         setCode(['', '', '', '', '', '']); // Reset code input
     };
 
-
     const checkExistKeyPair = async () => {
         try {
             const response = await getData(API_CHECK_EXIST_KEY_PAIR);
@@ -219,6 +256,45 @@ function MessagesPage() {
     useEffect(() => {
         checkExistKeyPair();
     }, []);
+
+    // event
+    const handleOpenAudio = () => {
+        setShowAudio(!showAudio);
+    };
+    useEffect(() => {
+        if (mediaRecorder) {
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.current.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
+                const url = URL.createObjectURL(audioBlob);
+                setAudioURL(url);
+                audioChunks.current = [];
+                handleSendAudio(audioBlob); // Send audio when recording stops
+            };
+        }
+    }, [mediaRecorder]);
+
+    const startRecording = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        setMediaRecorder(recorder);
+        recorder.start();
+        setIsRecording(true);
+    };
+
+    const stopRecording = () => {
+        mediaRecorder.stop();
+        setIsRecording(false);
+    };
+
+    const handleSendAudio = async (audioFile) => {
+      
+    };
+    console.log(audioURL);
+    console.log("files: ", files);
+    
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
@@ -256,17 +332,13 @@ function MessagesPage() {
                                 <div className="chat_main_infor">
                                     {/* Render danh sách tin nhắn */}
                                     {messages.map((msg, index) => {
-                                        // console.log("Text: ",msg.content_text);
-                                        // console.log("privateKey:", privateKey);
-                                        // console.log(decryptRSA(msg.content_text, privateKey));
-
                                         return (
                                             <MessagesItems
                                                 key={index}
                                                 message={msg.content_text ?? msg.text}
                                                 className={
-                                                    msg.sender_id === dataUser?.user_id ||
-                                                    msg.senderId === dataUser?.user_id
+                                                    msg.sender_id === myData?.user_id ||
+                                                    msg.senderId === myData?.user_id
                                                         ? 'sender'
                                                         : ''
                                                 }
@@ -277,18 +349,50 @@ function MessagesPage() {
                                     <div ref={messagesEndRef}></div>
                                 </div>
                             </div>
+                            {showFilePond && (
+                                <FilePond
+                                    files={files}
+                                    allowMultiple={true}
+                                    onupdatefiles={setFiles}
+                                    labelIdle='Kéo và Thả tệp phương tiện or <span class="filepond--label-action">Duyệt</span>'
+                                />
+                            )}
+                            {showAudio && (
+                                <div className="hear" onClick={isRecording ? stopRecording : startRecording}>
+                                    {isRecording ? (
+                                        <>
+                                            <FaStop /> Đang nghe...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FaMicrophone /> Bấm để ghi âm
+                                        </>
+                                    )}
+                                </div>
+                            )}
                             <div className="chat_footer">
-                                <Search placeholder="Nhập tin nhắn" value={message} onChange={handleInputChange} />
-                                <div className="send_file_input">
+                                <div className="send_file_input" onClick={handleOpenAudio}>
+                                    <AudioIcon />
+                                </div>
+                                <div className="send_file_input" onClick={() => setShowFilePond(!showFilePond)}>
                                     <SendFileIcon />
                                 </div>
-                                <div
+                                <Search placeholder="Nhập tin nhắn" value={message} onChange={handleInputChange} />
+
+                                {/* <div
                                     className={`send_mesage_action ${message ? '' : 'hidden'}`}
                                     onClick={handleSendMessage}
                                 >
                                     <SendMessageIcon />
                                 </div>
-                                <div className={`like_message_action ${message ? 'hidden' : ''}`}>
+                                 */}
+                                <div
+                                    className={`send_mesage_action`}
+                                    onClick={handleSendMessage}
+                                >
+                                    <SendMessageIcon />
+                                </div>
+                                <div className={`like_message_action hidden}`}>
                                     <LikeMessageIcon />
                                 </div>
                             </div>
