@@ -136,7 +136,7 @@ const checkFriend = async (req, res) => {
     const isFriend = await Friend.isFriend(receiver_id, requestor_id);
 
     // Trả về kết quả
-    res.status(200).json({ status: true, isFriend });
+    res.status(200).json({ status: 200, isFriend });
   } catch (error) {
     console.log(error);
     res.status(400).json({ status: false, message: error.message ?? error });

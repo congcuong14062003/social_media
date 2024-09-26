@@ -219,7 +219,7 @@ const getUserById = async (req, res) => {
   try {
     const user = await Users.findUserById(req.params.id);
     if (user) {
-      res.status(200).json({ status: true, data: user });
+      res.status(200).json({ status: 200, data: user });
     } else {
       res.status(404).json({ status: false });
     }

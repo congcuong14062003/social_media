@@ -9,14 +9,16 @@ import { UserKeyPair } from "../User/users.model.js";
 
 class Message {
   constructor(data) {
-    this.contentText = data.contentText;
-    this.mediaLink = data.mediaLink;
-    this.contentType = data.contentType;
-    this.replyToId = data.replyToId;
-    this.senderId = data.senderId;
-    this.receiverId = data.receiverId;
+    this.messenger_id = data.messenger_id;
+    this.content_text_encrypt = data.content_text_encrypt;
+    this.content_text_encrypt_by_owner = data.content_text_encrypt_by_owner;
+    this.content_type = data.content_type;
+    this.reply_text = data.reply_text;
+    this.sender_id = data.sender_id;
+    this.receiver_id = data.receiver_id;
+    this.name_file = data.name_file || null;
+    this.created_at = data.created_at;
   }
-
 
   static async getPublicKeyReceiver(receiver_id) {
     try {
@@ -30,7 +32,7 @@ class Message {
 
       if (result.length > 0) {
         return {
-          public_key: result[0].public_key,
+          public_key: result[0]?.public_key,
         };
       }
       return null;
@@ -40,49 +42,44 @@ class Message {
     }
   }
 
-  async create(io, user) {
+  async create(text) {
     try {
       const publicKeyReceiver = await Message.getPublicKeyReceiver(
-        this.receiverId
+        this.receiver_id
       ); // Use Message.getPublicKeyReceiver
 
       const publicKeySender = await Message.getPublicKeyReceiver(
-        this.senderId
+        this.sender_id
       );
       const textEnCryptoRSA = encryptWithPublicKey(
-        this.contentText,
+        text,
         publicKeyReceiver.public_key
       );
       const textEnCryptoRSAForSender = encryptWithPublicKey(
-        this.contentText,
+        text,
         publicKeySender.public_key
       );
       const createMessageQuery = `
         INSERT INTO PrivateMessage (
           content_text_encrypt,
           content_text_encrypt_by_owner,
+          content_type,
+          name_file,
           sender_id,
           receiver_id
-        ) VALUES (?, ?, ?, ?);
+        ) VALUES (?, ?, ?, ?, ?, ?);
       `;
 
       const [result] = await pool.execute(createMessageQuery, [
         textEnCryptoRSA,
         textEnCryptoRSAForSender,
-        this.senderId,
-        this.receiverId,
+        this.content_type,
+        this.name_file,
+        this.sender_id,
+        this.receiver_id,
       ]);
 
-      
-
-      return (
-        result.affectedRows > 0 &&
-        io.to(user.socketId).emit("getMessage", {
-          senderId: this.senderId,
-          receiverId: this.receiverId,
-          text: this.contentText,
-        })
-      );
+      return result.affectedRows > 0;
     } catch (error) {
       console.error("Error creating message: ", error);
       throw error;
@@ -97,7 +94,8 @@ class Message {
           content_text_encrypt,
           content_text_encrypt_by_owner,
           content_type,
-          reply_to_id,
+          name_file,
+          reply_text,
           sender_id,
           receiver_id,
           created_at

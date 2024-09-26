@@ -1,56 +1,120 @@
+import { io, users } from "../../..";
+import { getSocketIdByUserId } from "../../../configs/socketIO/socketManager";
 import Message from "../../models/Message/message.model";
 import { UserKeyPair } from "../../models/User/users.model";
 import { decryptWithPrivateKey } from "../../ultils/crypto";
-
-// lấy tất cả tin nhắn của mình mới 1 người nào đó
-const getallMessages = async (req, res) => {
+const createMessage = async (req, res) => {
   try {
-    const user_id = req.body?.data?.user_id;
-    const friend_id = req.params.id;
-    const private_key = req.body?.private_key;
-    console.log("code: ", private_key);
-
-    // Lấy tất cả tin nhắn giữa user_id và friend_id từ cơ sở dữ liệu
-    const result = await Message.getMessage(user_id, friend_id);
-
-    // Khởi tạo một mảng để lưu các tin nhắn đã giải mã
-    const listMsgDecrypt = [];
-
-    // Lặp qua tất cả các tin nhắn và giải mã từng tin nhắn
-    for (const item of result) {
-      let content_text = "Tin nhắn mã hoá";
-
-      if (item.sender_id === user_id) {
-        content_text = decryptWithPrivateKey(
-          item.content_text_encrypt_by_owner,
-          private_key
-        );
-      }
-
-      if (item.sender_id === friend_id) {
-        content_text = decryptWithPrivateKey(
-          item.content_text_encrypt,
-          private_key
-        );
-      }
-
-      // Thêm tin nhắn đã giải mã vào mảng kết quả
-      listMsgDecrypt.push({
-        message_id: item.id, // ID của tin nhắn
-        sender_id: item.sender_id, // ID của người gửi
-        receiver_id: item.receiver_id, // ID của người nhận
-        content_text, // Nội dung tin nhắn đã giải mã
-        created_at: item.created_at, // Thời gian gửi tin nhắn
-      });
+    const files = req.files || {};
+    const user_id = req.body?.data?.user_id ?? null;
+    const friend_id = req.params?.id ?? null;
+    let content_text = req.body?.content_text ?? "";
+    const content_type = req.body?.content_type ?? "";
+    const name_file = req.body?.name_file ?? "";
+    console.log(files[0]);
+    
+    if (files.length > 0) {
+      content_text = (await uploadFile(files[0], process.env.NAME_FOLDER_MESSENGER))?.url;
     }
 
-    // Gửi phản hồi về client với mảng các tin nhắn đã giải mã
-    res.status(200).json({ status: 200, data: listMsgDecrypt });
+    
+    // Check for missing required fields
+    if (!user_id || !friend_id || !content_text) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Dữ liệu nhập vào không hợp lệ" });
+    }
+
+    // Create a new message instance
+    const newMessage = new Message({
+      sender_id: user_id,
+      receiver_id: friend_id,
+      content_type: content_type,
+      name_file: name_file,
+    });
+
+    // Attempt to create the message in the database
+    const result = await newMessage.create(content_text);
+
+    // Respond based on the result of the message creation
+    if (result) {
+      console.log("vào");
+      
+      // Send message to receiver regardless of database result
+      io.to(getSocketIdByUserId(friend_id, users)).emit("receiveMessage", {
+        sender_id: user_id,
+        receiver_id: friend_id,
+        content_text: content_text,
+        content_type: content_type,
+        name_file: name_file,
+      });
+      return res.status(201).json({ status: 200 });
+    } else {
+      return res
+        .status(500)
+        .json({ status: false, message: "Failed to create message" });
+    }
   } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+    console.error(error.message);
+    return res.status(500).json({
+      status: false,
+      message: "An error occurred, please try again later",
+    });
+  }
+};
+// lấy tất cả tin nhắn của mình mới 1 người nào đó
+const getAllMessages = async (req, res) => {
+  try {
+    const user_id = req.body?.data?.user_id ?? null;
+    const friend_id = req.params?.id ?? null;
+    const private_key = req.body?.private_key ?? "";
+    console.log("user_id", user_id);
+    console.log("friend_id", friend_id);
+    console.log("private_key", private_key);
+    
+    if (!user_id || !friend_id || !private_key) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Missing required fields" });
+    }
+
+    const result = await Message.getMessage(user_id, friend_id);
+
+    const listMsgDecrypt = await Promise.all(
+      result.map(async (item) => {
+        let content_text = "Encrypted message";
+
+        if (item.sender_id === user_id) {
+          content_text = decryptWithPrivateKey(
+            item.content_text_encrypt_by_owner,
+            private_key
+          );
+        } else if (item.sender_id === friend_id) {
+          content_text = decryptWithPrivateKey(
+            item.content_text_encrypt,
+            private_key
+          );
+        }
+
+        return {
+          message_id: item.id,
+          sender_id: item.sender_id,
+          receiver_id: item.receiver_id,
+          content_text,
+          name_file: item.name_file,
+          content_type: item.content_type,
+          created_at: item.created_at,
+        };
+      })
+    );
+
+    return res.status(200).json({ status: 200, data: listMsgDecrypt });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: false,
+      message: "An error occurred, please try again later",
+    });
   }
 };
 // kiểm tra cặp khoá đã tồn tại chưa
@@ -95,19 +159,42 @@ const checkSecretDeCryptoPrivateKey = async (req, res) => {
 const createKeyPair = async (req, res) => {
   try {
     const user_id = req.body?.data?.user_id;
-    const secretKey = req.body?.secret_key;
-    const result = await UserKeyPair.generateKeyPair(user_id, secretKey);
+    const code = req.body?.code;
+    const result = await userkeypair.create(user_id, code);
     if (result) {
-      res.status(200).json({ status: 200, message: "Tạo khoá thành công" });
+      res.status(201).json({ status: 200, message: "Tạo khoá thành công" });
     } else {
-      res.status(401).json({ status: 401, message: "Tạo khoá thất bại" });
+      res
+        .status(400)
+        .json({
+          status: false,
+          message: "Tạo khoá thất bại, thử lại với mã khác",
+        });
     }
     // Gửi phản hồi về cho client
   } catch (error) {
     console.log(error);
     res
       .status(500)
-      .json({ status: 500, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+      .json({ status: false, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
   }
 };
-export { getallMessages, checkExistKeyPair, checkSecretDeCryptoPrivateKey, createKeyPair };
+// xoá cặp khoá
+const deleteKeysPair = async (req, res) => {
+  try {
+    const user_id = req.body?.data?.user_id;
+
+    const result = await UserKeyPair.deleteKeysPair(user_id);
+    
+    if (result) {
+      res.status(200).json({ status: 200 });
+    } 
+    // Gửi phản hồi về cho client
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ status: false, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+  }
+};
+export {createMessage, getAllMessages, checkExistKeyPair, checkSecretDeCryptoPrivateKey, createKeyPair, deleteKeysPair };

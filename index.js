@@ -7,82 +7,42 @@ import logger from "morgan";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import Message from "./app/models/Message/message.model.js";
+import { initializeSocket } from "./configs/socketIO/socketManager.js";
+
+
 dotenv.config();
 const app = express();
 const httpServer = createServer(app); // Tạo HTTP server từ Express
 
-// Cấu hình Socket.IO
-const io = require("socket.io")(8900, {
-  cors: {
-    origin: "http://localhost:5173",
-  },
-});
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
 app.use(logger("dev"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+const PORT = process.env.PORT || 5000;
+const hostClient = "http://localhost:3001";
 
 // Cấu hình CORS cho server
 app.use(
   cors({
-    origin: "http://localhost:5173", // URL của React app
+    origin: hostClient, // URL của React app
     credentials: true,
   })
 );
-// Kết nối đến database
-connect();
-// Cấu hình route chính
-RouterMain(app);
-const PORT = process.env.PORT || 5000;
 // Tạo danh sách người dùng
 let users = [];
-// Thêm người dùng vào danh sách
-const addUser = (userId, socketId) => {
-  const existingUser = users.find((user) => user.userId === userId);
-  if (existingUser) {
-    existingUser.socketId = socketId;
-  } else {
-    users.push({ userId, socketId });
-  }
-};
-// Xóa người dùng khỏi danh sách
-const removeUser = (socketId) => {
-  users = users.filter((user) => user.socketId !== socketId);
-};
-// Lấy người dùng dựa trên userId
-const getUser = (userId) => {
-  return users.find((user) => user.userId === userId);
-};
 
-// Socket.IO lắng nghe kết nối
-io.on("connection", (socket) => {
-  socket.on("addUser", (userId) => {
-    console.log(`${users.length} user connected.`);
-    addUser(userId, socket.id);
-    io.emit("getUsers", users);
-  });
-  socket.on("sendMessage", async ({ senderId, receiverId, text }) => {
-    const user = getUser(receiverId);
-    if (user) {
-      try {
-          const newMessage = new Message({
-            contentText: text,
-            senderId,
-            receiverId,
-          });
-          const result = await newMessage.create(io, user);
-      } catch (error) {
-        console.error("Error saving message: ", error);
-      }
-    }
-  });
-  socket.on("disconnect", () => {
-    console.log("A user disconnected!");
-    removeUser(socket.id);
-    io.emit("getUsers", users);
-  });
-});
-// Lắng nghe HTTP server và Socket.IO
-httpServer.listen(PORT, () => {
+// Khởi tạo server HTTP
+const server = createServer(app);
+const io = initializeSocket(server, users);
+
+export { io, users};
+
+// Khởi động server HTTP
+server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
 });
+
+// Router API
+app.use("/apis", RouterMain(express.Router()));

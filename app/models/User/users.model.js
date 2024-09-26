@@ -143,6 +143,7 @@ class UserKeyPair extends Users {
     }
   }
 
+  // Lấy cặp khoá
   static async getKeyPair(user_id) {
     try {
       const findUserQuery = "SELECT * FROM userkeypair WHERE user_id = ?;";
@@ -162,15 +163,15 @@ class UserKeyPair extends Users {
       return null;
     }
   }
-
-  static async checkPrivateKey(user_id, secret_private_key) {
+ // Giải mã và lấy khoá bí mật
+  static async checkPrivateKey(user_id, code) {
     try {
       const keyPair = await this.getKeyPair(user_id);
+
       if (keyPair) {
-        const privateKeyDecode = decryptAES(
-          keyPair.private_key_encode,
-          secret_private_key
-        );
+        const privateKeyDecode = decryptAES(keyPair.private_key_encrypt, code);
+        console.log("Key pair: ", privateKeyDecode);
+
         if (privateKeyDecode !== null) {
           return {
             private_key: privateKeyDecode,
@@ -180,6 +181,27 @@ class UserKeyPair extends Users {
       return null;
     } catch (error) {
       console.log(error.message);
+      return null;
+    }
+  }
+
+  // xoá cặp khoá
+  static async deleteKeysPair(user_id) {
+    try {
+      const deleteUserQuery = "DELETE FROM userkeypair WHERE user_id = ?;";
+      const [rows] = await pool.execute(deleteUserQuery, [user_id]);
+
+      // Log the result of the query
+
+      // Check if rows exist and return the first one
+      if (rows.length > 0) {
+        return rows[0];
+      } else {
+        console.log("No key pair found for user_id:", user_id);
+        return null;
+      }
+    } catch (error) {
+      console.error("Database error:", error);
       return null;
     }
   }

@@ -1,20 +1,14 @@
-import mysql from "mysql2";
-async function connect() {
-  // Kết nối đến MySQL
-  const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
+import mysql from "mysql2/promise";
+import { config } from "dotenv";
 
-  connection.connect((err) => {
-    if (err) {
-      console.error("Error connecting to MySQL database:", err.stack);
-      return;
-    }
-    console.log("Connected to MySQL database as id", connection.threadId);
-  });
-}
+config();
 
-export default connect;
+const pool = mysql.createPool({
+  connectionLimit: process.env.DB_CONNECTION_LIMIT, // Bạn có thể đặt giá trị cố định nếu không cần cấu hình từ .env
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+});
+
+export default pool;
