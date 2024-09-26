@@ -1,4 +1,4 @@
-const API_HOST = 'http://localhost:1406';
+const API_HOST = 'http://localhost:1406/apis';
 
 // user API endpoints
 const API_SIGNUP_POST = API_HOST + '/users/signup';
@@ -28,10 +28,10 @@ const API_CANCEL_FRIEND_REQUEST = (id) => `${API_HOST}/friends/cancel-request/${
 
 
 ////// messages
-const API_SEND_MESSAGE = (id) => API_HOST + "/messenger/send/" + id;
+const API_SEND_MESSAGE = (id) => API_HOST + "/messages/send-message/" + id;
 const API_GET_MESSAGES = (id) => `${API_HOST}/messages/all-messages/${id}`;
 const API_CHECK_EXIST_KEY_PAIR = `${API_HOST}/messages/check-exists-keypair`;
-const API_POST_KEY_PAIR = `${API_HOST}/messages/post-keypair`;
+const API_POST_KEY_PAIR = `${API_HOST}/messages/create-keypair`;
 const API_POST_DECODE_PRIVATE_KEY_PAIR = `${API_HOST}/messages/post-decode-private-key`;
 const API_DECODE_MESSAGE = `${API_HOST}/messages/decode-message`;
 
