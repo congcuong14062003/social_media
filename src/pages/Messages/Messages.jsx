@@ -41,6 +41,8 @@ import {
 } from 'react-icons/fa';
 import { FilePond } from 'react-filepond';
 import 'filepond/dist/filepond.min.css';
+import { toast } from 'react-toastify';
+import config from '../../configs';
 
 function MessagesPage() {
     const [files, setFiles] = useState([]);
@@ -55,38 +57,55 @@ function MessagesPage() {
     const { id_receiver } = useParams();
     const audioChunks = useRef([]);
     const [dataFriend, setDataFriend] = useState();
-    const [codeMessage, setCodeMessage] = useState();
+    const [codeMessage, setCodeMessage] = useState(false);
     const [hasPrivateKey, setHasPrivateKey] = useState(false);
     const socket = useSocket();
     const dataOwner = useContext(OwnDataContext);
-    const privateKey = localStorage.getItem('private-key');
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState(false);
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
+    const privateKey = localStorage.getItem('private-key');
 
     // Hàm cuộn đến tin nhắn mới nhất
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
     // check xem đã là bạn bè chưa
-    // const checkIfFriend = async () => {
-    //     try {
-    //         const response = await getData(API_CHECK_IF_FRIEND(id_receiver));
-    //         console.log("response: ", response);
-    //         if (response.isFriend === false) {
-    //             navigate('/')
-    //             toast.error("Bạn với người này chưa phải bạn bè vui lòng kết bạn để nhắn tin")
-    //         }
+    const checkIfFriend = async () => {
+        try {
+            const response = await getData(API_CHECK_IF_FRIEND(id_receiver));
+            console.log('response: ', response);
+            if (response.isFriend === false) {
+                navigate('/');
+                toast.error('Bạn với người này chưa phải bạn bè vui lòng kết bạn để nhắn tin');
+            }
+        } catch (error) {
+            console.error('Error checking if friend:', error);
+        }
+    };
+    useEffect(() => {
+        checkIfFriend();
+    }, [id_receiver]);
 
-    //     } catch (error) {
-    //         console.error('Error checking if friend:', error);
-    //     }
-    // };
+    //Check xem người dùng đã có cặp key chưa
+    const checkExistKeyPair = async () => {
+        try {
+            const response = await getData(API_CHECK_EXIST_KEY_PAIR);
+            if (response.status === 200) {
+                setCodeMessage(true);
+            } else {
+                setCodeMessage(false);
+            }
+        } catch (error) {
+            console.error('Error fetching data: ', error);
+        }
+    };
 
-    // useEffect(()=> {
-    //     checkIfFriend()
-    // }, [id_receiver])
+    useEffect(() => {
+        checkExistKeyPair();
+    }, []);
+
     // Cuộn đến tin nhắn mới nhất mỗi khi danh sách tin nhắn thay đổi
     useEffect(() => {
         scrollToBottom();
@@ -114,7 +133,7 @@ function MessagesPage() {
             const getAllMessages = async () => {
                 try {
                     const response = await postData(API_GET_MESSAGES(id_receiver), {
-                        private_key: localStorage.getItem('private-key'),
+                        private_key: privateKey,
                     });
                     if (response?.status === 200) {
                         setMessages(response?.data);
@@ -185,8 +204,111 @@ function MessagesPage() {
         }
     }, [socket, dataOwner]);
 
+    // Lấy thông tin bạn bè từ API
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getData(API_GET_INFO_USER_PROFILE_BY_ID(id_receiver));
+                if (response.status === 200) {
+                    setDataFriend(response.data);
+                }
+            } catch (error) {
+                console.error('Error fetching data: ', error);
+            }
+        };
+        fetchData();
+    }, [id_receiver]);
+
+    // Controlled input code verification
+    const [code, setCode] = useState(['', '', '', '', '', '']);
+    const handleCodeChange = (e, index) => {
+        const newCode = [...code];
+        const value = e.target.value;
+
+        // Validate input is numeric
+        if (!isNaN(value) && value !== '') {
+            newCode[index] = value;
+
+            // Automatically focus on next input
+            if (index < 5) {
+                document.getElementById(`code-input-${index + 1}`).focus();
+            }
+        } else {
+            newCode[index] = '';
+        }
+
+        setCode(newCode);
+    };
+
+    const handleBackspace = (e, index) => {
+        if (e.key === 'Backspace' && code[index] === '') {
+            if (index > 0) {
+                document.getElementById(`code-input-${index - 1}`).focus();
+            }
+        }
+    };
+
+    // Handle form submit code
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const codeString = code.join(''); // Join the code into a single string
+        // console.log('Code entered:', codeString);
+        // Send the codeString or do something with it
+        if (codeMessage === false) {
+            const createKey = await postData(API_POST_KEY_PAIR, { code: codeString });
+            if (createKey.status === 200) {
+                console.log('tạo cặp key thành công');
+                navigate(`${config.routes.messages}/${id_receiver}`);
+                setCodeMessage(true);
+            }
+        } else {
+            ////// đăng nhập chỗ khác
+            const checkPrivateKey = await postData(API_POST_DECODE_PRIVATE_KEY_PAIR, { code: codeString });
+            if (checkPrivateKey.status === 200) {
+                localStorage.setItem('private-key', checkPrivateKey.data.private_key);
+                setHasPrivateKey(true);
+            }
+        }
+        setCode(['', '', '', '', '', '']); // Reset code input
+    };
+
+    // event
+    const handleOpenAudio = () => {
+        setShowAudio(!showAudio);
+    };
+
+    useEffect(() => {
+        if (mediaRecorder) {
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunks.current.push(event.data);
+            };
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
+                const url = URL.createObjectURL(audioBlob);
+                setAudioURL(url);
+                audioChunks.current = [];
+
+                handleSendAudio(audioBlob); // Send audio when recording stops
+            };
+        }
+    }, [mediaRecorder]);
+
+    const startRecording = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+
+        setMediaRecorder(recorder);
+        recorder.start();
+        setIsRecording(true);
+    };
+
+    const stopRecording = () => {
+        mediaRecorder.stop();
+        setIsRecording(false);
+    };
     // Gửi tin nhắn khi click vào icon gửi tin nhắn
     const handleSendMessage = async () => {
+        
         const urlRegex = /(https?:\/\/[^\s]+)/g;
 
         // Kiểm tra nếu tin nhắn là văn bản
@@ -224,14 +346,12 @@ function MessagesPage() {
                 console.log('Error sending text message: ', error);
             }
         }
-        console.log('files: ', files);
 
         // Xử lý gửi từng file
         if (files.length > 0) {
             for (const file of files) {
                 const formData = new FormData();
                 const fileType = file.file.type;
-                console.log('fileType: ', fileType);
 
                 // Tạo link tạm thời cho file
                 const localFileURL = URL.createObjectURL(file.file);
@@ -249,8 +369,6 @@ function MessagesPage() {
                 }
 
                 // Append file vào FormData
-                console.log('file.file: ', file.file);
-                console.log('file.file.name: ', file.file.name);
 
                 formData.append('file', file.file, file.file.name); // Thay đổi key cho phù hợp
 
@@ -260,17 +378,9 @@ function MessagesPage() {
                 formData.append('sender_id', dataOwner?.user_id);
                 formData.append('receiver_id', id_receiver);
 
-                const formObject = {};
-
-                // Lặp qua các entries của FormData và gán vào object
-                for (let [key, value] of formData.entries()) {
-                    formObject[key] = value;
-                }
-                console.log('formObject', formObject);
-
                 // Gửi từng file qua API
                 try {
-                    await postData(API_SEND_MESSAGE(id_receiver), formObject, {
+                    await postData(API_SEND_MESSAGE(id_receiver), formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         },
@@ -300,129 +410,8 @@ function MessagesPage() {
         setFiles([]);
         setShowFilePond(false);
     };
-
-    // Lấy thông tin bạn bè từ API
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await getData(API_GET_INFO_USER_PROFILE_BY_ID(id_receiver));
-                if (response.status === 200) {
-                    setDataFriend(response.data);
-                }
-            } catch (error) {
-                console.error('Error fetching data: ', error);
-            }
-        };
-        fetchData();
-    }, [id_receiver]);
-
-    // Controlled input code verification
-    const [code, setCode] = useState(['', '', '', '', '', '']);
-
-    const handleCodeChange = (e, index) => {
-        const newCode = [...code];
-        const value = e.target.value;
-
-        // Validate input is numeric
-        if (!isNaN(value) && value !== '') {
-            newCode[index] = value;
-
-            // Automatically focus on next input
-            if (index < 5) {
-                document.getElementById(`code-input-${index + 1}`).focus();
-            }
-        } else {
-            newCode[index] = '';
-        }
-
-        setCode(newCode);
-    };
-
-    const handleBackspace = (e, index) => {
-        if (e.key === 'Backspace' && code[index] === '') {
-            if (index > 0) {
-                document.getElementById(`code-input-${index - 1}`).focus();
-            }
-        }
-    };
-
-    // Handle form submit code
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const codeString = code.join(''); // Join the code into a single string
-        // console.log('Code entered:', codeString);
-        // Send the codeString or do something with it
-        if (codeMessage === true) {
-            const createKey = await postData(API_POST_KEY_PAIR, { secret_key: codeString });
-            if (createKey.status === 200) {
-                console.log('tạo cặp key thành công');
-            }
-        } else {
-            ////// đăng nhập chỗ khác
-            const checkPrivateKey = await postData(API_POST_DECODE_PRIVATE_KEY_PAIR, { secret_key: codeString });
-            if (checkPrivateKey.status === 200) {
-                localStorage.setItem('private-key', checkPrivateKey.data.private_key);
-                setHasPrivateKey(true);
-            }
-        }
-        setCode(['', '', '', '', '', '']); // Reset code input
-    };
-    //Check xem người dùng đã có cặp key chưa
-    const checkExistKeyPair = async () => {
-        try {
-            const response = await getData(API_CHECK_EXIST_KEY_PAIR);
-            if (response.status === 200) {
-                setCodeMessage(false);
-            } else {
-                setCodeMessage(true);
-            }
-        } catch (error) {
-            console.error('Error fetching data: ', error);
-        }
-    };
-    useEffect(() => {
-        checkExistKeyPair();
-    }, []);
-
-    // event
-    const handleOpenAudio = () => {
-        setShowAudio(!showAudio);
-    };
-    useEffect(() => {
-        if (mediaRecorder) {
-            mediaRecorder.ondataavailable = (event) => {
-                audioChunks.current.push(event.data);
-            };
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
-                const url = URL.createObjectURL(audioBlob);
-                setAudioURL(url);
-                audioChunks.current = [];
-                console.log('audioBlob: ', audioBlob);
-
-                handleSendAudio(audioBlob); // Send audio when recording stops
-            };
-        }
-    }, [mediaRecorder]);
-
-    const startRecording = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(stream);
-
-        setMediaRecorder(recorder);
-        console.log('recorder: ' + recorder);
-        recorder.start();
-        setIsRecording(true);
-    };
-
-    const stopRecording = () => {
-        mediaRecorder.stop();
-        setIsRecording(false);
-    };
-
+    // gửi audio
     const handleSendAudio = async (audioFile) => {
-        console.log('vào');
-
         // Create FormData for the audio file
         const formData = new FormData();
         // Create a temporary local URL for the audio file
@@ -435,26 +424,14 @@ function MessagesPage() {
             receiver_id: id_receiver,
             name_file: audioFile.name ?? 'Unknown', // Default to 'Unknown' if no name
         };
-
-        console.log('audioFile', audioFile);
-
         formData.append('file', audioFile, audioFile.name); // Assuming audioFile contains the file object
         formData.append('content_type', 'audio');
         formData.append('content_text', Date.now()); // Hoặc tên file nếu cần
         formData.append('sender_id', dataOwner?.user_id);
         formData.append('receiver_id', id_receiver);
         // Try sending the audio file via API
-        console.log('formData:', formData);
-        // Chuyển FormData thành object để log
-        const formObject = {};
-        for (let [key, value] of formData.entries()) {
-            formObject[key] = value;
-        }
-
-        console.log('formObject:', formObject); // Log object để kiểm tra nội dung
-
         try {
-            await postData(API_SEND_MESSAGE(id_receiver), formObject, {
+            await postData(API_SEND_MESSAGE(id_receiver), formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -465,7 +442,8 @@ function MessagesPage() {
             console.log('Error sending audio message: ', error);
         }
     };
-    console.log('audioURL:', audioURL);
+    console.log('files: ', files);
+
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
@@ -549,19 +527,24 @@ function MessagesPage() {
                                 <div className="send_file_input" onClick={() => setShowFilePond(!showFilePond)}>
                                     <SendFileIcon />
                                 </div>
-                                <Search placeholder="Nhập tin nhắn" value={message} onChange={handleInputChange} />
+                                <Search
+                                    onkeydown={(e) => e.key === 'Enter' && handleSendMessage()}
+                                    placeholder="Nhập tin nhắn"
+                                    value={message}
+                                    onChange={handleInputChange}
+                                />
 
-                                {/* <div
-                                    className={`send_mesage_action ${message ? '' : 'hidden'}`}
+                                <div
+                                    className={`send_mesage_action ${message || files.length > 0 ? '' : 'hidden'}`}
                                     onClick={handleSendMessage}
                                 >
                                     <SendMessageIcon />
                                 </div>
-                                 */}
-                                <div className={`send_mesage_action`} onClick={handleSendMessage}>
+
+                                {/* <div className={`send_mesage_action`} onClick={handleSendMessage}>
                                     <SendMessageIcon />
-                                </div>
-                                <div className={`like_message_action hidden}`}>
+                                </div> */}
+                                <div className={`like_message_action ${message || files.length > 0 ? 'hidden' : ''}`}>
                                     <LikeMessageIcon />
                                 </div>
                             </div>
@@ -593,7 +576,7 @@ function MessagesPage() {
                         </div>
                         <div className="button_container_code">
                             <button type="submit" disabled={code.some((digit) => digit === '')}>
-                                {codeMessage === true ? 'Thêm mã code' : 'Xác nhận'}
+                                {codeMessage === false ? 'Thêm mã code' : 'Xác nhận'}
                             </button>
                         </div>
                     </form>

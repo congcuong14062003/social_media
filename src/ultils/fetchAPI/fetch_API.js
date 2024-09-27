@@ -36,16 +36,20 @@ export const getData = async (url_endpoint, payload,  headers = {}) => {
 };
 export const postData = async (url_endpoint, payload, headers = {}) => {
   const url = url_endpoint;
+  const isFormData = payload instanceof FormData;
+
   const options = {
-    method: 'POST',
+    method: "POST",
     headers: {
       ...headers,
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { "Content-Type": "application/json" }), // Xóa Content-Type nếu payload là FormData
     },
-    body: JSON.stringify(payload),
+    body: isFormData ? payload : JSON.stringify(payload), // Không sử dụng JSON.stringify nếu payload là FormData
   };
+
   return await fetchData(url, options);
 };
+
 export const putData = async (url_endpoint, payload, headers = {}) => {
   const url = url_endpoint;
   const options = {

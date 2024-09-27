@@ -13,7 +13,7 @@ function App() {
     return (
         <Router>
             <ToastContainer
-                autoClose={1000} // Thời gian tự động đóng (miligiây)
+                autoClose={2000} // Thời gian tự động đóng (miligiây)
             />{' '}
             {/* Add ToastContainer here */}
             <Routes>

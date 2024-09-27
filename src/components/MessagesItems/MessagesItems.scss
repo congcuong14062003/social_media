@@ -16,9 +16,10 @@
             font-size: var(--fourteen-px);
             font-weight: var(--secon-font-weight);
         }
-        img {
-            max-width: 200px;
-        }
+       
+    }
+    img, video {
+        max-width: 300px;
     }
 }
 .sender {

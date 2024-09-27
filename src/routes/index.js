@@ -2,7 +2,11 @@ import FriendProfile from '../components/FriendProfile/FriendProfile';
 import ImageProfile from '../components/ImageProfile/ImageProfile';
 import PostProfile from '../components/PostProfile/PostProfile';
 import CreateStory from '../pages/CreateStory/CreateStory';
+import FriendInvitations from '../pages/Friends/FriendInvitations';
+import FriendList from '../pages/Friends/FriendList';
 import Friends from '../pages/Friends/Friends';
+import FriendSuggestion from '../pages/Friends/FriendsSuggestion';
+import InvitedFriends from '../pages/Friends/InvitedFriends';
 import GroupPage from '../pages/GroupPage/GroupPage';
 import HomePage from '../pages/HomePage/HomePage';
 import Login from '../pages/Login/Login';
@@ -38,6 +42,12 @@ const publicRouter = [
         path: '/friends',
         component: Friends,
         requireAuth: true,
+        childrenRouter: [
+            { path: 'suggestion', component: <FriendSuggestion /> },
+            { path: 'invitations', component: <FriendInvitations /> },
+            { path: 'list-friend', component: <FriendList /> },
+            { path: 'invited', component: <InvitedFriends /> },
+        ],
     },
     {
         path: '/group',

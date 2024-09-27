@@ -1,0 +1,31 @@
+.invite_item_container {
+    background-color: var(--survey-backgroud);
+    border-radius: 8px;
+    overflow: hidden;
+    height: max-content;
+    .image_invite {
+        img {
+            width: 100%;
+        }
+    }
+    .description_invite {
+        padding: 15px;
+        .name_invite {
+            font-weight: var(--main-font-weight);
+            font-size: var(--sixteen-px);
+            color: var(--primary-text);
+        }
+        .count_mutual_friend {
+            font-weight: var(--secon-font-weight);
+            font-size: var(--thirteen-px);
+            color: var(--secondary-text);
+        }
+        .button_action_invite{
+            display: flex;
+            flex-direction: column;
+            button {
+                margin-top: 5px;
+            }
+        }
+    }
+}

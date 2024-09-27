@@ -25,20 +25,20 @@ function FriendSuggestItem({ data }) {
             }
         };
 
-        const checkIfFriend = async () => {
-            try {
-                const response = await getData(API_CHECK_IF_FRIEND(data.friend_id));
-                setIsFriend(response.isFriend); // Cập nhật trạng thái bạn bè
-            } catch (error) {
-                console.error('Error checking if friend:', error);
-            }
-        };
+    //     const checkIfFriend = async () => {
+    //         try {
+    //             const response = await getData(API_CHECK_IF_FRIEND(data.friend_id));
+    //             setIsFriend(response.isFriend); // Cập nhật trạng thái bạn bè
+    //         } catch (error) {
+    //             console.error('Error checking if friend:', error);
+    //         }
+    //     };
 
+    //     checkIfFriend();
         checkRequestStatus();
-        checkIfFriend();
     }, [data.friend_id]);
 
-    // Handle adding or canceling a friend request
+    // Thêm bạn bè
     const handleAddFriend = async (event) => {
         event.stopPropagation();
         event.preventDefault();
@@ -48,12 +48,13 @@ function FriendSuggestItem({ data }) {
                 response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id));
                 if (response.status === 200) {
                     setHasRequest(false);
-                    window.location.reload();
+                    navigate(`${config.routes.friends}/suggestion`);
                 }
             } else {
                 response = await postData(API_ADD_FRIEND(data.friend_id));
                 if (response.status === 200) {
                     setHasRequest(true);
+                    navigate(`${config.routes.friends}/invited`);
                 }
             }
         } catch (error) {
@@ -62,18 +63,18 @@ function FriendSuggestItem({ data }) {
     };
 
     // Handle removing friend
-    const handleRemoveFriend = async (event) => {
-        event.stopPropagation(); // Ngăn không cho sự kiện lan ra ngoài
-        try {
-            const response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id)); // Giả sử bạn có API này
-            if (response.status === 200) {
-                setIsFriend(false);
-                window.location.reload(); // Làm mới danh sách bạn bè
-            }
-        } catch (error) {
-            console.error('Error removing friend:', error);
-        }
-    };
+    // const handleRemoveFriend = async (event) => {
+    //     event.stopPropagation(); // Ngăn không cho sự kiện lan ra ngoài
+    //     try {
+    //         const response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id)); // Giả sử bạn có API này
+    //         if (response.status === 200) {
+    //             setIsFriend(false);
+    //             window.location.reload(); // Làm mới danh sách bạn bè
+    //         }
+    //     } catch (error) {
+    //         console.error('Error removing friend:', error);
+    //     }
+    // };
 
     return (
         <div className="invite_item_container">
@@ -87,7 +88,7 @@ function FriendSuggestItem({ data }) {
                 </div>
             </Link>
             <div className="button_action_invite">
-                {isFriend ? ( // Kiểm tra nếu là bạn bè
+                {/* {isFriend ? ( // Kiểm tra nếu là bạn bè
                     <>
                         <ButtonCustom
                             onClick={handleRemoveFriend}
@@ -103,13 +104,13 @@ function FriendSuggestItem({ data }) {
                             className="primary"
                         />
                     </>
-                ) : (
+                ) : ( */}
                     <ButtonCustom
                         onClick={handleAddFriend}
                         title={hasRequest ? "Huỷ yêu cầu" : "Thêm bạn bè"}
                         className={hasRequest ? "secondary" : "primary"}
                     />
-                )}
+                {/* )} */}
             </div>
         </div>
     );
