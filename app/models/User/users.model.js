@@ -113,7 +113,10 @@ class UserKeyPair extends Users {
     this.public_key_encode = data.public_key_encode;
   }
 
-  static async generateKeyPair(user_id, secretKey) {
+  static async generateKeyPair(user_id, code) {
+    console.log("user_id", user_id);
+    console.log("code_new", code);
+    
     try {
       const existingKeyPair = await this.getKeyPair(user_id);
 
@@ -125,7 +128,7 @@ class UserKeyPair extends Users {
         });
 
         console.log("Khoá bí mật: ", privateKey);
-        const privateKeyEncode = encryptAES(privateKey, secretKey);
+        const privateKeyEncode = encryptAES(privateKey, code);
         const createKeyPairQuery =
           "INSERT INTO userkeypair (user_id, public_key, private_key_encode) VALUES(?,?,?)";
 
@@ -167,9 +170,13 @@ class UserKeyPair extends Users {
   static async checkPrivateKey(user_id, code) {
     try {
       const keyPair = await this.getKeyPair(user_id);
-
+      console.log("user_id: ", user_id);
+      console.log("code: ", code);
+            
+      console.log("có key pair", keyPair);
+      
       if (keyPair) {
-        const privateKeyDecode = decryptAES(keyPair.private_key_encrypt, code);
+        const privateKeyDecode = decryptAES(keyPair.private_key_encode, code);
         console.log("Key pair: ", privateKeyDecode);
 
         if (privateKeyDecode !== null) {

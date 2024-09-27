@@ -137,7 +137,7 @@ class Friend {
         SELECT 
           u.user_id, 
           u.user_name, 
-          pm.media_link AS avatar
+          pm.media_link AS avatar_link
         FROM friend f
         JOIN users u 
           ON f.requestor_id = u.user_id
@@ -182,7 +182,7 @@ class Friend {
         FROM friend
         WHERE (requestor_id = ? AND receiver_id = ?)
         OR (requestor_id = ? AND receiver_id = ?)
-        AND relationship_status = 1; -- Giả sử 1 là trạng thái bạn bè
+        AND relationship_status = 1;
       `;
       const [rows] = await pool.execute(query, [
         id_user,

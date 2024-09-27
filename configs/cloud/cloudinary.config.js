@@ -1,30 +1,49 @@
 import { v2 as cloudinary } from 'cloudinary';
+require("dotenv").config();
 
 cloudinary.config({
-    cloud_name: 'dow4cb7ab',
-    api_key: '739713275211623',
-    api_secret: 'u06g118_eqDYbCTQ4RH5j7xovts'
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET
 });
 
-export default async function UploadCloudinary(file) {
+// Define the uploadFile function
+const uploadFile = async (file, folder) => {
     try {
+        // Set up transformation options
+        const options = {
+            folder: folder,
+            resource_type: 'auto',
+            transformation: [
+                { width: 1000, crop: "scale" },
+                { quality: "auto" },
+                { fetch_format: "auto" }
+            ]
+        };
+
+        // Upload file to Cloudinary using buffer
         const result = await new Promise((resolve, reject) => {
-            cloudinary.uploader.upload_stream({
-                resource_type: 'auto',
-                folder: "avatar_user_foodapp",
-                overwrite: true
-            }, (error, result) => {
+            const uploadStream = cloudinary.uploader.upload_stream(options, (error, result) => {
                 if (error) {
-                    reject(error);
-                } else {
-                    resolve(result);
+                    console.error('Error uploading file:', error);
+                    return reject(error);
                 }
-            }).end(file.buffer);
+                resolve(result);
+            });
+
+            // Converting buffer to stream and piping to Cloudinary
+            require('stream').Readable.from(file.buffer).pipe(uploadStream);
         });
-        
-        return result;
+
+
+        return {
+            url: result.secure_url,
+            fileType: result.resource_type
+        };
     } catch (error) {
-        console.error("Lỗi khi tải lên:", error);
-        return error;
+        console.error('Error uploading file:', error);
+        throw error;
     }
-}
+};
+
+export default uploadFile;

@@ -1,4 +1,5 @@
 import { io, users } from "../../..";
+import uploadFile from "../../../configs/cloud/cloudinary.config";
 import { getSocketIdByUserId } from "../../../configs/socketIO/socketManager";
 import Message from "../../models/Message/message.model";
 import { UserKeyPair } from "../../models/User/users.model";
@@ -12,12 +13,19 @@ const createMessage = async (req, res) => {
     const content_type = req.body?.content_type ?? "";
     const name_file = req.body?.name_file ?? "";
     console.log(files[0]);
-    
-    if (files.length > 0) {
-      content_text = (await uploadFile(files[0], process.env.NAME_FOLDER_MESSENGER))?.url;
+
+    const friendHasKey = await UserKeyPair.getKeyPair(friend_id);
+
+    if (!friendHasKey) {
+      return res.status(401).json({ status: 401, message: "Bạn bè chưa thiết lập tin nhắn vui lòng thử lại sau" });
     }
 
-    
+    if (files.length > 0) {
+      content_text = (
+        await uploadFile(files[0], process.env.NAME_FOLDER_MESSENGER)
+      )?.url;
+    }
+
     // Check for missing required fields
     if (!user_id || !friend_id || !content_text) {
       return res
@@ -38,8 +46,6 @@ const createMessage = async (req, res) => {
 
     // Respond based on the result of the message creation
     if (result) {
-      console.log("vào");
-      
       // Send message to receiver regardless of database result
       io.to(getSocketIdByUserId(friend_id, users)).emit("receiveMessage", {
         sender_id: user_id,
@@ -71,11 +77,9 @@ const getAllMessages = async (req, res) => {
     console.log("user_id", user_id);
     console.log("friend_id", friend_id);
     console.log("private_key", private_key);
-    
+
     if (!user_id || !friend_id || !private_key) {
-      return res
-        .status(400)
-        .json({ status: false, message: "Missing required fields" });
+      return res.status(400).json({ status: false });
     }
 
     const result = await Message.getMessage(user_id, friend_id);
@@ -126,7 +130,12 @@ const checkExistKeyPair = async (req, res) => {
     if (result) {
       res.status(200).json({ status: 200 });
     } else {
-      res.status(401).json({ status: 401 });
+      res
+        .status(401)
+        .json({
+          status: 401,
+          message: "Vui lòng thiết lập mật khẩu để nhắn tin",
+        });
     }
     // Gửi phản hồi về cho client
   } catch (error) {
@@ -140,12 +149,17 @@ const checkExistKeyPair = async (req, res) => {
 const checkSecretDeCryptoPrivateKey = async (req, res) => {
   try {
     const user_id = req.body?.data?.user_id;
-    const secretKey = req.body?.secret_key;
-    const result = await UserKeyPair.checkPrivateKey(user_id, secretKey);
+    const code = req.body?.code;
+    const result = await UserKeyPair.checkPrivateKey(user_id, code);
     if (result) {
       res.status(200).json({ status: 200, data: result });
     } else {
-      res.status(401).json({ status: 401, message: "Mã khoá sai" });
+      res
+        .status(401)
+        .json({
+          status: 401,
+          message: "Mật khẩu không chính xác vui lòng thử lại",
+        });
     }
     // Gửi phản hồi về cho client
   } catch (error) {
@@ -160,16 +174,17 @@ const createKeyPair = async (req, res) => {
   try {
     const user_id = req.body?.data?.user_id;
     const code = req.body?.code;
-    const result = await userkeypair.create(user_id, code);
+    // const userKeyPair = new UserKeyPair();
+    const result = await UserKeyPair.generateKeyPair(user_id, code);
     if (result) {
-      res.status(201).json({ status: 200, message: "Tạo khoá thành công" });
-    } else {
       res
-        .status(400)
-        .json({
-          status: false,
-          message: "Tạo khoá thất bại, thử lại với mã khác",
-        });
+        .status(201)
+        .json({ status: 200, message: "Thiết lập mật khẩu thành công" });
+    } else {
+      res.status(400).json({
+        status: false,
+        message: "Tạo khoá thất bại, thử lại với mã khác",
+      });
     }
     // Gửi phản hồi về cho client
   } catch (error) {
@@ -185,10 +200,10 @@ const deleteKeysPair = async (req, res) => {
     const user_id = req.body?.data?.user_id;
 
     const result = await UserKeyPair.deleteKeysPair(user_id);
-    
+
     if (result) {
       res.status(200).json({ status: 200 });
-    } 
+    }
     // Gửi phản hồi về cho client
   } catch (error) {
     console.log(error);
@@ -197,4 +212,11 @@ const deleteKeysPair = async (req, res) => {
       .json({ status: false, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
   }
 };
-export {createMessage, getAllMessages, checkExistKeyPair, checkSecretDeCryptoPrivateKey, createKeyPair, deleteKeysPair };
+export {
+  createMessage,
+  getAllMessages,
+  checkExistKeyPair,
+  checkSecretDeCryptoPrivateKey,
+  createKeyPair,
+  deleteKeysPair,
+};

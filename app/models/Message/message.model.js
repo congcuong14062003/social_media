@@ -47,7 +47,6 @@ class Message {
       const publicKeyReceiver = await Message.getPublicKeyReceiver(
         this.receiver_id
       ); // Use Message.getPublicKeyReceiver
-
       const publicKeySender = await Message.getPublicKeyReceiver(
         this.sender_id
       );

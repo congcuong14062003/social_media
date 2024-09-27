@@ -159,7 +159,6 @@ const ListFriendInvite = async (req, res) => {
   }
 };
 
-// controllers/User/user.controller.js
 export async function checkFriendRequest(req, res) {
   const requestor_id = req.params.id;
   const receiver_id = req.body?.data?.user_id;
