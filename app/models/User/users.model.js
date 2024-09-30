@@ -116,7 +116,7 @@ class UserKeyPair extends Users {
   static async generateKeyPair(user_id, code) {
     console.log("user_id", user_id);
     console.log("code_new", code);
-    
+
     try {
       const existingKeyPair = await this.getKeyPair(user_id);
 
@@ -166,15 +166,15 @@ class UserKeyPair extends Users {
       return null;
     }
   }
- // Giải mã và lấy khoá bí mật
+  // Giải mã và lấy khoá bí mật
   static async checkPrivateKey(user_id, code) {
     try {
       const keyPair = await this.getKeyPair(user_id);
       console.log("user_id: ", user_id);
       console.log("code: ", code);
-            
+
       console.log("có key pair", keyPair);
-      
+
       if (keyPair) {
         const privateKeyDecode = decryptAES(keyPair.private_key_encode, code);
         console.log("Key pair: ", privateKeyDecode);
@@ -196,20 +196,17 @@ class UserKeyPair extends Users {
   static async deleteKeysPair(user_id) {
     try {
       const deleteUserQuery = "DELETE FROM userkeypair WHERE user_id = ?;";
-      const [rows] = await pool.execute(deleteUserQuery, [user_id]);
+      const [result] = await pool.execute(deleteUserQuery, [user_id]);
 
-      // Log the result of the query
-
-      // Check if rows exist and return the first one
-      if (rows.length > 0) {
-        return rows[0];
+      // Kiểm tra số hàng bị ảnh hưởng (số hàng bị xóa)
+      if (result.affectedRows > 0) {
+        return true; // Xóa thành công
       } else {
-        console.log("No key pair found for user_id:", user_id);
-        return null;
+        return false; // Không có hàng nào bị xóa
       }
     } catch (error) {
       console.error("Database error:", error);
-      return null;
+      return null; // Lỗi trong quá trình thực thi
     }
   }
 }

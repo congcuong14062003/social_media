@@ -17,7 +17,12 @@ const createMessage = async (req, res) => {
     const friendHasKey = await UserKeyPair.getKeyPair(friend_id);
 
     if (!friendHasKey) {
-      return res.status(401).json({ status: 401, message: "Bạn bè chưa thiết lập tin nhắn vui lòng thử lại sau" });
+      return res
+        .status(401)
+        .json({
+          status: 401,
+          message: "Bạn bè chưa thiết lập tin nhắn vui lòng thử lại sau",
+        });
     }
 
     if (files.length > 0) {
@@ -130,12 +135,9 @@ const checkExistKeyPair = async (req, res) => {
     if (result) {
       res.status(200).json({ status: 200 });
     } else {
-      res
-        .status(401)
-        .json({
-          status: 401,
-          message: "Vui lòng thiết lập mật khẩu để nhắn tin",
-        });
+      res.status(401).json({
+        status: 401,
+      });
     }
     // Gửi phản hồi về cho client
   } catch (error) {
@@ -154,12 +156,10 @@ const checkSecretDeCryptoPrivateKey = async (req, res) => {
     if (result) {
       res.status(200).json({ status: 200, data: result });
     } else {
-      res
-        .status(401)
-        .json({
-          status: 401,
-          message: "Mật khẩu không chính xác vui lòng thử lại",
-        });
+      res.status(401).json({
+        status: 401,
+        message: "Mật khẩu không chính xác vui lòng thử lại",
+      });
     }
     // Gửi phản hồi về cho client
   } catch (error) {
@@ -199,19 +199,34 @@ const deleteKeysPair = async (req, res) => {
   try {
     const user_id = req.body?.data?.user_id;
 
+    if (!user_id) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Missing user_id" });
+    }
+
     const result = await UserKeyPair.deleteKeysPair(user_id);
 
     if (result) {
-      res.status(200).json({ status: 200 });
+      // Nếu xóa thành công
+      return res
+        .status(200)
+        .json({ status: 200 });
+    } else {
+      // Nếu không tìm thấy hoặc không xóa được
+      return res
+        .status(404)
+        .json({ status: false });
     }
-    // Gửi phản hồi về cho client
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({ status: false, message: "Đã xảy ra lỗi, vui lòng thử lại sau" });
+    return res.status(500).json({
+      status: false,
+      message: "Đã xảy ra lỗi, vui lòng thử lại sau",
+    });
   }
 };
+
 export {
   createMessage,
   getAllMessages,

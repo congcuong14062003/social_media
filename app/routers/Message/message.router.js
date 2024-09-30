@@ -50,7 +50,7 @@ export default function MessageRouter(router = Router()) {
   );
   // Xoá cặp khoá
   router.delete(
-    "/delete_keys_pair",
+    "/delete-keypair",
     Authentication,
     Authorization,
     deleteKeysPair

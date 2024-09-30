@@ -30,6 +30,8 @@ const initializeSocket = (httpServer, users) => {
         io.emit("onlineUsers", getAllOnlineUsers(users));
       });
 
+      
+
       // Các sự kiện khác...
     });
   }
