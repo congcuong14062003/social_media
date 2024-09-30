@@ -19,13 +19,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
     API_CHECK_EXIST_KEY_PAIR,
     API_CHECK_IF_FRIEND,
+    API_DELETE_KEY_PAIR,
     API_GET_INFO_USER_PROFILE_BY_ID,
     API_GET_MESSAGES,
     API_POST_DECODE_PRIVATE_KEY_PAIR,
     API_POST_KEY_PAIR,
     API_SEND_MESSAGE,
 } from '../../API/api_server';
-import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
+import { deleteData, getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import { OwnDataContext } from '../../provider/own_data';
 import { useSocket } from '../../provider/socket_context';
 import {
@@ -43,6 +44,7 @@ import { FilePond } from 'react-filepond';
 import 'filepond/dist/filepond.min.css';
 import { toast } from 'react-toastify';
 import config from '../../configs';
+import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 
 function MessagesPage() {
     const [files, setFiles] = useState([]);
@@ -122,7 +124,7 @@ function MessagesPage() {
     }, []);
     // Lấy tin nhắn
     useEffect(() => {
-        if (socket && dataOwner && id_receiver) {
+        if (socket && dataOwner && id_receiver && privateKey) {
             socket.emit('registerUser', { user_id: dataOwner?.user_id });
 
             // Kiểm tra trạng thái online khi component được mount
@@ -166,7 +168,7 @@ function MessagesPage() {
                 socket.off('onlineUsers');
             };
         }
-    }, [socket, dataOwner, id_receiver]);
+    }, [socket, dataOwner, id_receiver, privateKey]);
 
     // Xử lý khi thay đổi tin nhắn
     const handleInputChange = (e) => {
@@ -251,25 +253,39 @@ function MessagesPage() {
     // Handle form submit code
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const codeString = code.join(''); // Join the code into a single string
-        // console.log('Code entered:', codeString);
-        // Send the codeString or do something with it
-        if (codeMessage === false) {
-            const createKey = await postData(API_POST_KEY_PAIR, { code: codeString });
-            if (createKey.status === 200) {
-                console.log('tạo cặp key thành công');
-                navigate(`${config.routes.messages}/${id_receiver}`);
-                setCodeMessage(true);
+        const codeString = code.join('');
+        const submitterName = e.nativeEvent.submitter.name; // Lấy tên của nút submit
+        if (submitterName === 'set-password') {
+            console.log('vào');
+            if (codeMessage === false) {
+                const createKey = await postData(API_POST_KEY_PAIR, { code: codeString });
+                if (createKey.status === 200) {
+                    console.log('Tạo cặp key thành công');
+                    navigate(`${config.routes.messages}/${id_receiver}`);
+                    setCodeMessage(true);
+                }
+            } else {
+                const checkPrivateKey = await postData(API_POST_DECODE_PRIVATE_KEY_PAIR, { code: codeString });
+                if (checkPrivateKey.status === 200) {
+                    localStorage.setItem('private-key', checkPrivateKey.data.private_key);
+                    setHasPrivateKey(true);
+                }
             }
-        } else {
-            ////// đăng nhập chỗ khác
-            const checkPrivateKey = await postData(API_POST_DECODE_PRIVATE_KEY_PAIR, { code: codeString });
-            if (checkPrivateKey.status === 200) {
-                localStorage.setItem('private-key', checkPrivateKey.data.private_key);
-                setHasPrivateKey(true);
+        } else if (submitterName === 'change-password') {
+            if (window.confirm('Dữ liệu tin nhắn trước đó của bạn sẽ mất vĩnh viễn?')) {
+                try {
+                    const response = await deleteData(API_DELETE_KEY_PAIR);
+                    if (response.status === 200) {
+                        localStorage.clear();
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.log('Error: ', error);
+                }
             }
         }
-        setCode(['', '', '', '', '', '']); // Reset code input
+
+        setCode(['', '', '', '', '', '']); // Reset mã code sau khi submit
     };
 
     // event
@@ -308,7 +324,6 @@ function MessagesPage() {
     };
     // Gửi tin nhắn khi click vào icon gửi tin nhắn
     const handleSendMessage = async () => {
-        
         const urlRegex = /(https?:\/\/[^\s]+)/g;
 
         // Kiểm tra nếu tin nhắn là văn bản
@@ -442,8 +457,6 @@ function MessagesPage() {
             console.log('Error sending audio message: ', error);
         }
     };
-    console.log('files: ', files);
-
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
@@ -559,6 +572,7 @@ function MessagesPage() {
             )}
             {!hasPrivateKey && ( // Input Code Section
                 <div className="container_input_code">
+                    {codeMessage || <h3>Vui lòng nhập mật khẩu để thiết lập tin nhắn</h3>}
                     <form onSubmit={handleSubmit} className="input_code_chat">
                         <div id="input_code" className="inputs">
                             {code.map((digit, index) => (
@@ -575,9 +589,23 @@ function MessagesPage() {
                             ))}
                         </div>
                         <div className="button_container_code">
-                            <button type="submit" disabled={code.some((digit) => digit === '')}>
-                                {codeMessage === false ? 'Thêm mã code' : 'Xác nhận'}
-                            </button>
+                            <ButtonCustom
+                                className="primary"
+                                type="submit"
+                                name="set-password"
+                                disabled={code.some((digit) => digit === '')}
+                                title={codeMessage === false ? 'Thiết lập mật khẩu' : 'Nhập mật khẩu'}
+                            />
+                            <div className="btn_change_pass_code">
+                                {codeMessage && (
+                                    <ButtonCustom
+                                        className="secondary"
+                                        type="submit"
+                                        name="change-password"
+                                        title="Đổi mật khẩu"
+                                    />
+                                )}
+                            </div>
                         </div>
                     </form>
                 </div>

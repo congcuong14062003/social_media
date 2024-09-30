@@ -32,8 +32,10 @@ const API_SEND_MESSAGE = (id) => API_HOST + "/messages/send-message/" + id;
 const API_GET_MESSAGES = (id) => `${API_HOST}/messages/all-messages/${id}`;
 const API_CHECK_EXIST_KEY_PAIR = `${API_HOST}/messages/check-exists-keypair`;
 const API_POST_KEY_PAIR = `${API_HOST}/messages/create-keypair`;
+const API_DELETE_KEY_PAIR = `${API_HOST}/messages/delete-keypair`;
 const API_POST_DECODE_PRIVATE_KEY_PAIR = `${API_HOST}/messages/post-decode-private-key`;
 const API_DECODE_MESSAGE = `${API_HOST}/messages/decode-message`;
+
 
 
 
@@ -90,5 +92,6 @@ export {
     API_CHECK_IF_FRIEND,
     // api messages
 
-    API_SEND_MESSAGE
+    API_SEND_MESSAGE,
+    API_DELETE_KEY_PAIR
 };
