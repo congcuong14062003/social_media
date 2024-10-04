@@ -30,6 +30,7 @@ const API_CANCEL_FRIEND_REQUEST = (id) => `${API_HOST}/friends/cancel-request/${
 ////// messages
 const API_SEND_MESSAGE = (id) => API_HOST + "/messages/send-message/" + id;
 const API_GET_MESSAGES = (id) => `${API_HOST}/messages/all-messages/${id}`;
+const API_GET_CONVERSATIONS = `${API_HOST}/messages/conversations`;
 const API_CHECK_EXIST_KEY_PAIR = `${API_HOST}/messages/check-exists-keypair`;
 const API_POST_KEY_PAIR = `${API_HOST}/messages/create-keypair`;
 const API_DELETE_KEY_PAIR = `${API_HOST}/messages/delete-keypair`;
@@ -91,7 +92,7 @@ export {
     API_LIST_INVITED_FRIEND,
     API_CHECK_IF_FRIEND,
     // api messages
-
+    API_GET_CONVERSATIONS,
     API_SEND_MESSAGE,
     API_DELETE_KEY_PAIR
 };

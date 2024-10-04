@@ -13,6 +13,7 @@ import Login from '../pages/Login/Login';
 import MessagesPage from '../pages/Messages/Messages';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import Signup from '../pages/Signup/Signup';
+import VideoCall from '../pages/VideoCall/VideoCall';
 import VideoPage from '../pages/VideoPage/VideoPage';
 
 const publicRouter = [
@@ -63,6 +64,12 @@ const publicRouter = [
         path: '/messages/:id_receiver',
         component: MessagesPage,
         requireAuth: true,
+    },
+    {
+        path: '/messages/video-call',
+        component: VideoCall,
+        requireAuth: true,
+        layout: VideoCall,
     },
     {
         path: '/profile/:id_user',

@@ -1,16 +1,27 @@
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import AvatarUser from '../AvatarUser/AvatarUser';
 import './ChatItem.scss';
-function ChatItem() {
+import { OwnDataContext } from '../../provider/own_data';
+
+function ChatItem({ avatar, name, lastMessage, time, link, sender_id, isActive }) {
+    const dataOwner = useContext(OwnDataContext);
+
+    // Kiểm tra xem sender_id có phải là ID của người dùng hiện tại không
+    const isSenderCurrentUser = dataOwner && dataOwner.user_id === sender_id;
+
     return (
-        <Link to="/">
-            <div className="chat_item_container">
+        <Link to={link}>
+            <div className={`chat_item_container ${isActive ? 'active' : ''}`}>
                 <div className="avatar_chat">
-                    <AvatarUser />
+                    <AvatarUser src={avatar} alt={name} /> {/* Hiển thị avatar */}
                 </div>
                 <div className="content_chat">
-                    <div className="title_chat">Vợ anh</div>
-                    <div className="time_chat">Kh có mình cái ăn ngon hẳn<span>9 giờ</span></div>
+                    <div className="title_chat">{name}</div> {/* Hiển thị tên bạn bè */}
+                    <div className="time_chat">
+                        {isSenderCurrentUser ? 'Bạn: ' : ''}
+                        {lastMessage}
+                    </div>
                 </div>
             </div>
         </Link>

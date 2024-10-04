@@ -15,7 +15,7 @@ import './Messages.scss';
 import MessagesItems from '../../components/MessagesItems/MessagesItems';
 import SettingMessages from '../../components/SettingMessages/SettingMessages';
 import ToolTip from '../../components/ToolTip/ToolTip';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
     API_CHECK_EXIST_KEY_PAIR,
     API_CHECK_IF_FRIEND,
@@ -65,6 +65,7 @@ function MessagesPage() {
     const dataOwner = useContext(OwnDataContext);
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState(false);
+    const [sendLastMessage, setSendLastMessage] = useState();
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
     const privateKey = localStorage.getItem('private-key');
@@ -419,7 +420,7 @@ function MessagesPage() {
 
         // Cập nhật tin nhắn vào state với tin nhắn văn bản
         setMessages((prevMessages) => [...prevMessages, newMessage]);
-
+        setSendLastMessage(message);
         // Reset lại input và tệp tin
         setMessage(''); // Reset input
         setFiles([]);
@@ -457,12 +458,14 @@ function MessagesPage() {
             console.log('Error sending audio message: ', error);
         }
     };
+    // gọi điện
+
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
                 <>
                     <div className="left_messenger">
-                        <PopoverChat />
+                        <PopoverChat privateKey={privateKey} currentChatId={id_receiver}  />
                     </div>
                     <div className="center_messenger">
                         <div className="messages_container">
@@ -474,11 +477,16 @@ function MessagesPage() {
                                             <PhoneIcon />
                                         </div>
                                     </ToolTip>
-
                                     <ToolTip title="Bắt đầu gọi video">
-                                        <div className="action_chat">
-                                            <VideoCallIcon />
-                                        </div>
+                                        <Link
+                                            to={`${config.routes.messages}/video-call?ROOM_ID=${
+                                                id_receiver + dataOwner?.user_id
+                                            }&sender_id=${dataOwner?.user_id}&receiver_id=${id_receiver}`}
+                                        >
+                                            <div className="action_chat">
+                                                <VideoCallIcon />
+                                            </div>
+                                        </Link>
                                     </ToolTip>
                                     <ToolTip
                                         onClick={() => setOpenSettingChat(!openSettingChat)}
@@ -488,6 +496,7 @@ function MessagesPage() {
                                             <ExtendChatIcon />
                                         </div>
                                     </ToolTip>
+                                    {/* <VideoCall id_receiver={id_receiver} /> */}
                                 </div>
                             </div>
                             <div className="chat_body">
@@ -517,7 +526,7 @@ function MessagesPage() {
                                     files={files}
                                     allowMultiple={true}
                                     onupdatefiles={setFiles}
-                                    labelIdle='Kéo và Thả tệp phương tiện or <span class="filepond--label-action">Duyệt</span>'
+                                    labelIdle='Kéo và Thả tệp phương tiện or <span className="filepond--label-action">Duyệt</span>'
                                 />
                             )}
                             {showAudio && (

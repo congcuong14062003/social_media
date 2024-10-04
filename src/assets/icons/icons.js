@@ -276,30 +276,30 @@ export const FriendIcon = ({ fill }) => (
     </svg>
 );
 export const AudioIcon = ({ fill }) => (
-    <svg class="x1lliihq x1tzjh5l xsrhx6k x1dmfqyo" height="20px" viewBox="0 0 34 48" width="20px">
+    <svg className="x1lliihq x1tzjh5l xsrhx6k x1dmfqyo" height="20px" viewBox="0 0 34 48" width="20px">
         <title></title>
         <path
             d="M17 37v9"
             fill="none"
             stroke="#0866ff"
-            stroke-linejoin="round"
-            stroke-width="4"
+            strokeLinejoin="round"
+            strokeWidth="4"
         ></path>
         <path
             d="M10 46h14"
             fill="none"
             stroke="#0866ff"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="4px"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="4px"
         ></path>
         <path
             d="M39 20v3.5A14.5 14.5 0 0124.5 38h-1A14.5 14.5 0 019 23.5V20"
             fill="none"
             stroke="#0866ff"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="4px"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="4px"
             transform="translate(-7)"
         ></path>
         <rect
@@ -307,12 +307,13 @@ export const AudioIcon = ({ fill }) => (
             height="28"
             rx="6.5"
             stroke="#0866ff"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="4"
             width="14"
             x="10"
             y="2"
         ></rect>
     </svg>
 );
+
