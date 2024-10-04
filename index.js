@@ -1,18 +1,16 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import connect from "./app/db/connect.js";
 import RouterMain from "./app/routers/router.js";
+import { ExpressPeerServer } from "peer";
 import logger from "morgan";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
-import Message from "./app/models/Message/message.model.js";
 import { initializeSocket } from "./configs/socketIO/socketManager.js";
 
 
 dotenv.config();
 const app = express();
-const httpServer = createServer(app); // Tạo HTTP server từ Express
 
 
 app.use(logger("dev"));
@@ -35,6 +33,14 @@ let users = [];
 
 // Khởi tạo server HTTP
 const server = createServer(app);
+
+// Khởi tạo PeerJS server
+const peerServer = ExpressPeerServer(server, {
+  debug: true,
+});
+
+// Sử dụng PeerJS server tại endpoint `/peerjs`
+app.use('/peerjs', peerServer);
 const io = initializeSocket(server, users);
 
 export { io, users};

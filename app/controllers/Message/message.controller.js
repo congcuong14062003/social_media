@@ -1,5 +1,6 @@
 import { io, users } from "../../..";
 import uploadFile from "../../../configs/cloud/cloudinary.config";
+import pool from "../../../configs/database/database";
 import { getSocketIdByUserId } from "../../../configs/socketIO/socketManager";
 import Message from "../../models/Message/message.model";
 import { UserKeyPair } from "../../models/User/users.model";
@@ -17,12 +18,10 @@ const createMessage = async (req, res) => {
     const friendHasKey = await UserKeyPair.getKeyPair(friend_id);
 
     if (!friendHasKey) {
-      return res
-        .status(401)
-        .json({
-          status: 401,
-          message: "Bạn bè chưa thiết lập tin nhắn vui lòng thử lại sau",
-        });
+      return res.status(401).json({
+        status: 401,
+        message: "Bạn bè chưa thiết lập tin nhắn vui lòng thử lại sau",
+      });
     }
 
     if (files.length > 0) {
@@ -59,6 +58,8 @@ const createMessage = async (req, res) => {
         content_type: content_type,
         name_file: name_file,
       });
+       io.to(getSocketIdByUserId(friend_id, users)).emit("updateMessage");
+       io.to(getSocketIdByUserId(user_id, users)).emit("updateMessage");
       return res.status(201).json({ status: 200 });
     } else {
       return res
@@ -126,6 +127,94 @@ const getAllMessages = async (req, res) => {
     });
   }
 };
+const getAllConversations = async (req, res) => {
+  try {
+    const user_id = req.body?.data?.user_id ?? null;
+    const private_key = req.body?.private_key ?? "";
+    if (!user_id) {
+      return res.status(400).json({ status: false, message: "User ID is required" });
+    }
+
+    // Truy vấn để lấy danh sách bạn bè đã có hội thoại với user hiện tại
+    const getConversationsQuery = `
+    SELECT 
+      u.user_id AS friend_id,
+      u.user_name AS friend_name,
+      pm.media_link AS friend_avatar,
+      msg.content_text_encrypt,
+      msg.content_text_encrypt_by_owner,
+      msg.created_at AS last_message_time,
+      msg.sender_id,
+      msg.receiver_id
+    FROM (
+      SELECT 
+        *
+      FROM 
+        PrivateMessage pm
+      WHERE 
+        (pm.sender_id = ? OR pm.receiver_id = ?)
+      AND 
+        pm.created_at = (
+          SELECT MAX(created_at) 
+          FROM PrivateMessage 
+          WHERE (sender_id = pm.sender_id AND receiver_id = pm.receiver_id) OR 
+                (sender_id = pm.receiver_id AND receiver_id = pm.sender_id)
+        )
+    ) AS msg
+    JOIN users u 
+      ON (u.user_id = msg.sender_id OR u.user_id = msg.receiver_id) 
+      AND u.user_id != ?
+    LEFT JOIN ProfileMedia pm 
+      ON pm.user_id = u.user_id
+    ORDER BY last_message_time DESC;
+    `;
+
+    const [conversations] = await pool.execute(getConversationsQuery, [
+      user_id,
+      user_id,
+      user_id,
+    ]);
+
+    // Giải mã các tin nhắn để lấy nội dung hiển thị
+    const conversationsWithDecryptedMessages = await Promise.all(
+      conversations.map(async (conv) => {
+        let content_text = "Encrypted message";
+        
+        // Giải mã tin nhắn cuối cùng của bạn bè
+        if (conv.sender_id === user_id) {
+          content_text = decryptWithPrivateKey(
+            conv.content_text_encrypt_by_owner,
+            private_key
+          );
+        } else {
+          content_text = decryptWithPrivateKey(
+            conv.content_text_encrypt,
+            private_key
+          );
+        }
+
+        return {
+          friend_id: conv.friend_id,
+          friend_name: conv.friend_name,
+          friend_avatar: conv.friend_avatar,
+          last_message: content_text,
+          last_message_time: conv.last_message_time,
+          sender_id: conv.sender_id,
+          receiver_id: conv.receiver_id,
+        };
+      })
+    );
+
+    return res.status(200).json({ status: 200, data: conversationsWithDecryptedMessages });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: false,
+      message: "An error occurred, please try again later",
+    });
+  }
+};
+
 // kiểm tra cặp khoá đã tồn tại chưa
 const checkExistKeyPair = async (req, res) => {
   try {
@@ -209,14 +298,10 @@ const deleteKeysPair = async (req, res) => {
 
     if (result) {
       // Nếu xóa thành công
-      return res
-        .status(200)
-        .json({ status: 200 });
+      return res.status(200).json({ status: 200 });
     } else {
       // Nếu không tìm thấy hoặc không xóa được
-      return res
-        .status(404)
-        .json({ status: false });
+      return res.status(404).json({ status: false });
     }
   } catch (error) {
     console.log(error);
@@ -230,6 +315,7 @@ const deleteKeysPair = async (req, res) => {
 export {
   createMessage,
   getAllMessages,
+  getAllConversations,
   checkExistKeyPair,
   checkSecretDeCryptoPrivateKey,
   createKeyPair,

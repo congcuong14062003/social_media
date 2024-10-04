@@ -5,6 +5,7 @@ import {
   createKeyPair,
   createMessage,
   deleteKeysPair,
+  getAllConversations,
   getAllMessages,
 } from "../../controllers/Message/message.controller.js";
 import Authentication from "../../middleware/authentication.js";
@@ -21,16 +22,20 @@ export default function MessageRouter(router = Router()) {
     createMessage
   );
   router.post(
+    "/conversations",
+    Authentication,
+    Authorization,
+    getAllConversations
+  );
+
+
+  router.post(
     "/all-messages/:id",
     Authentication,
     Authorization,
     getAllMessages
   );
 
-
-
-
-  
   // kiểm tra tồn tại cặp khoá
   router.get(
     "/check-exists-keypair",
