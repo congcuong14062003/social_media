@@ -46,3 +46,31 @@ export function calculateDaysWorked(startDate) {
     return daysWorked;
   }
   
+
+  export function timeAgo(date) {
+    const now = new Date();
+    const messageTime = new Date(date);
+    const secondsAgo = Math.floor((now - messageTime) / 1000);
+  
+    const intervals = {
+      năm: 365 * 24 * 60 * 60,
+      tháng: 30 * 24 * 60 * 60,
+      ngày: 24 * 60 * 60,
+      giờ: 60 * 60,
+      phút: 60,
+    };
+  
+    let timeString = "Vừa xong";
+  
+    for (const interval in intervals) {
+      const intervalSeconds = intervals[interval];
+      const count = Math.floor(secondsAgo / intervalSeconds);
+  
+      if (count > 0) {
+        timeString = `${count} ${interval}${count !== 1 ? "" : ""} trước`;
+        break;
+      }
+    }
+  
+    return timeString;
+  }

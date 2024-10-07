@@ -10,7 +10,7 @@ function FriendInvitationItem({ data }) {
     const handleAcceptInvite = async (event) => {
         event.stopPropagation();
         const response = await postData(API_ACCEPT_INVITE(data.user_id));
-        if (response.status === 200) {
+        if (response.status === true) {
             navigate(`${config.routes.friends}/list-friend`);
         }
         console.log(response);
@@ -18,7 +18,7 @@ function FriendInvitationItem({ data }) {
     const handleCancelRequest = async (event) => {
         event.stopPropagation();
         const response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id));
-        if (response.status === 200) {
+        if (response.status === true) {
             navigate(`${config.routes.friends}/suggestion`);
             toast.success("Huỷ lời mời kết bạn thành công");
         }

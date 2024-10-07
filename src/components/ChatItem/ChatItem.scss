@@ -2,6 +2,7 @@
     display: flex;
     align-items: center;
     padding: 8px;
+    margin: 5px 0;
     border-radius: 5px;
     .avatar_chat {
         .avatar_user {
@@ -10,8 +11,11 @@
         }
     }
     .content_chat {
+        max-width: 85%;
+        width: 100%;
         margin-left: 10px;
         .title_chat {
+            margin-bottom: 10px;
             color: var(--primary-text);
             font-size: var(--fourteen-px);
             font-weight: var(--main-font-weight);
@@ -20,7 +24,20 @@
             color: var(--secondary-text);
             font-size: var(--thirteen-px);
             font-weight: var(--secon-font-weight);
-            span {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            .content_text {
+                max-width: 65%;
+                white-space: nowrap; /* Không cho phép nội dung xuống dòng */
+                overflow: hidden; /* Ẩn phần nội dung tràn ra ngoài */
+                text-overflow: ellipsis; /* Hiển thị dấu ba chấm nếu nội dung vượt quá */
+                a {
+                    color: var(--secondary-text);
+                }
+            }
+            .time {
+                font-size: var(--twelve-px);
                 margin-left: 10px;
             }
         }
@@ -30,5 +47,9 @@
     }
     &.active {
         background-color: var(--secondary-button);
+    }
+    &.unseen {
+        font-weight: bold; /* Hoặc bất kỳ style nào bạn muốn để làm nổi bật tin nhắn chưa đọc */
+        color: #000; /* Thay đổi màu sắc nếu cần */
     }
 }

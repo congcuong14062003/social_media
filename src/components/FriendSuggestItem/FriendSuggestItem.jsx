@@ -46,13 +46,13 @@ function FriendSuggestItem({ data }) {
             let response;
             if (hasRequest) {
                 response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id));
-                if (response.status === 200) {
+                if (response.status === true) {
                     setHasRequest(false);
                     navigate(`${config.routes.friends}/suggestion`);
                 }
             } else {
                 response = await postData(API_ADD_FRIEND(data.friend_id));
-                if (response.status === 200) {
+                if (response.status === true) {
                     setHasRequest(true);
                     navigate(`${config.routes.friends}/invited`);
                 }
@@ -67,7 +67,7 @@ function FriendSuggestItem({ data }) {
     //     event.stopPropagation(); // Ngăn không cho sự kiện lan ra ngoài
     //     try {
     //         const response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id)); // Giả sử bạn có API này
-    //         if (response.status === 200) {
+    //         if (response.status === true) {
     //             setIsFriend(false);
     //             window.location.reload(); // Làm mới danh sách bạn bè
     //         }

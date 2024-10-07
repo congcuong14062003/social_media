@@ -29,7 +29,7 @@ function Signup() {
         }
         const data = getDataForm('.form_signup');
         const respone = await postData(API_SIGNUP_POST, data)
-        if (respone.status === 200) {
+        if (respone.status === true) {
             navigate('/login');
         }
     };

@@ -16,6 +16,7 @@ import { OwnDataContext } from '../../../provider/own_data';
 function Header() {
     const [darkMode, setDarkMode] = useState(false);
     const navigate = useNavigate();
+    const privateKey = localStorage.getItem('private-key');
     const handleThemeChange = () => {
         const newDarkMode = !darkMode;
         setDarkMode(newDarkMode);
@@ -143,7 +144,7 @@ function Header() {
                         {popoverContent === 'notice' ? (
                             <PopoverNotice />
                         ) : popoverContent === 'chat' ? (
-                            <PopoverChat />
+                            <PopoverChat handleClosePopover={handleClosePopover} privateKey={privateKey} />
                         ) : (
                             <PopoverMe />
                         )}

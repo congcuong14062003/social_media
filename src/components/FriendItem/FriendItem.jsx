@@ -16,7 +16,7 @@ function FriendItem({ data }) {
         event.stopPropagation(); // Ngăn không cho sự kiện lan ra ngoài
         try {
             const response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id)); // Giả sử bạn có API này
-            if (response.status === 200) {
+            if (response.status === true) {
                 navigate(`${config.routes.friends}/suggestion`);
             }
         } catch (error) {

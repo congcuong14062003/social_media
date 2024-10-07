@@ -28,7 +28,7 @@ function Login() {
         }
         const data = getDataForm('.form_login');
         const respone = await postData(API_LOGIN_POST, data)
-        if (respone?.status === 200) {
+        if (respone?.status === true) {
             navigate('/');
         }
     };

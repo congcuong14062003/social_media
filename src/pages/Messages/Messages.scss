@@ -4,15 +4,16 @@
     background-color: var(--card-background);
     display: flex;
     .left_messenger {
-        width: 360px;
+        width: 400px;
         height: 100%;
         border-right: 1px solid var(--border-color);
         .popover_container {
             height: 100%;
+            width: 100%;
             max-height: 100%;
             .body_popover {
                 height: 89%;
-                padding-right: 0px;
+                // padding-right: 0px;
                 .chat_container {
                     height: 100%;
                     overflow: auto;
@@ -104,6 +105,41 @@
                 }
                 .send_mesage_action {
                 }
+                .notice_key_friend {
+                    width: 100%;
+                    margin: 10px 0;
+                    color: var(--primary-text);
+                    font-size: var(--sixteen-px);
+                    text-align: center;
+                }
+            }
+            .reply_context {
+                display: flex;
+                padding: 5px;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 4px;
+                border-top: 1px solid var(--comment-backgroud);
+                padding: 10px 20px;
+                .left_reply {
+                    .title_reply {
+                        color: var(--primary-text);
+                        font-size: var(--sixteen-px);
+                        font-weight: var(--main-font-weight);
+                    }
+                    p, a{
+                        color: var(--secondary-text);
+                        font-size: var(--fourteen-px);
+                    }
+                }
+                .right_reply {
+                    svg {
+                        cursor: pointer;
+                        width: 25px;
+                        height: 25px;
+                        fill: var(--primary-color);
+                    }
+                }
             }
         }
     }
@@ -126,7 +162,7 @@
     transform: translateX(-50%);
     align-items: center;
     h3 {
-        color: var(--primary-text)
+        color: var(--primary-text);
     }
     .input_code_chat {
         display: flex;

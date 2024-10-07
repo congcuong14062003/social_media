@@ -74,7 +74,7 @@ function ProfilePage() {
             try {
                 const response = await getData(API_GET_INFO_USER_PROFILE_BY_ID(id_user));
                 console.log(response);
-                if (response.status === 200) {
+                if (response.status === true) {
                     setDataUser(response.data);
                 }
             } catch (error) {
@@ -132,12 +132,12 @@ function ProfilePage() {
                                     </>
                                 ) : (
                                     <>
-                                        <ButtonCustom
+                                        {/* <ButtonCustom
                                             onClick={handleAddFriend}
                                             className="secondary"
                                             title="Thêm bạn bè"
-                                        />
-                                        <Link to={config.routes.createStory}>
+                                        /> */}
+                                        <Link to={`${config.routes.messages}/${id_user}`}>
                                             <ButtonCustom
                                                 className="primary"
                                                 title="Nhắn tin"

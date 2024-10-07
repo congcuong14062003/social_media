@@ -15,10 +15,13 @@ import './Messages.scss';
 import MessagesItems from '../../components/MessagesItems/MessagesItems';
 import SettingMessages from '../../components/SettingMessages/SettingMessages';
 import ToolTip from '../../components/ToolTip/ToolTip';
+import { ImReply } from 'react-icons/im';
+import { IoMdCloseCircle } from 'react-icons/io';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
     API_CHECK_EXIST_KEY_PAIR,
     API_CHECK_IF_FRIEND,
+    API_CHECK_KEY_FRIEND,
     API_DELETE_KEY_PAIR,
     API_GET_INFO_USER_PROFILE_BY_ID,
     API_GET_MESSAGES,
@@ -58,9 +61,12 @@ function MessagesPage() {
     const [openSettingChat, setOpenSettingChat] = useState(false);
     const { id_receiver } = useParams();
     const audioChunks = useRef([]);
+    const [hasKeyPairFriend, setHasKeyPairFriend] = useState(false);
     const [dataFriend, setDataFriend] = useState();
     const [codeMessage, setCodeMessage] = useState(false);
     const [hasPrivateKey, setHasPrivateKey] = useState(false);
+    const [showReply, setShowReply] = useState(false);
+    const [contentReply, setContentReply] = useState(null);
     const socket = useSocket();
     const dataOwner = useContext(OwnDataContext);
     const navigate = useNavigate();
@@ -78,7 +84,6 @@ function MessagesPage() {
     const checkIfFriend = async () => {
         try {
             const response = await getData(API_CHECK_IF_FRIEND(id_receiver));
-            console.log('response: ', response);
             if (response.isFriend === false) {
                 navigate('/');
                 toast.error('Bạn với người này chưa phải bạn bè vui lòng kết bạn để nhắn tin');
@@ -95,7 +100,7 @@ function MessagesPage() {
     const checkExistKeyPair = async () => {
         try {
             const response = await getData(API_CHECK_EXIST_KEY_PAIR);
-            if (response.status === 200) {
+            if (response.status === true) {
                 setCodeMessage(true);
             } else {
                 setCodeMessage(false);
@@ -138,7 +143,7 @@ function MessagesPage() {
                     const response = await postData(API_GET_MESSAGES(id_receiver), {
                         private_key: privateKey,
                     });
-                    if (response?.status === 200) {
+                    if (response?.status === true) {
                         setMessages(response?.data);
                     }
                 } catch (error) {
@@ -209,16 +214,29 @@ function MessagesPage() {
 
     // Lấy thông tin bạn bè từ API
     useEffect(() => {
+        const checkKeyFriend = async () => {
+            try {
+                const response = await getData(API_CHECK_KEY_FRIEND(id_receiver));
+                if (response.status === true) {
+                    setHasKeyPairFriend(true);
+                } else {
+                    setHasKeyPairFriend(false);
+                }
+            } catch (error) {
+                console.error('Error fetching data: ', error);
+            }
+        };
         const fetchData = async () => {
             try {
                 const response = await getData(API_GET_INFO_USER_PROFILE_BY_ID(id_receiver));
-                if (response.status === 200) {
+                if (response.status === true) {
                     setDataFriend(response.data);
                 }
             } catch (error) {
                 console.error('Error fetching data: ', error);
             }
         };
+        checkKeyFriend();
         fetchData();
     }, [id_receiver]);
 
@@ -257,17 +275,15 @@ function MessagesPage() {
         const codeString = code.join('');
         const submitterName = e.nativeEvent.submitter.name; // Lấy tên của nút submit
         if (submitterName === 'set-password') {
-            console.log('vào');
             if (codeMessage === false) {
                 const createKey = await postData(API_POST_KEY_PAIR, { code: codeString });
-                if (createKey.status === 200) {
-                    console.log('Tạo cặp key thành công');
+                if (createKey.status === true) {
                     navigate(`${config.routes.messages}/${id_receiver}`);
                     setCodeMessage(true);
                 }
             } else {
                 const checkPrivateKey = await postData(API_POST_DECODE_PRIVATE_KEY_PAIR, { code: codeString });
-                if (checkPrivateKey.status === 200) {
+                if (checkPrivateKey.status === true) {
                     localStorage.setItem('private-key', checkPrivateKey.data.private_key);
                     setHasPrivateKey(true);
                 }
@@ -276,7 +292,7 @@ function MessagesPage() {
             if (window.confirm('Dữ liệu tin nhắn trước đó của bạn sẽ mất vĩnh viễn?')) {
                 try {
                     const response = await deleteData(API_DELETE_KEY_PAIR);
-                    if (response.status === 200) {
+                    if (response.status === true) {
                         localStorage.clear();
                         window.location.reload();
                     }
@@ -391,6 +407,7 @@ function MessagesPage() {
                 // Append các thông tin khác vào FormData
                 formData.append('content_type', contentType);
                 formData.append('content_text', file.file.name); // Hoặc tên file nếu cần
+                formData.append('name_file', file.file.name); // Hoặc tên file nếu cần
                 formData.append('sender_id', dataOwner?.user_id);
                 formData.append('receiver_id', id_receiver);
 
@@ -409,6 +426,7 @@ function MessagesPage() {
                         sender_id: dataOwner?.user_id,
                         receiver_id: id_receiver,
                         name_file: file.file.name ?? 'Không xác định',
+                        // reply_text: contentReply,
                     };
 
                     setMessages((prevMessages) => [...prevMessages, fileMessage]);
@@ -442,9 +460,13 @@ function MessagesPage() {
         };
         formData.append('file', audioFile, audioFile.name); // Assuming audioFile contains the file object
         formData.append('content_type', 'audio');
+        formData.append('name_file', audioFile.name);
         formData.append('content_text', Date.now()); // Hoặc tên file nếu cần
         formData.append('sender_id', dataOwner?.user_id);
         formData.append('receiver_id', id_receiver);
+        // if (showReply) {
+        //     formData.append("reply_text", contentReply);
+        //   }
         // Try sending the audio file via API
         try {
             await postData(API_SEND_MESSAGE(id_receiver), formData, {
@@ -457,20 +479,27 @@ function MessagesPage() {
         } catch (error) {
             console.log('Error sending audio message: ', error);
         }
+        // Reset lại input và tệp tin
+        setMessage(''); // Reset input
+        setFiles([]);
+        setShowFilePond(false);
+        setShowAudio(false);
+        // setShowReply(false);
+        setContentReply('');
     };
-    // gọi điện
+    console.log('contentReply: ', contentReply);
 
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
                 <>
                     <div className="left_messenger">
-                        <PopoverChat privateKey={privateKey} currentChatId={id_receiver}  />
+                        <PopoverChat privateKey={privateKey} currentChatId={id_receiver} />
                     </div>
                     <div className="center_messenger">
                         <div className="messages_container">
                             <div className="chat_header">
-                                <FriendItem data={dataFriend} />
+                                <FriendItem to={`${config.routes.profile}/${id_receiver}`} data={dataFriend} />
                                 <div className="action_call">
                                     <ToolTip title="Bắt đầu gọi thoại">
                                         <div className="action_chat">
@@ -502,25 +531,47 @@ function MessagesPage() {
                             <div className="chat_body">
                                 <div className="chat_main_infor">
                                     {/* Render danh sách tin nhắn */}
-                                    {messages.map((msg, index) => {
-                                        return (
-                                            <MessagesItems
-                                                key={index}
-                                                type={msg.content_type}
-                                                message={msg.content_text ?? msg.text}
-                                                className={
-                                                    msg.sender_id === dataOwner?.user_id ||
-                                                    msg.senderId === dataOwner?.user_id
-                                                        ? 'sender'
-                                                        : ''
-                                                }
-                                            />
-                                        );
-                                    })}
-
+                                    {messages.map((msg, index) => (
+                                        <MessagesItems
+                                            reply_text={msg.reply_text}
+                                            setShowReply={setShowReply}
+                                            setContentReply={setContentReply}
+                                            key={index}
+                                            index={index}
+                                            nameFile={msg.name_file}
+                                            type={msg.content_type}
+                                            message={msg.content_text ?? msg.text}
+                                            sender_id={msg.sender_id}
+                                            className={
+                                                msg.sender_id === dataOwner?.user_id ||
+                                                msg.senderId === dataOwner?.user_id
+                                                    ? 'sender'
+                                                    : ''
+                                            }
+                                        />
+                                    ))}
                                     <div ref={messagesEndRef}></div>
                                 </div>
                             </div>
+                            {showReply && (
+                                <div className="reply_context">
+                                    <div className="left_reply">
+                                        <div className="title_reply">
+                                            Trả lời tin nhắn{' '}
+                                            {contentReply?.senderId === id_receiver
+                                                ? dataFriend?.user_name
+                                                : 'chính mình'}
+                                        </div>
+                                        <p>{contentReply?.content || 'Nội dung trả lời...'}</p>
+                                    </div>
+                                    <div className="right_reply">
+                                        <IoMdCloseCircle
+                                            className="close_reply_message"
+                                            onClick={() => setShowReply(false)}
+                                        />
+                                    </div>
+                                </div>
+                            )}
                             {showFilePond && (
                                 <FilePond
                                     files={files}
@@ -542,34 +593,44 @@ function MessagesPage() {
                                     )}
                                 </div>
                             )}
-                            <div className="chat_footer">
-                                <div className="send_file_input" onClick={handleOpenAudio}>
-                                    <AudioIcon />
-                                </div>
-                                <div className="send_file_input" onClick={() => setShowFilePond(!showFilePond)}>
-                                    <SendFileIcon />
-                                </div>
-                                <Search
-                                    onkeydown={(e) => e.key === 'Enter' && handleSendMessage()}
-                                    placeholder="Nhập tin nhắn"
-                                    value={message}
-                                    onChange={handleInputChange}
-                                />
+                            {hasKeyPairFriend ? (
+                                <div className="chat_footer">
+                                    <div className="send_file_input" onClick={handleOpenAudio}>
+                                        <AudioIcon />
+                                    </div>
+                                    <div className="send_file_input" onClick={() => setShowFilePond(!showFilePond)}>
+                                        <SendFileIcon />
+                                    </div>
+                                    <Search
+                                        onkeydown={(e) => e.key === 'Enter' && handleSendMessage()}
+                                        placeholder="Nhập tin nhắn"
+                                        value={message}
+                                        onChange={handleInputChange}
+                                    />
 
-                                <div
-                                    className={`send_mesage_action ${message || files.length > 0 ? '' : 'hidden'}`}
-                                    onClick={handleSendMessage}
-                                >
-                                    <SendMessageIcon />
-                                </div>
+                                    <div
+                                        className={`send_mesage_action ${message || files.length > 0 ? '' : 'hidden'}`}
+                                        onClick={handleSendMessage}
+                                    >
+                                        <SendMessageIcon />
+                                    </div>
 
-                                {/* <div className={`send_mesage_action`} onClick={handleSendMessage}>
+                                    {/* <div className={`send_mesage_action`} onClick={handleSendMessage}>
                                     <SendMessageIcon />
                                 </div> */}
-                                <div className={`like_message_action ${message || files.length > 0 ? 'hidden' : ''}`}>
-                                    <LikeMessageIcon />
+                                    <div
+                                        className={`like_message_action ${message || files.length > 0 ? 'hidden' : ''}`}
+                                    >
+                                        <LikeMessageIcon />
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="chat_footer">
+                                    <h5 className="notice_key_friend">
+                                        Bạn bè chưa thiết lập tin nhắn vui lòng quay lại sau!
+                                    </h5>
+                                </div>
+                            )}
                         </div>
                     </div>
                     {openSettingChat && (

@@ -7,7 +7,7 @@ import { API_GET_CONVERSATIONS } from '../../../API/api_server';
 import { postData } from '../../../ultils/fetchAPI/fetch_API';
 import { useSocket } from '../../../provider/socket_context';
 
-function PopoverChat({ privateKey, currentChatId }) {
+function PopoverChat({ privateKey, currentChatId, handleClosePopover }) {
     const [conversations, setConversations] = useState([]);
 
     const socket = useSocket();
@@ -25,7 +25,7 @@ function PopoverChat({ privateKey, currentChatId }) {
                 private_key: privateKey,
             });
             console.log(response);
-            if (response.status === 200) {
+            if (response.status === true) {
                 setConversations(response.data); // Gán dữ liệu từ API vào state
             }
         } catch (error) {
@@ -36,7 +36,6 @@ function PopoverChat({ privateKey, currentChatId }) {
         fetchConversations();
     }, [privateKey]);
 
-    console.log('conversations: ', conversations);
 
     return (
         <Popover title="Đoạn chat">
@@ -47,6 +46,9 @@ function PopoverChat({ privateKey, currentChatId }) {
                 {conversations.map((conversation, index) => (
                     <ChatItem
                         key={index}
+                        nameFile={conversation.name_file}
+                        type={conversation.content_type}
+                        onClick={handleClosePopover}
                         avatar={conversation.friend_avatar} // Avatar của bạn bè
                         name={conversation.friend_name} // Tên bạn bè
                         lastMessage={conversation.last_message} // Tin nhắn cuối
