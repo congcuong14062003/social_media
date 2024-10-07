@@ -40,7 +40,7 @@ const userSignup = async (req, res) => {
       await userSetting.create();
       res
         .status(201)
-        .json({ status: 200, message: "Tài khoản đã được tạo thành công" });
+        .json({ status: true, message: "Tài khoản đã được tạo thành công" });
     } else {
       throw new Error(usersResponse);
     }
@@ -74,7 +74,7 @@ const createUsersBySocialAccount = async (req, res) => {
         ...data,
       });
       await userSetting.create();
-      res.status(201).json({ status: 200 });
+      res.status(201).json({ status: true });
     } else {
       throw new Error(usersResponse);
     }
@@ -102,11 +102,11 @@ const userLogin = async (req, res) => {
     if (user) {
       res
         .status(200)
-        .json({ status: 200, message: "Đăng nhập thành công", user: user });
+        .json({ status: true, message: "Đăng nhập thành công", user: user });
     } else {
       res
         .status(401)
-        .json({ status: 401, message: "Thông tin đăng nhập không chính xác" });
+        .json({ status: false, message: "Thông tin đăng nhập không chính xác" });
     }
   } catch (error) {
     console.log(error);
@@ -128,7 +128,7 @@ async function userLogout(req, res) {
     // await TokenModel.deleteOne({ userId: req.user.id });
 
     // Phản hồi thành công
-    res.status(200).json({ status: 200, message: "Logout successful" });
+    res.status(200).json({ status: true, message: "Logout successful" });
   } catch (error) {
     console.error("Logout error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -143,9 +143,9 @@ const findAllUser = async (req, res) => {
     const data = await Users.getAllUser(user_id);
     console.log("data: ", data);
     if (data) {
-      res.status(200).json({ status: 200, users: data });
+      res.status(200).json({ status: true, users: data });
     } else {
-      res.status(401).json({ status: 401 });
+      res.status(401).json({ status: false });
     }
   } catch (error) {
     console.log(error);
@@ -165,11 +165,11 @@ const findUserById = async (req, res) => {
     if (user) {
       res
         .status(200)
-        .json({ status: 200, message: "Tồn tại người dùng", user: user });
+        .json({ status: true, message: "Tồn tại người dùng", user: user });
     } else {
       res
         .status(401)
-        .json({ status: 401, message: "Không tồn tại người dùng" });
+        .json({ status: false, message: "Không tồn tại người dùng" });
     }
   } catch (error) {
     console.log(error);
@@ -196,7 +196,7 @@ async function getInfoProfileUser(req, res) {
         .reduce((_, media) => media.media_link, null);
 
     res.status(200).json({
-      status: 200,
+      status: true,
       data: {
         ...data_account,
         ...data_profile,
@@ -219,7 +219,7 @@ const getUserById = async (req, res) => {
   try {
     const user = await Users.findUserById(req.params.id);
     if (user) {
-      res.status(200).json({ status: 200, data: user });
+      res.status(200).json({ status: true, data: user });
     } else {
       res.status(404).json({ status: false });
     }

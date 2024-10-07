@@ -1,6 +1,7 @@
 import multer from "multer";
 import {
   checkExistKeyPair,
+  checkExistKeyPairFriend,
   checkSecretDeCryptoPrivateKey,
   createKeyPair,
   createMessage,
@@ -28,7 +29,6 @@ export default function MessageRouter(router = Router()) {
     getAllConversations
   );
 
-
   router.post(
     "/all-messages/:id",
     Authentication,
@@ -42,6 +42,11 @@ export default function MessageRouter(router = Router()) {
     Authentication,
     Authorization,
     checkExistKeyPair
+  );
+  // kiểm tra tồn tại cặp khoá
+  router.get(
+    "/check-exists-keypair-friend/:id",
+    checkExistKeyPairFriend
   );
   // tạo cặp khoá
   router.post("/create-keypair", Authentication, Authorization, createKeyPair);

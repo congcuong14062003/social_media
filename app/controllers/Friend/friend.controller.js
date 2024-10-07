@@ -13,9 +13,9 @@ const findAllFriend = async (req, res) => {
     if (user) {
       console.log("có user");
 
-      res.status(200).json({ status: 200, users: user });
+      res.status(200).json({ status: true, users: user });
     } else {
-      res.status(401).json({ status: 401 });
+      res.status(401).json({ status: false });
     }
   } catch (error) {
     console.log(error);
@@ -32,9 +32,9 @@ const findAllFriendSuggest = async (req, res) => {
     const user = await Friend.getAllFriendsSuggest(user_id);
 
     if (user) {
-      res.status(200).json({ status: 200, users: user });
+      res.status(200).json({ status: true, users: user });
     } else {
-      res.status(401).json({ status: 401 });
+      res.status(401).json({ status: false });
     }
   } catch (error) {
     console.log(error);
@@ -51,9 +51,9 @@ const findAllInvitedFriendSuggest = async (req, res) => {
     const user = await Friend.getAllFriendsInvitedSuggest(user_id);
 
     if (user) {
-      res.status(200).json({ status: 200, users: user });
+      res.status(200).json({ status: true, users: user });
     } else {
-      res.status(401).json({ status: 401 });
+      res.status(401).json({ status: false });
     }
   } catch (error) {
     console.log(error);
@@ -75,7 +75,7 @@ const addFriend = async (req, res) => {
     if (!user || !friend) {
       return res
         .status(401)
-        .json({ status: 401, message: "Không tồn tại người dùng" });
+        .json({ status: false, message: "Không tồn tại người dùng" });
     }
 
     // Gửi lời mời kết bạn
@@ -83,11 +83,11 @@ const addFriend = async (req, res) => {
     if (addFriend === 1) {
       return res
         .status(200)
-        .json({ status: 200, message: "Gửi lời mời kết bạn thành công" });
+        .json({ status: true, message: "Gửi lời mời kết bạn thành công" });
     } else {
       return res
         .status(401)
-        .json({ status: 401, message: "Lỗi khi gửi lời mời kết bạn" });
+        .json({ status: false, message: "Lỗi khi gửi lời mời kết bạn" });
     }
   } catch (error) {
     console.error(error);
@@ -112,7 +112,7 @@ const AcceptFriend = async (req, res) => {
       const result = await Friend.updateStatus(requestor_id, receiver_id, 1);
       if (result === 1) {
         res.status(200).json({
-          status: 200,
+          status: true,
           message: "Các bạn đã trở thành bạn bè, hãy trò chuyện ngay",
         });
       } else {
@@ -136,7 +136,7 @@ const checkFriend = async (req, res) => {
     const isFriend = await Friend.isFriend(receiver_id, requestor_id);
 
     // Trả về kết quả
-    res.status(200).json({ status: 200, isFriend });
+    res.status(200).json({ status: true, isFriend });
   } catch (error) {
     console.log(error);
     res.status(400).json({ status: false, message: error.message ?? error });
@@ -149,9 +149,9 @@ const ListFriendInvite = async (req, res) => {
     const user = await Friend.ListInviting(user_id);
 
     if (user) {
-      res.status(200).json({ status: 200, users: user });
+      res.status(200).json({ status: true, users: user });
     } else {
-      res.status(401).json({ status: 401 });
+      res.status(401).json({ status: false });
     }
   } catch (error) {
     console.error(error);
@@ -192,7 +192,7 @@ const cancelFriendRequest = async (req, res) =>{
     const result = await Friend.cancelFriendRequest(requestor_id, receiver_id);
 
     if (result > 0) {  // Kiểm tra nếu có hàng bị ảnh hưởng
-      res.status(200).json({ status: 200, message: "Huỷ lời mời kết bạn thành công" });
+      res.status(200).json({ status: true, message: "Huỷ lời mời kết bạn thành công" });
     } else {
       res.status(404).json({ status: 404, message: "Lời mời kết bạn không tồn tại" });
     }
