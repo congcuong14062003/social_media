@@ -12,17 +12,18 @@ const createMessage = async (req, res) => {
     const friend_id = req.params?.id ?? null;
     let content_text = req.body?.content_text ?? "";
     const content_type = req.body?.content_type ?? "";
+    const reply_text = req.body?.reply_text ?? null;
     const name_file = req.body?.name_file ?? "";
     console.log(files[0]);
 
-    const friendHasKey = await UserKeyPair.getKeyPair(friend_id);
+    // const friendHasKey = await UserKeyPair.getKeyPair(friend_id);
 
-    if (!friendHasKey) {
-      return res.status(401).json({
-        status: false,
-        message: "Bạn bè chưa thiết lập tin nhắn vui lòng thử lại sau",
-      });
-    }
+    // if (!friendHasKey) {
+    //   return res.status(401).json({
+    //     status: false,
+    //     message: "Bạn bè chưa thiết lập tin nhắn vui lòng thử lại sau",
+    //   });
+    // }
 
     if (files.length > 0) {
       content_text = (
@@ -42,6 +43,7 @@ const createMessage = async (req, res) => {
       sender_id: user_id,
       receiver_id: friend_id,
       content_type: content_type,
+      reply_text: reply_text,
       name_file: name_file,
     });
 
@@ -57,6 +59,7 @@ const createMessage = async (req, res) => {
         content_text: content_text,
         content_type: content_type,
         name_file: name_file,
+        reply_text: reply_text,
       });
       io.to(getSocketIdByUserId(friend_id, users)).emit("updateMessage");
       io.to(getSocketIdByUserId(user_id, users)).emit("updateMessage");
@@ -114,6 +117,7 @@ const getAllMessages = async (req, res) => {
           name_file: item.name_file,
           content_type: item.content_type,
           created_at: item.created_at,
+          reply_text: item.reply_text,
         };
       })
     );

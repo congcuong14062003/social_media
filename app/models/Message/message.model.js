@@ -64,9 +64,10 @@ class Message {
           content_text_encrypt_by_owner,
           content_type,
           name_file,
+          reply_text,
           sender_id,
           receiver_id
-        ) VALUES (?, ?, ?, ?, ?, ?);
+        ) VALUES (?, ?, ?, ?, ?, ?, ?);
       `;
 
       const [result] = await pool.execute(createMessageQuery, [
@@ -74,6 +75,7 @@ class Message {
         textEnCryptoRSAForSender,
         this.content_type,
         this.name_file,
+        this.reply_text,
         this.sender_id,
         this.receiver_id,
       ]);

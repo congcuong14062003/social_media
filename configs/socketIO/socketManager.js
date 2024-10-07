@@ -28,6 +28,8 @@ const initializeSocket = (httpServer, users) => {
 
       // Lắng nghe sự kiện đang viết tin nhắn
       socket.on("senderWritting", (data) => {
+        console.log("Dataaaaaaaaaaaaaaaaaaa: ", data);
+        
         const receiverSocketId = getSocketIdByUserId(data?.receiver_id, users);
         if (receiverSocketId) {
           io.to(receiverSocketId).emit("receiverNotifiWritting", {
