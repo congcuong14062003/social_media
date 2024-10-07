@@ -35,6 +35,8 @@
     }
 
     .content_row {
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
         .reply_icon_message {
@@ -45,7 +47,11 @@
             height: 20px;
         }
     }
-    .message-reply {
+    .message_reply {
+        position: relative;
+        margin-bottom: -10px;
+        z-index: 0;
+        height: max-content;
         width: max-content;
         max-width: 600px;
         padding: 20px;
@@ -54,11 +60,11 @@
         align-items: center;
         span {
             word-break: break-word;
-            color: var(--primary-text);
+            color: var(--secondary-text);
             font-size: var(--fourteen-px);
             font-weight: var(--secon-font-weight);
         }
-        background-color: var(--comment-backgroud);
+        background-color: var(--reply-comment-background);
     }
 }
 .sender {

@@ -5,14 +5,14 @@ import { ImReply } from 'react-icons/im';
 import './MessagesItems.scss';
 import { useState } from 'react';
 
-function MessagesItems({ className, message, type, nameFile, setShowReply, setContentReply, sender_id, reply_text }) {
+function MessagesItems({ className, message, type, nameFile, setShowReply, setContentReply, sender_id, reply_text, inputRef  }) {
     const classes = `receiver_user_container ${className}`;
     const [hoverItem, setHoverItem] = useState(false);
 
     return (
         message && (
             <div onMouseEnter={() => setHoverItem(true)} onMouseLeave={() => setHoverItem(false)} className={classes}>
-                {true && <p className="message-reply"><span>Anh yeu ơi</span></p>}
+                {reply_text && <p className="message_reply"><span>{reply_text}</span></p>}
                 <div className="content_row">
                     {/* Nội dung tin nhắn */}
                     {type === 'text' && (
@@ -49,6 +49,7 @@ function MessagesItems({ className, message, type, nameFile, setShowReply, setCo
                         <div
                             className="reply_icon_message"
                             onClick={() => {
+
                                 setShowReply(true);
 
                                 // Tạo đối tượng replyMessage với nội dung và senderId
@@ -89,6 +90,9 @@ function MessagesItems({ className, message, type, nameFile, setShowReply, setCo
 
                                 // Gọi setContentReply với đối tượng replyContent
                                 setContentReply(replyContent);
+                                if (inputRef.current) {
+                                    inputRef.current.focus();
+                                }
                             }}
                         >
                             <ImReply />

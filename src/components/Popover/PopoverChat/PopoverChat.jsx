@@ -7,7 +7,7 @@ import { API_GET_CONVERSATIONS } from '../../../API/api_server';
 import { postData } from '../../../ultils/fetchAPI/fetch_API';
 import { useSocket } from '../../../provider/socket_context';
 
-function PopoverChat({ privateKey, currentChatId, handleClosePopover }) {
+function PopoverChat({ privateKey, currentChatId, handleClosePopover, inputRef }) {
     const [conversations, setConversations] = useState([]);
 
     const socket = useSocket();
@@ -24,7 +24,6 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover }) {
             const response = await postData(API_GET_CONVERSATIONS, {
                 private_key: privateKey,
             });
-            console.log(response);
             if (response.status === true) {
                 setConversations(response.data); // Gán dữ liệu từ API vào state
             }
@@ -38,7 +37,7 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover }) {
 
 
     return (
-        <Popover title="Đoạn chat">
+        <Popover inputRef={inputRef} title="Đoạn chat">
             <div className="search_chat_user">
                 <Search iconSearch placeholder="Tìm kiếm trên messenger" />
             </div>

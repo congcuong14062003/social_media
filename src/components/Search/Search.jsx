@@ -1,9 +1,22 @@
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IoSendSharp } from 'react-icons/io5';
-import { IoCameraOutline } from "react-icons/io5";
+import { IoCameraOutline } from 'react-icons/io5';
 import './Search.scss';
-function Search({ placeholder, onChange, icon, onClick, iconSearch, handleOpenFile, handleSendMessage, value, onkeydown}) {
+function Search({
+    placeholder,
+    onChange,
+    icon,
+    onClick,
+    iconSearch,
+    handleOpenFile,
+    handleSendMessage,
+    value,
+    onkeydown,
+    inputRef,
+    onFocus,
+    onBlur,
+}) {
     return (
         <div className="search_container" onClick={onClick}>
             {iconSearch && (
@@ -11,11 +24,20 @@ function Search({ placeholder, onChange, icon, onClick, iconSearch, handleOpenFi
                     <FontAwesomeIcon fontSize="15px" icon={faMagnifyingGlass} />
                 </div>
             )}
-            <input type="text" onKeyDown={onkeydown} value={value} onChange={onChange} placeholder={placeholder} />
+            <input
+                ref={inputRef}
+                type="text"
+                onKeyDown={onkeydown}
+                onFocus={onFocus}
+                onBlur={onBlur}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+            />
             {icon && (
                 <>
                     <div className="camera_comment" onClick={handleOpenFile}>
-                    <IoCameraOutline />
+                        <IoCameraOutline />
                     </div>
                     <div className="send_comment" onClick={handleSendMessage}>
                         <IoSendSharp />

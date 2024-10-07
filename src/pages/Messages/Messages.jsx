@@ -57,6 +57,7 @@ function MessagesPage() {
     const [showAudio, setShowAudio] = useState(false); // mở audio
     const [mediaRecorder, setMediaRecorder] = useState(null);
     const [audioURL, setAudioURL] = useState(null);
+    const inputRef = useRef(null); // Tạo ref để tham chiếu đến input
     const [isRecording, setIsRecording] = useState(false);
     const [openSettingChat, setOpenSettingChat] = useState(false);
     const { id_receiver } = useParams();
@@ -67,11 +68,12 @@ function MessagesPage() {
     const [hasPrivateKey, setHasPrivateKey] = useState(false);
     const [showReply, setShowReply] = useState(false);
     const [contentReply, setContentReply] = useState(null);
+    const [isTyping, setIsTyping] = useState(false);
+    const [receiverIsTyping, setReceiverIsTyping] = useState(false);
     const socket = useSocket();
     const dataOwner = useContext(OwnDataContext);
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState(false);
-    const [sendLastMessage, setSendLastMessage] = useState();
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
     const privateKey = localStorage.getItem('private-key');
@@ -128,6 +130,7 @@ function MessagesPage() {
             setHasPrivateKey(false); // Nếu không có, trạng thái là false
         }
     }, []);
+
     // Lấy tin nhắn
     useEffect(() => {
         if (socket && dataOwner && id_receiver && privateKey) {
@@ -157,6 +160,7 @@ function MessagesPage() {
                 setMessages((prevMessages) => [
                     ...prevMessages,
                     {
+                        reply_text: data?.reply_text,
                         sender_id: data?.sender_id,
                         receiver_id: id_receiver,
                         content_text: data?.content_text,
@@ -171,7 +175,9 @@ function MessagesPage() {
             return () => {
                 socket.off('connect');
                 socket.off('registerUser');
+                // socket.off('onlineUsers');
                 socket.off('onlineUsers');
+                socket.off('receiveMessage');
             };
         }
     }, [socket, dataOwner, id_receiver, privateKey]);
@@ -185,30 +191,6 @@ function MessagesPage() {
     useEffect(() => {
         if (socket && dataOwner?.user_id) {
             socket.emit('addUser', dataOwner?.user_id); // Gửi id_receiver tới server
-        }
-    }, [socket, dataOwner]);
-
-    // Đăng ký sự kiện nhận tin nhắn
-    useEffect(() => {
-        if (socket) {
-            // socket.on('connect', () => {
-            //     console.log('Connected to the server', socket.id);
-            // });
-            socket.on('getMessage', (data) => {
-                // console.log('Received message:', data);
-                setMessages((prevMessages) => [
-                    ...prevMessages,
-                    {
-                        senderId: data.senderId,
-                        text: data.text,
-                        isSender: data.senderId === dataOwner?.user_id,
-                    },
-                ]);
-            });
-
-            return () => {
-                socket.off('getMessage'); // Ngừng lắng nghe sự kiện khi component unmount
-            };
         }
     }, [socket, dataOwner]);
 
@@ -240,6 +222,30 @@ function MessagesPage() {
         fetchData();
     }, [id_receiver]);
 
+    // xử lý khi ai đó đang nhắn:
+    //Sự kiện có đang nhắn?
+    useEffect(() => {
+        try {
+            //Gửi sự kiện mình đang nhắn
+            socket.emit('senderWritting', {
+                sender_id: dataOwner?.user_id,
+                receiver_id: id_receiver,
+                status: isTyping,
+            });
+            //Lắng nghe sự kiện đối phương nhắn tin
+            socket.on('receiverNotifiWritting', (data) => {
+                console.log("dataaaaaa: ", data);
+                setReceiverIsTyping(data?.status);
+            });
+
+        } catch (error) {
+            // console.log("error", error);
+        }
+    }, [isTyping]);
+
+    console.log("Typing: ", isTyping);
+    console.log("receiverIsTyping: ", receiverIsTyping);
+    
     // Controlled input code verification
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const handleCodeChange = (e, index) => {
@@ -305,7 +311,6 @@ function MessagesPage() {
         setCode(['', '', '', '', '', '']); // Reset mã code sau khi submit
     };
 
-    // event
     const handleOpenAudio = () => {
         setShowAudio(!showAudio);
     };
@@ -325,7 +330,7 @@ function MessagesPage() {
             };
         }
     }, [mediaRecorder]);
-
+    // bắt đầu ghi âm
     const startRecording = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const recorder = new MediaRecorder(stream);
@@ -334,11 +339,12 @@ function MessagesPage() {
         recorder.start();
         setIsRecording(true);
     };
-
+    // dừng ghi âm
     const stopRecording = () => {
         mediaRecorder.stop();
         setIsRecording(false);
     };
+
     // Gửi tin nhắn khi click vào icon gửi tin nhắn
     const handleSendMessage = async () => {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -356,6 +362,7 @@ function MessagesPage() {
                     content_text: formattedMessage,
                     sender_id: dataOwner?.user_id,
                     receiver_id: id_receiver,
+                    reply_text: contentReply?.content,
                 };
             } else {
                 newMessage = {
@@ -363,6 +370,7 @@ function MessagesPage() {
                     content_text: message,
                     sender_id: dataOwner?.user_id,
                     receiver_id: id_receiver,
+                    reply_text: contentReply?.content,
                 };
             }
 
@@ -373,6 +381,7 @@ function MessagesPage() {
                     content_text: newMessage.content_text,
                     sender_id: newMessage.sender_id,
                     receiver_id: newMessage.receiver_id,
+                    reply_text: newMessage.reply_text,
                 });
             } catch (error) {
                 console.log('Error sending text message: ', error);
@@ -410,7 +419,9 @@ function MessagesPage() {
                 formData.append('name_file', file.file.name); // Hoặc tên file nếu cần
                 formData.append('sender_id', dataOwner?.user_id);
                 formData.append('receiver_id', id_receiver);
-
+                if (showReply) {
+                    formData.append('reply_text', contentReply?.content);
+                }
                 // Gửi từng file qua API
                 try {
                     await postData(API_SEND_MESSAGE(id_receiver), formData, {
@@ -426,7 +437,7 @@ function MessagesPage() {
                         sender_id: dataOwner?.user_id,
                         receiver_id: id_receiver,
                         name_file: file.file.name ?? 'Không xác định',
-                        // reply_text: contentReply,
+                        reply_text: contentReply?.content,
                     };
 
                     setMessages((prevMessages) => [...prevMessages, fileMessage]);
@@ -438,11 +449,13 @@ function MessagesPage() {
 
         // Cập nhật tin nhắn vào state với tin nhắn văn bản
         setMessages((prevMessages) => [...prevMessages, newMessage]);
-        setSendLastMessage(message);
         // Reset lại input và tệp tin
         setMessage(''); // Reset input
         setFiles([]);
         setShowFilePond(false);
+        setShowAudio(false);
+        setShowReply(false);
+        setContentReply({});
     };
     // gửi audio
     const handleSendAudio = async (audioFile) => {
@@ -457,6 +470,7 @@ function MessagesPage() {
             sender_id: dataOwner?.user_id,
             receiver_id: id_receiver,
             name_file: audioFile.name ?? 'Unknown', // Default to 'Unknown' if no name
+            reply_text: contentReply?.content,
         };
         formData.append('file', audioFile, audioFile.name); // Assuming audioFile contains the file object
         formData.append('content_type', 'audio');
@@ -464,9 +478,9 @@ function MessagesPage() {
         formData.append('content_text', Date.now()); // Hoặc tên file nếu cần
         formData.append('sender_id', dataOwner?.user_id);
         formData.append('receiver_id', id_receiver);
-        // if (showReply) {
-        //     formData.append("reply_text", contentReply);
-        //   }
+        if (showReply) {
+            formData.append('reply_text', contentReply?.content);
+        }
         // Try sending the audio file via API
         try {
             await postData(API_SEND_MESSAGE(id_receiver), formData, {
@@ -484,17 +498,16 @@ function MessagesPage() {
         setFiles([]);
         setShowFilePond(false);
         setShowAudio(false);
-        // setShowReply(false);
-        setContentReply('');
+        setShowReply(false);
+        setContentReply({});
     };
-    console.log('contentReply: ', contentReply);
 
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
                 <>
                     <div className="left_messenger">
-                        <PopoverChat privateKey={privateKey} currentChatId={id_receiver} />
+                        <PopoverChat inputRef={inputRef} privateKey={privateKey} currentChatId={id_receiver} />
                     </div>
                     <div className="center_messenger">
                         <div className="messages_container">
@@ -537,6 +550,7 @@ function MessagesPage() {
                                             setShowReply={setShowReply}
                                             setContentReply={setContentReply}
                                             key={index}
+                                            inputRef={inputRef} // Truyền ref vào MessagesItems
                                             index={index}
                                             nameFile={msg.name_file}
                                             type={msg.content_type}
@@ -553,6 +567,11 @@ function MessagesPage() {
                                     <div ref={messagesEndRef}></div>
                                 </div>
                             </div>
+                            {receiverIsTyping && (
+                                <i style={{ fontSize: '12px' }} className="writting">
+                                    {dataFriend && dataFriend?.user_name} đang nhắn ...
+                                </i>
+                            )}
                             {showReply && (
                                 <div className="reply_context">
                                     <div className="left_reply">
@@ -602,6 +621,9 @@ function MessagesPage() {
                                         <SendFileIcon />
                                     </div>
                                     <Search
+                                        onFocus={() => setIsTyping(true)}
+                                        onBlur={() => setIsTyping(false)}
+                                        inputRef={inputRef} // Gắn ref vào input
                                         onkeydown={(e) => e.key === 'Enter' && handleSendMessage()}
                                         placeholder="Nhập tin nhắn"
                                         value={message}
