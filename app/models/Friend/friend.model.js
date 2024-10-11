@@ -58,38 +58,57 @@ class Friend {
         JOIN users u 
           ON (u.user_id = f.requestor_id AND f.receiver_id = ?)
           OR (u.user_id = f.receiver_id AND f.requestor_id = ?)
-        JOIN ProfileMedia pm
-          ON pm.user_id = u.user_id
-        WHERE pm.media_type = 'avatar'
-          AND f.relationship_status = 1
-        ORDER BY pm.created_at
+        LEFT JOIN (
+          SELECT user_id, media_link, created_at
+          FROM ProfileMedia
+          WHERE media_type = 'avatar' 
+            AND (user_id, created_at) IN (
+              SELECT user_id, MAX(created_at)
+              FROM ProfileMedia
+              WHERE media_type = 'avatar'
+              GROUP BY user_id
+            )
+        ) pm ON pm.user_id = u.user_id
+        WHERE f.relationship_status = 1
+        ORDER BY pm.created_at DESC
       `;
-
+  
       const [result] = await pool.execute(getFriendsQuery, [user_id, user_id]);
-
+  
       return result;
     } catch (error) {
       return error;
     }
   }
+  
+
   // danh sách bạn bè gợi ý
   static async getAllFriendsSuggest(user_id) {
     try {
       const getFriendsSuggestQuery = `
-      SELECT 
-        u.user_id AS friend_id,
-        u.user_name,
-        pm.media_link AS avatar_link
-      FROM users u
-      LEFT JOIN Friend f1 
-        ON (u.user_id = f1.requestor_id AND f1.receiver_id = ?)
-        OR (u.user_id = f1.receiver_id AND f1.requestor_id = ?)
-      LEFT JOIN ProfileMedia pm
-        ON pm.user_id = u.user_id
-      WHERE pm.media_type = 'avatar'
-        AND u.user_id != ?
-        AND f1.relationship_status IS NULL
-      ORDER BY pm.created_at
+SELECT 
+    u.user_id AS friend_id,
+    u.user_name,
+    pm.media_link AS avatar_link
+FROM users u
+LEFT JOIN Friend f1 
+    ON (u.user_id = f1.requestor_id AND f1.receiver_id = ?)
+    OR (u.user_id = f1.receiver_id AND f1.requestor_id = ?)
+LEFT JOIN (
+    SELECT user_id, media_link, created_at
+    FROM ProfileMedia
+    WHERE media_type = 'avatar'
+      AND created_at IN (
+          SELECT MAX(created_at)
+          FROM ProfileMedia
+          WHERE media_type = 'avatar'
+          GROUP BY user_id
+      )
+) pm ON pm.user_id = u.user_id
+WHERE u.user_id != ?
+  AND f1.relationship_status IS NULL
+ORDER BY pm.created_at DESC;
+
     `;
 
       const [result] = await pool.execute(getFriendsSuggestQuery, [
@@ -141,8 +160,17 @@ class Friend {
         FROM friend f
         JOIN users u 
           ON f.requestor_id = u.user_id
-        LEFT JOIN ProfileMedia pm 
-          ON pm.user_id = u.user_id AND pm.media_type = 'avatar'
+        LEFT JOIN (
+          SELECT user_id, media_link
+          FROM ProfileMedia
+          WHERE media_type = 'avatar' 
+            AND (user_id, created_at) IN (
+              SELECT user_id, MAX(created_at)
+              FROM ProfileMedia
+              WHERE media_type = 'avatar'
+              GROUP BY user_id
+            )
+        ) pm ON pm.user_id = u.user_id
         WHERE f.receiver_id = ? 
           AND f.relationship_status = 0  -- Chỉ lấy những lời mời đang chờ
       `;
@@ -154,6 +182,7 @@ class Friend {
       throw error;
     }
   }
+
   // huỷ yêu cầu kết bạn
   static async cancelFriendRequest(requestor_id, receiver_id) {
     const query = `
@@ -175,21 +204,24 @@ class Friend {
     }
   }
   // check is friend by id
-  static async isFriend(id_user, friend_id) {
+  static async isFriend(my_id, user_id) {
     try {
       const query = `
         SELECT COUNT(*) AS count
         FROM friend
-        WHERE (requestor_id = ? AND receiver_id = ?)
-        OR (requestor_id = ? AND receiver_id = ?)
+        WHERE (
+          (requestor_id = ? AND receiver_id = ?)
+          OR (requestor_id = ? AND receiver_id = ?)
+        )
         AND relationship_status = 1;
       `;
       const [rows] = await pool.execute(query, [
-        id_user,
-        friend_id,
-        friend_id,
-        id_user,
+        my_id,
+        user_id,
+        user_id,
+        my_id,
       ]);
+      console.log(rows);
 
       return rows[0].count > 0; // Trả về true nếu có ít nhất một bản ghi
     } catch (error) {
@@ -197,6 +229,7 @@ class Friend {
       throw error;
     }
   }
+
   // kết bạn
   static async addFriendById(id_user, friend_id) {
     try {

@@ -28,10 +28,12 @@ class UserSetting {
     static async getById(user_id) {
         try {
 
-            const getUserSettingByIdQuery = "SELECT * FROM UserSetting WHERE user_id = ?";
+            const getUserSettingByIdQuery = "SELECT * FROM usersetting WHERE user_id = ?";
             const [result] = await pool.execute(getUserSettingByIdQuery, [
                 user_id
             ]);
+            console.log("user setting: ", user_id);
+            
             return result[0];
         } catch (error) {
             return error;

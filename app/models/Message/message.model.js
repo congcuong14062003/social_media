@@ -121,6 +121,20 @@ class Message {
       throw error;
     }
   }
+  static async updateIsRead(messageId, userId) {
+    try {
+      const query = `
+        UPDATE PrivateMessage 
+        SET is_read = true
+        WHERE messenger_id = ? AND receiver_id = ? AND is_read = 0
+      `;
+      const [result] = await pool.execute(query, [messageId, userId]);
+      return result.affectedRows > 0; // Trả về true nếu có dòng được cập nhật
+    } catch (error) {
+      console.error("Error updating is_read in database:", error);
+      throw new Error(error);
+    }
+  }
 }
 
 export default Message;

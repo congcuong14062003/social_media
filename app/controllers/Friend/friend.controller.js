@@ -129,14 +129,20 @@ const AcceptFriend = async (req, res) => {
 // kiểm tra đã là bạn chưa
 const checkFriend = async (req, res) => {
   try {
-    const requestor_id = req.params.id; // ID của người được kiểm tra
-    const receiver_id = req.body?.data?.user_id; // ID của người gửi yêu cầu
-
+    const my_id = req.body?.data?.user_id; // ID của mình
+    const user_id = req.params.id; // id người mình muốn check
+    console.log("my_id: " + my_id);
+    console.log("user_id: " + user_id);
+    
     // Gọi hàm kiểm tra bạn bè
-    const isFriend = await Friend.isFriend(receiver_id, requestor_id);
-
+    const isFriend = await Friend.isFriend(my_id, user_id);
+    console.log("Bạn bè: ", isFriend);
+    if (isFriend) {
+      res.status(200).json({ status: true, isFriend });
+    } else {
+      res.status(200).json({ status: false, isFriend });
+    }
     // Trả về kết quả
-    res.status(200).json({ status: true, isFriend });
   } catch (error) {
     console.log(error);
     res.status(400).json({ status: false, message: error.message ?? error });
@@ -184,23 +190,28 @@ export async function checkFriendRequest(req, res) {
 }
 
 // huỷ lời mời kết bạn
-const cancelFriendRequest = async (req, res) =>{
-  const requestor_id = req.params.id;  // ID của người gửi lời mời
-  const receiver_id = req.body?.data?.user_id;  // ID của người nhận lời mời (người hiện tại)
+const cancelFriendRequest = async (req, res) => {
+  const requestor_id = req.params.id; // ID của người gửi lời mời
+  const receiver_id = req.body?.data?.user_id; // ID của người nhận lời mời (người hiện tại)
 
   try {
     const result = await Friend.cancelFriendRequest(requestor_id, receiver_id);
 
-    if (result > 0) {  // Kiểm tra nếu có hàng bị ảnh hưởng
-      res.status(200).json({ status: true, message: "Huỷ lời mời kết bạn thành công" });
+    if (result > 0) {
+      // Kiểm tra nếu có hàng bị ảnh hưởng
+      res
+        .status(200)
+        .json({ status: true, message: "Huỷ lời mời kết bạn thành công" });
     } else {
-      res.status(404).json({ status: 404, message: "Lời mời kết bạn không tồn tại" });
+      res
+        .status(404)
+        .json({ status: 404, message: "Lời mời kết bạn không tồn tại" });
     }
   } catch (error) {
     console.error(error);
     res.status(500).json({ status: false, message: error.message ?? error });
   }
-}
+};
 export {
   findAllFriend,
   findAllFriendSuggest,
@@ -209,5 +220,5 @@ export {
   AcceptFriend,
   cancelFriendRequest,
   ListFriendInvite,
-  checkFriend
+  checkFriend,
 };

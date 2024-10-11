@@ -8,6 +8,7 @@ import {
   deleteKeysPair,
   getAllConversations,
   getAllMessages,
+  updateIsRead,
 } from "../../controllers/Message/message.controller.js";
 import Authentication from "../../middleware/authentication.js";
 import { Authorization } from "../../middleware/authorization_token.js";
@@ -35,7 +36,7 @@ export default function MessageRouter(router = Router()) {
     Authorization,
     getAllMessages
   );
-
+  router.post("/update-isseen/:messageId", Authentication, Authorization, updateIsRead);
   // kiểm tra tồn tại cặp khoá
   router.get(
     "/check-exists-keypair",

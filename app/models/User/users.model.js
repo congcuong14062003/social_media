@@ -42,13 +42,14 @@ class Users {
   }
 
   // tìm người dùng
-  static async login(user_email, user_password) {
+  static async login(user_email, user_password, type_account) {
     try {
       const findUserQuery =
-        "SELECT * FROM users WHERE user_email = ? and user_password = ?;";
+        "SELECT * FROM users WHERE user_email = ? and user_password = ? and type_account = ?";
       const [rows] = await pool.execute(findUserQuery, [
         user_email,
         user_password,
+        type_account,
       ]);
       console.log(rows[0]);
 
@@ -58,12 +59,29 @@ class Users {
       return null;
     }
   }
+  static async loginWithUserID(userID, password, type_account) {
+    console.log("userID: ", userID);
+    console.log("password: ", password);
+    console.log("type_account: ", type_account);
 
+    try {
+      const getUserQuery =
+        "SELECT * FROM Users WHERE user_id = ? AND type_account = ? and user_password = ?";
+      const [rows] = await pool.execute(getUserQuery, [
+        userID,
+        type_account,
+        password,
+      ]);
+      return rows.length > 0 ? rows[0] : null; // Trả về thông tin người dùng nếu tìm thấy
+    } catch (error) {
+      console.log(error.message);
+      return error;
+    }
+  }
   // tìm người dùng theo id
   static async getById(user_id) {
     try {
-      const getUserByIdQuery =
-        "SELECT user_id, user_name, user_email, user_status, created_at, user_role, type_account  FROM users  WHERE user_id = ?";
+      const getUserByIdQuery = "SELECT *  FROM users  WHERE user_id = ?";
       const [result] = await pool.execute(getUserByIdQuery, [user_id]);
       return result[0];
     } catch (error) {
@@ -96,11 +114,48 @@ class Users {
   static async checkEmailExists(email) {
     try {
       const checkEmailQuery =
-        "SELECT COUNT(*) as count FROM users WHERE user_email = ?;";
+        "SELECT COUNT(*) as count FROM users WHERE user_email = ? and type_account = 'register';";
       const [rows] = await pool.execute(checkEmailQuery, [email]);
       return rows[0].count > 0;
     } catch (error) {
       console.error("Database error:", error);
+      throw error;
+    }
+  }
+
+  async update() {
+    console.log("Cập nhật người dùng với dữ liệu:", this);
+
+    try {
+      let updateUserQuery = "UPDATE Users SET";
+      let params = [];
+      let updates = [];
+
+      if (this.user_name !== undefined) {
+        updates.push(" user_name = ?");
+        params.push(this.user_name);
+      }
+
+      // if (this.user_email !== undefined) {
+      //   updates.push(" user_email = ?");
+      //   params.push(this.user_email);
+      // }
+
+      // Nếu không có trường nào được cập nhật
+      if (updates.length === 0) {
+        throw new Error("Không có trường nào được cập nhật.");
+      }
+
+      updateUserQuery += updates.join(", ");
+      updateUserQuery += " WHERE user_id = ?";
+      params.push(this.user_id);
+
+      const [result] = await pool.execute(updateUserQuery, params);
+      console.log("Kết quả cập nhật người dùng:", result);
+
+      return result.affectedRows;
+    } catch (error) {
+      console.error("Error updating user:", error);
       throw error;
     }
   }

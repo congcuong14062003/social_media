@@ -29,7 +29,7 @@ const initializeSocket = (httpServer, users) => {
       // Lắng nghe sự kiện đang viết tin nhắn
       socket.on("senderWritting", (data) => {
         console.log("Dataaaaaaaaaaaaaaaaaaa: ", data);
-        
+
         const receiverSocketId = getSocketIdByUserId(data?.receiver_id, users);
         if (receiverSocketId) {
           io.to(receiverSocketId).emit("receiverNotifiWritting", {
@@ -54,12 +54,50 @@ const initializeSocket = (httpServer, users) => {
       // Chấp nhận cuộc gọi
       socket.on("acceptCallUser", (data) => {
         const senderSocketId = getSocketIdByUserId(data?.sender_id, users);
-        if (senderSocketId) {
+        const receiverSocketId = getSocketIdByUserId(data?.receiver_id, users);
+        console.log(users);
+
+        console.log("data accepted: ", data);
+        console.log("socket id:", senderSocketId, receiverSocketId);
+
+        if (senderSocketId && receiverSocketId) {
+          io.to(receiverSocketId).emit("statusAcceptedCallUser", {
+            status: data?.status,
+          });
           io.to(senderSocketId).emit("statusAcceptedCallUser", {
             status: data?.status,
           });
         } else {
           console.error(`No socket found for user ID: ${data?.sender_id}`);
+        }
+      });
+      // Lắng nghe sự kiện kết thúc cuộc gọi
+      // Lắng nghe sự kiện kết thúc cuộc gọi
+      socket.on("endCall", (data) => {
+        const { room_id, receiver_id, sender_id } = data;
+
+        // Lấy socketId của người nhận
+        const receiverSocketId = getSocketIdByUserId(receiver_id, users);
+
+        if (receiverSocketId) {
+          // Phát sự kiện kết thúc cuộc gọi đến người nhận
+          io.to(receiverSocketId).emit("callEnded", {
+            message: "The caller has ended the call",
+            room_id,
+          });
+        } else {
+          console.error(`No socket found for user ID: ${receiver_id}`);
+        }
+
+        // Tương tự, nếu bạn muốn gửi sự kiện này đến người gọi (để đảm bảo cả 2 phía đều xử lý),
+        const senderSocketId = getSocketIdByUserId(sender_id, users);
+        if (senderSocketId) {
+          io.to(senderSocketId).emit("callEnded", {
+            message: "You have ended the call",
+            room_id,
+          });
+        } else {
+          console.error(`No socket found for user ID: ${sender_id}`);
         }
       });
 
@@ -68,7 +106,7 @@ const initializeSocket = (httpServer, users) => {
       // Nhận peerID người gọi
       socket.on("getPeerIDCaller", (data) => {
         console.log("Dataaaaaa: ", data);
-        
+
         io.to(getSocketIdByUserId(data?.sender_id, users)).emit(
           "sendPeerIDCaller",
           data?.peer_id

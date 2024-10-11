@@ -1,3 +1,4 @@
+import uploadFile from "../../../configs/cloud/cloudinary.config.js";
 import pool from "../../../configs/database/database.js";
 import Friend from "../../models/Friend/friend.model.js";
 import Message from "../../models/Message/message.model.js";
@@ -29,7 +30,7 @@ const userSignup = async (req, res) => {
           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLp9nfWGMmdEoiP4LfWxJ1s58hFwkm4B32vQ&s",
       }).create();
       new UserProfile({
-        user_id,
+        user_id: user_id,
         ...data,
       }).create();
 
@@ -60,18 +61,17 @@ const createUsersBySocialAccount = async (req, res) => {
     if (user_id) {
       new ProfileMedia({
         user_id: user_id,
-        media_type: "avatar",
-        media_link:
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLp9nfWGMmdEoiP4LfWxJ1s58hFwkm4B32vQ&s",
+        media_type: data?.media?.media_type,
+        media_link: data?.media?.media_link,
       }).create();
       new UserProfile({
-        user_id,
-        ...data,
+        user_id: user_id,
+        // ...data,
       }).create();
 
       const userSetting = new UserSetting({
         user_id: user_id,
-        ...data,
+        // ...data,
       });
       await userSetting.create();
       res.status(201).json({ status: true });
@@ -87,26 +87,15 @@ const createUsersBySocialAccount = async (req, res) => {
 // đăng nhập
 const userLogin = async (req, res) => {
   try {
-    // console.log(req.body);
-    const { user_email, user_password } = req.body;
 
-    // Kiểm tra nếu thiếu thông tin
-    if (!user_email || !user_password) {
-      return res
-        .status(400)
-        .json({ status: 400, message: "Vui lòng nhập đầy đủ thông tin" });
-    }
-
-    const user = await Users.login(user_email, user_password);
-
+    const { user_email, user_password, type_account } = req.body;
+    const user = await Users.login(user_email, user_password, type_account);
     if (user) {
-      res
-        .status(200)
-        .json({ status: true, message: "Đăng nhập thành công", user: user });
+      res.status(200).json({ status: true, user: user });
     } else {
       res
         .status(401)
-        .json({ status: false, message: "Thông tin đăng nhập không chính xác" });
+        .json({ status: false, message: "Email hoặc mật khẩu không hợp lệ" });
     }
   } catch (error) {
     console.log(error);
@@ -189,7 +178,6 @@ async function getInfoProfileUser(req, res) {
         ProfileMedia.getById(id),
         UserSetting.getById(id),
       ]);
-
     const getLastMediaLink = (mediaArray, mediaType) =>
       mediaArray
         .filter((media) => media.media_type === mediaType)
@@ -204,6 +192,76 @@ async function getInfoProfileUser(req, res) {
         avatar: getLastMediaLink(data_media, "avatar"),
         cover: getLastMediaLink(data_media, "cover"),
       },
+    });
+  } catch (error) {
+    console.error(error); // Ghi log lỗi để dễ dàng phát hiện và sửa lỗi
+    res.status(500).json({
+      status: false,
+      message: "Internal Server Error",
+      error: error.message, // Trả về thông điệp lỗi cho client nếu cần
+    });
+  }
+}
+
+// Update user information
+export async function uploadInfoProfileUser(req, res) {
+  try {
+    const id = req.body?.data?.user_id;
+    const { avatar, cover } = req.files || {}; // Sử dụng || {} để đảm bảo không gặp lỗi nếu req.files không tồn tại
+    const dataUpdate = req.body;
+    console.log("id: ", id);
+    console.log("avatar: ", avatar);
+    console.log("cover: ", cover);
+    console.log("dataUpdate: ", dataUpdate);
+
+    // // Khởi tạo các đối tượng từ lớp tương ứng
+    const user = new Users({ user_id: id, ...dataUpdate });
+    const userProfile = new UserProfile({ user_id: id, ...dataUpdate });
+
+    // Hàm trợ giúp để tạo ProfileMedia
+    const createProfileMedia = async (file, folderName) => {
+      if (!file) return null; // Nếu không có file, không thực hiện upload
+      const uploadResult = await uploadFile(file, folderName);
+      return new ProfileMedia({
+        user_id: id,
+        media_type: file.fieldname,
+        media_link: uploadResult.url,
+      }).create();
+    };
+
+    // // Cập nhật người dùng và profile người dùng
+    const results = await Promise.all([
+      user.update(),
+      userProfile.update(),
+      createProfileMedia(
+        avatar ? avatar[0] : null,
+        process.env.NAME_FOLDER_USER_AVT
+      ),
+      createProfileMedia(
+        cover ? cover[0] : null,
+        process.env.NAME_FOLDER_USER_COVER
+      ),
+    ]);
+    console.log("results: ", results);
+
+    // // Kiểm tra kết quả cập nhật
+    const allRowsAffected =
+      results.slice(0, 2).every((result) => result === 1) && // Kiểm tra kết quả cập nhật user và userProfile
+      (results[2] === null || results[2] === 1) && // Kiểm tra kết quả upload avatar (nếu có)
+      (results[3] === null || results[3] === 1); // Kiểm tra kết quả upload cover (nếu có)
+
+    console.log("allRowsAffected: ", allRowsAffected);
+
+    if (!allRowsAffected) {
+      return res.status(400).json({
+        status: false,
+        message: "Không thể cập nhật tất cả thông tin người dùng.",
+      });
+    }
+
+    res.status(200).json({
+      status: true,
+      message: "Cập nhật thông tin người dùng thành công!",
     });
   } catch (error) {
     console.error(error); // Ghi log lỗi để dễ dàng phát hiện và sửa lỗi

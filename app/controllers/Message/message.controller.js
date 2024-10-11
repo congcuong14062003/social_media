@@ -77,6 +77,25 @@ const createMessage = async (req, res) => {
     });
   }
 };
+// thay đổi trạng thái is-seen
+export const updateIsRead = async (req, res) => {
+  try {
+    const messageId = req.params.messageId;
+    const userId = req.body?.data?.user_id;
+
+    // Gọi model để cập nhật trạng thái is_read
+    const result = await Message.updateIsRead(messageId, userId);
+
+    if (result) {
+      res.status(200).json({ status: true });
+    } else {
+      res.status(400).json({ status: false});
+    }
+  } catch (error) {
+    console.error("Error updating is_read:", error);
+    res.status(500).json({ status: false, message: error.message });
+  }
+};
 // lấy tất cả tin nhắn của mình mới 1 người nào đó
 const getAllMessages = async (req, res) => {
   try {
@@ -153,7 +172,8 @@ SELECT
   msg.content_text_encrypt_by_owner,
   msg.created_at AS last_message_time,
   msg.sender_id,
-  msg.receiver_id
+  msg.receiver_id,
+  msg.messenger_id
 FROM (
   SELECT 
     *
@@ -221,6 +241,7 @@ ORDER BY last_message_time DESC;
           last_message_time: conv.last_message_time,
           sender_id: conv.sender_id,
           receiver_id: conv.receiver_id,
+          messenger_id: conv.messenger_id,
         };
       })
     );
