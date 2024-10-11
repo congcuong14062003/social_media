@@ -10,18 +10,22 @@ import PostProfile from '../../components/PostProfile/PostProfile';
 import ContentProfileUser from '../../components/ContentProfileUser/ContentProfileUser';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
-import routes from '../../configs/routes';
 import config from '../../configs';
 import { OwnDataContext } from '../../provider/own_data';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
-import { FaFacebookMessenger } from "react-icons/fa";
+import { FaFacebookMessenger } from 'react-icons/fa';
+import { FaUser, FaUserCheck } from 'react-icons/fa';
+import { HiUserAdd } from 'react-icons/hi';
+import { FaHeart } from 'react-icons/fa';
 import {
     API_ACCEPT_INVITE,
     API_ADD_FRIEND,
+    API_CHECK_IF_FRIEND,
     API_GET_INFO_OWNER_PROFILE_BY_ID,
     API_GET_INFO_USER_PROFILE_BY_ID,
 } from '../../API/api_server';
 import { MessageIcon } from '../../assets/icons/icons';
+import ModalProfile from '../../components/Modal/ModalProfile/ModalProfile';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -46,9 +50,9 @@ function ProfilePage() {
     const location = useLocation();
     const [value, setValue] = useState(0);
     const { id_user } = useParams();
-
+    const [isFriend, setIsFriend] = useState(false);
     const myData = useContext(OwnDataContext);
-
+    const [openEditProfile, setOpenEditProfile] = useState(false);
     useEffect(() => {
         switch (location.pathname) {
             case `/profile/${id_user}/anh`:
@@ -83,33 +87,53 @@ function ProfilePage() {
         };
         fetchData();
     }, [id_user]);
-    
-    const handleAddFriend = async () => {
-        const response = await postData(API_ADD_FRIEND(id_user));
-        console.log(response);
+
+    // check xem đã là bạn bè chưa
+    const checkIfFriend = async () => {
+        try {
+            const response = await getData(API_CHECK_IF_FRIEND(id_user));
+            if (response.isFriend === true) {
+                setIsFriend(true);
+            } else {
+                setIsFriend(false);
+            }
+        } catch (error) {
+            console.error('Error checking if friend:', error);
+        }
     };
-    const handleAcceptInvite = async () => {
-        const response = await postData(API_ACCEPT_INVITE(id_user));
-        console.log(response);
+    useEffect(() => {
+        checkIfFriend();
+    }, [id_user]);
+
+    const handleOpenModelProfile = () => {
+        setOpenEditProfile(true);
+    };
+    const handleClose = () => {
+        setOpenEditProfile(false);
     };
     return (
         <div className="profile_container">
             <div className="profile_header">
                 <div className="content_profile_header">
                     <div className="cover_image">
-                        <img src={images.car} alt="" />
-                        <div className="footer_cover">
-                            <div className="add_cover_image">
-                                <IoCamera />
-                                <span>Thêm ảnh bìa</span>
+                        {dataUser?.cover ? (
+                            <img src={dataUser?.cover} alt="" />
+                        ) : (
+                            <div className="footer_cover">
+                                {dataUser?.user_id === myData?.user_id && (
+                                    <div className="add_cover_image">
+                                        <IoCamera />
+                                        <span>Thêm ảnh bìa</span>
+                                    </div>
+                                )}
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
                 <div className="infor_user_container">
                     <div className="infor_user_content">
                         <div className="avatar_user">
-                            <img src={myData?.avatar} alt="" />
+                            <img src={dataUser?.avatar} alt="" />
                         </div>
                         <div className="infor_header_user">
                             <div className="user_name_header">{dataUser && dataUser?.user_name}</div>
@@ -118,6 +142,7 @@ function ProfilePage() {
                                 {dataUser?.user_id === myData?.user_id ? (
                                     <>
                                         <ButtonCustom
+                                            onClick={handleOpenModelProfile}
                                             className="secondary"
                                             title="Chỉnh sửa trang cá nhân"
                                             startIcon={<CreateIcon />}
@@ -132,23 +157,24 @@ function ProfilePage() {
                                     </>
                                 ) : (
                                     <>
-                                        {/* <ButtonCustom
-                                            onClick={handleAddFriend}
-                                            className="secondary"
-                                            title="Thêm bạn bè"
-                                        /> */}
-                                        <Link to={`${config.routes.messages}/${id_user}`}>
-                                            <ButtonCustom
-                                                className="primary"
-                                                title="Nhắn tin"
-                                                startIcon={<FaFacebookMessenger />}
-                                            />
-                                        </Link>
-                                        {/* <ButtonCustom
-                                            onClick={handleAddFriend}
-                                            className="secondary"
-                                            title="Xoá lời mời"
-                                        /> */}
+                                        {isFriend ? (
+                                            <>
+                                                <ButtonCustom
+                                                    className="secondary"
+                                                    title="Bạn bè"
+                                                    startIcon={<FaUserCheck />}
+                                                />
+                                                <Link to={`${config.routes.messages}/${id_user}`}>
+                                                    <ButtonCustom
+                                                        className="primary"
+                                                        title="Nhắn tin"
+                                                        startIcon={<FaFacebookMessenger />}
+                                                    />
+                                                </Link>
+                                            </>
+                                        ) : (
+                                            <ButtonCustom className="primary" title="Thích" startIcon={<FaHeart />} />
+                                        )}
                                     </>
                                 )}
                             </div>
@@ -191,6 +217,7 @@ function ProfilePage() {
                     </div>
                 </div>
             </div>
+            <ModalProfile dataUser={dataUser} closeModel={handleClose} openModel={openEditProfile} />
         </div>
     );
 }

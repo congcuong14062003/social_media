@@ -48,6 +48,7 @@ import 'filepond/dist/filepond.min.css';
 import { toast } from 'react-toastify';
 import config from '../../configs';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
+import AvatarWithText from '../../skeleton/avatarwithtext';
 
 function MessagesPage() {
     const [files, setFiles] = useState([]);
@@ -74,13 +75,14 @@ function MessagesPage() {
     const dataOwner = useContext(OwnDataContext);
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState(false);
+    const [loading, setLoading] = useState(false);
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
     const privateKey = localStorage.getItem('private-key');
 
     // Hàm cuộn đến tin nhắn mới nhất
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        messagesEndRef?.current?.scrollIntoView({ behavior: 'smooth' });
     };
     // check xem đã là bạn bè chưa
     const checkIfFriend = async () => {
@@ -213,6 +215,7 @@ function MessagesPage() {
                 const response = await getData(API_GET_INFO_USER_PROFILE_BY_ID(id_receiver));
                 if (response.status === true) {
                     setDataFriend(response.data);
+                    setLoading(true);
                 }
             } catch (error) {
                 console.error('Error fetching data: ', error);
@@ -234,18 +237,17 @@ function MessagesPage() {
             });
             //Lắng nghe sự kiện đối phương nhắn tin
             socket.on('receiverNotifiWritting', (data) => {
-                console.log("dataaaaaa: ", data);
+                console.log('dataaaaaa: ', data);
                 setReceiverIsTyping(data?.status);
             });
-
         } catch (error) {
             // console.log("error", error);
         }
     }, [isTyping]);
 
-    console.log("Typing: ", isTyping);
-    console.log("receiverIsTyping: ", receiverIsTyping);
-    
+    console.log('Typing: ', isTyping);
+    console.log('receiverIsTyping: ', receiverIsTyping);
+
     // Controlled input code verification
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const handleCodeChange = (e, index) => {
@@ -318,7 +320,7 @@ function MessagesPage() {
     useEffect(() => {
         if (mediaRecorder) {
             mediaRecorder.ondataavailable = (event) => {
-                audioChunks.current.push(event.data);
+                audioChunks?.current.push(event.data);
             };
             mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
@@ -501,34 +503,58 @@ function MessagesPage() {
         setShowReply(false);
         setContentReply({});
     };
+    // click nút gọi
+    // Đăng ký và gửi thông báo đến người nghe
+    const handleClickCall = (type_call) => {
+        if (socket && id_receiver && dataOwner?.user_id && isOnline) {
+            socket.emit('registerUser', { user_id: dataOwner?.user_id });
+            const receiver_id = id_receiver;
+            const sender_id = dataOwner?.user_id;
+            // Send call notification to the receiver
+            socket.emit('callUser', {
+                receiver_id,
+                sender_id,
+                link_call: `/messages/${type_call}?ROOM_ID=${
+                    receiver_id + sender_id
+                }&sender_id=${sender_id}&receiver_id=${receiver_id}`,
+            });
 
+            navigate(
+                `/messages/${type_call}?ROOM_ID=${id_receiver + dataOwner?.user_id}&sender_id=${
+                    dataOwner?.user_id
+                }&receiver_id=${id_receiver}`,
+            );
+        } else {
+            toast.info('Người dùng này không trực tuyến!');
+        }
+    };
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
                 <>
                     <div className="left_messenger">
-                        <PopoverChat inputRef={inputRef} privateKey={privateKey} currentChatId={id_receiver} />
+                        <PopoverChat privateKey={privateKey} currentChatId={id_receiver} />
                     </div>
                     <div className="center_messenger">
                         <div className="messages_container">
                             <div className="chat_header">
-                                <FriendItem to={`${config.routes.profile}/${id_receiver}`} data={dataFriend} />
+                                {loading ? (
+                                    <FriendItem to={`${config.routes.profile}/${id_receiver}`} data={dataFriend} />
+                                ) : (
+                                    <div className="loading-skeleton">
+                                        <AvatarWithText />
+                                    </div>
+                                )}
                                 <div className="action_call">
                                     <ToolTip title="Bắt đầu gọi thoại">
-                                        <div className="action_chat">
+                                        <div onClick={() => handleClickCall('audio-call')} className="action_chat">
                                             <PhoneIcon />
                                         </div>
                                     </ToolTip>
                                     <ToolTip title="Bắt đầu gọi video">
-                                        <Link
-                                            to={`${config.routes.messages}/video-call?ROOM_ID=${
-                                                id_receiver + dataOwner?.user_id
-                                            }&sender_id=${dataOwner?.user_id}&receiver_id=${id_receiver}`}
-                                        >
-                                            <div className="action_chat">
-                                                <VideoCallIcon />
-                                            </div>
-                                        </Link>
+                                        <div onClick={() => handleClickCall('video-call')} className="action_chat">
+                                            <VideoCallIcon />
+                                        </div>
                                     </ToolTip>
                                     <ToolTip
                                         onClick={() => setOpenSettingChat(!openSettingChat)}

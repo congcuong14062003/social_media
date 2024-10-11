@@ -23,18 +23,7 @@ function FriendSuggestItem({ data }) {
             } catch (error) {
                 console.error('Error checking friend request status:', error);
             }
-        };
-
-    //     const checkIfFriend = async () => {
-    //         try {
-    //             const response = await getData(API_CHECK_IF_FRIEND(data.friend_id));
-    //             setIsFriend(response.isFriend); // Cập nhật trạng thái bạn bè
-    //         } catch (error) {
-    //             console.error('Error checking if friend:', error);
-    //         }
-    //     };
-
-    //     checkIfFriend();
+        };;
         checkRequestStatus();
     }, [data.friend_id]);
 

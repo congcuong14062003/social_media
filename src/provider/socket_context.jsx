@@ -128,8 +128,9 @@ export const SocketProvider = ({ children }) => {
               ),
               {
                 position: "top-right",
-                autoClose: 60000, // Tự động đóng sau 60 giây
+                autoClose: 5000, // Tự động đóng sau 60 giây
                 closeOnClick: true,
+                pauseOnHover: false,
                 hideProgressBar: false, // Hiển thị thanh tiến trình
                 icon: false, // Ẩn icon mặc định của toast
               }

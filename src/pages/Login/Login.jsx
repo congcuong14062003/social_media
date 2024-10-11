@@ -27,7 +27,10 @@ function Login() {
             return;
         }
         const data = getDataForm('.form_login');
-        const respone = await postData(API_LOGIN_POST, data)
+        const respone = await postData(API_LOGIN_POST, {
+            type_account: "register",
+            ...data,
+        });
         if (respone?.status === true) {
             navigate('/');
         }
@@ -41,21 +44,27 @@ function Login() {
 
     const handleLoginSocial = async (payload) => {
         try {
+            console.log(payload);
+
             const response = await getData(API_CHECK_EXIST_USER(`uid_${payload?.user_id}`));
-            console.log("check", response);
-            if (response?.status) {
+            if (response?.status === 200 || response?.status === true) {
                 const responseLogin = await postData(API_LOGIN_POST, {
-                    user_email: payload?.user_email,
-                    user_password: payload?.user_password
+                    user_id_login: `uid_${payload?.user_id}`,
+                    user_password: payload?.user_password,
+                    type_account: payload?.type_account,
                 });
                 if (responseLogin?.status) {
-                    navigate("/");
+                    console.log(responseLogin);
+                    
+                    navigate('/');
                 } else {
-                    toast.error("Lỗi đăng nhập, vui lòng thử lại hoặc dùng phương thức đăng nhập khác")
+                    toast.error('Lỗi đăng nhập, vui lòng thử lại hoặc dùng phương thức đăng nhập khác');
                 }
             } else {
+                console.log('đăng ký');
+
                 const responseSignup = await postData(API_SIGNUP_SOCIALNETWORK_POST, payload);
-                if (responseSignup?.status) {
+                if (responseSignup) {
                     await handleLoginSocial(payload);
                 }
             }

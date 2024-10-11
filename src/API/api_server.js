@@ -7,7 +7,7 @@ const API_GET_ALL_USERS = API_HOST + '/users/all-user';
 const API_LOGOUT = API_HOST + '/users/logout';
 const API_SIGNUP_SOCIALNETWORK_POST = API_HOST + '/users/social-network/signup';
 const API_GET_USER_BY_ID = (id) => `${API_HOST}/users/info/${id}`;
-const API_UPDATE_USER = (id) => `${API_HOST}/users/update/${id}`;
+const API_UPDATE_USER = `${API_HOST}/users/update-profile`;
 const API_UPDATE_USER_PASSWORD = `${API_HOST}/users/reset-password`;
 const API_DELETE_USER = (id) => `${API_HOST}/users/delete/${id}`;
 const API_CHECK_EXIST_USER = (id) => `${API_HOST}/users/is-existed/${id}`;
@@ -30,6 +30,8 @@ const API_CANCEL_FRIEND_REQUEST = (id) => `${API_HOST}/friends/cancel-request/${
 ////// messages
 const API_SEND_MESSAGE = (id) => API_HOST + "/messages/send-message/" + id;
 const API_GET_MESSAGES = (id) => `${API_HOST}/messages/all-messages/${id}`;
+const API_UPDATE_IS_READ = (id) => `${API_HOST}/messages/update-isseen/${id}`;
+
 const API_GET_CONVERSATIONS = `${API_HOST}/messages/conversations`;
 const API_CHECK_EXIST_KEY_PAIR = `${API_HOST}/messages/check-exists-keypair`;
 const API_CHECK_KEY_FRIEND = (id) => `${API_HOST}/messages/check-exists-keypair-friend/${id}`;
@@ -37,6 +39,12 @@ const API_POST_KEY_PAIR = `${API_HOST}/messages/create-keypair`;
 const API_DELETE_KEY_PAIR = `${API_HOST}/messages/delete-keypair`;
 const API_POST_DECODE_PRIVATE_KEY_PAIR = `${API_HOST}/messages/post-decode-private-key`;
 const API_DECODE_MESSAGE = `${API_HOST}/messages/decode-message`;
+
+
+
+////// POST
+const API_CREATE_POST = API_HOST + "/posts/create-post";
+const API_GET_POSTS = API_HOST + "/posts/list-post";
 
 
 
@@ -95,6 +103,10 @@ export {
     // api messages
     API_GET_CONVERSATIONS,
     API_SEND_MESSAGE,
+    API_UPDATE_IS_READ,
     API_DELETE_KEY_PAIR,
     API_CHECK_KEY_FRIEND,
+    // api post
+    API_CREATE_POST,
+    API_GET_POSTS
 };

@@ -72,6 +72,12 @@ const publicRouter = [
         layout: VideoCall,
     },
     {
+        path: '/messages/audio-call',
+        exact: true,
+        requireAuth: true,
+        component: () => <VideoCall isVideoCall={false} />
+      },
+    {
         path: '/profile/:id_user',
         component: ProfilePage,
         requireAuth: true,
@@ -81,6 +87,9 @@ const publicRouter = [
             { path: 'anh', component: <ImageProfile /> },
         ],
     },
-];
+]; 
+
+
+
 
 export { publicRouter };

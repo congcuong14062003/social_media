@@ -5,13 +5,15 @@ import { faCaretDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 import './ModalCreatePost.scss';
 import AvatarUser from '../../AvatarUser/AvatarUser';
 import images from '../../../assets/imgs';
-import { TextareaAutosize as BaseTextareaAutosize } from '@mui/base/TextareaAutosize';
-import { styled } from '@mui/system';
 import Button from '@mui/material/Button';
 import ModalAccess from '../ModalAccess/ModalAccess';
-import { MdArrowDropDown, MdPhoto, MdAddPhotoAlternate, MdCancel } from 'react-icons/md';
+import { MdAddPhotoAlternate, MdCancel } from 'react-icons/md';
 import { useEffect, useState } from 'react';
 import CloseBtn from '../../CloseBtn/CloseBtn';
+import ButtonCustom from '../../ButtonCustom/ButtonCustom';
+import { postData } from '../../../ultils/fetchAPI/fetch_API';
+import { API_CREATE_POST } from '../../../API/api_server';
+
 const style = {
     position: 'absolute',
     top: '50%',
@@ -20,29 +22,30 @@ const style = {
     border: '1px solid #ccc',
     boxShadow: 24,
 };
+
 const getCSSVariableValue = (variableName) => {
     return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
 };
 
-export default function ModalCreatePost({ openModel, closeModel, openFile }) {
+export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner }) {
     const [openAccess, setOpenAccess] = useState(false);
     const [accessLabel, setAccessLabel] = useState('Công khai');
-    // const [attachment, setAttachment] = useState();
     const [openSelectFile, setOpenSelectFile] = useState(false);
     const [valueInput, setValueInput] = useState('');
+    const [selectedImages, setSelectedImages] = useState([]);
 
-    // if(openFile) {
-    //     setOpenSelectFile(true);
-    // }
     const handleOpenAccess = () => {
         setOpenAccess(true);
     };
+
     const handleCloseAccess = () => {
         setOpenAccess(false);
     };
+
     const handleAccessChange = (newAccess) => {
         setAccessLabel(getAccessLabel(newAccess));
     };
+
     const getAccessLabel = (value) => {
         switch (value) {
             case 'Công khai':
@@ -55,60 +58,58 @@ export default function ModalCreatePost({ openModel, closeModel, openFile }) {
                 return '';
         }
     };
-    const [selectedImage, setSelectedImage] = useState(null);
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const imageURL = URL.createObjectURL(file);
-            setSelectedImage(imageURL);
-        }
-    };
-    // setStyleBtn({
-    //     backgroundColor: getCSSVariableValue('--disable-button'),
-    //     color: getCSSVariableValue('--disable-button-text'),
-    //     cursor: 'not-allowed',
-    // });
 
-    // setStyleBtn({
-    //     backgroundColor: getCSSVariableValue('--primary-color'),
-    //     cursor: 'pointer',
-    //     color: '#fff',
-    // });
-    // useEffect(() => {
-    //     console.log('selected image: ', selectedImage);
-    //     console.log('valueInput: ', valueInput);
-    //     if (selectedImage || valueInput) {
-    //         setStyleBtn({
-    //             backgroundColor: getCSSVariableValue('--primary-color'),
-    //             cursor: 'pointer',
-    //             color: '#fff',
-    //         });
-    //     } else {
-    //         setStyleBtn({
-    //             backgroundColor: getCSSVariableValue('--disable-button'),
-    //             color: getCSSVariableValue('--disable-button-text'),
-    //             cursor: 'not-allowed',
-    //         });
-    //     }
-    // }, [selectedImage, valueInput]);
+    const handleFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        const imageUrls = files.map((file) => URL.createObjectURL(file));
+        setSelectedImages(imageUrls);
+    };
+
     const handleCancel = () => {
         setOpenSelectFile(false);
-        setSelectedImage(null);
+        setSelectedImages([]);
     };
+
     const handleOpenSelectFile = () => {
         setOpenSelectFile(true);
     };
+
     useEffect(() => {
         if (openFile) {
             setOpenSelectFile(true);
         }
     }, [openFile]);
 
-    const [styleBtn, setStyleBtn] = useState({});
-    const hanleChangeInput = (e) => {
-        const inputValue = e.target.value;
-        setValueInput(inputValue);
+    const handlePost = async () => {
+        // Handle post submission logic here
+        // const formData = new FormData();
+
+        // Lấy các giá trị cần thiết
+        const userId = dataOwner?.user_id; // Giả sử `dataOwner` chứa thông tin người dùng
+        const privacy = accessLabel === 'Công khai' ? 1 : accessLabel === 'Bạn bè' ? 2 : 0;
+        const postText = valueInput; // Nội dung bài viết từ textarea
+        const response = await postData(API_CREATE_POST, {
+            user_id: userId,
+            post_privacy: privacy,
+            post_text: postText,
+        });
+        console.log(response);
+        if ((response.status = true)) {
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        }
+
+        // Nếu có ảnh/video được chọn
+        // selectedImages.forEach((image, index) => {
+        //     formData.append(`file_${index}`, image); // Chèn file vào formData
+        // });
     };
+
+    const hanleChangeInput = (e) => {
+        setValueInput(e.target.value);
+    };
+
     return (
         <div className="modal_container">
             <Modal
@@ -125,7 +126,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile }) {
                         <div className="user_control">
                             <AvatarUser />
                             <div className="infor_user">
-                                <div className="user_name">Công Cường</div>
+                                <div className="user_name">{dataOwner?.user_name}</div>
                                 <div className="access_post" onClick={handleOpenAccess}>
                                     <img src={images.global} alt="" />
                                     <span>{accessLabel}</span>
@@ -140,7 +141,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile }) {
                                 value={valueInput}
                                 rows={4}
                                 className="text_input_post"
-                                placeholder="Công ơi bạn đang nghĩ gì thế?"
+                                placeholder={`${dataOwner?.user_name} ơi bạn đang nghĩ gì thế`}
                             />
                         </div>
 
@@ -170,34 +171,42 @@ export default function ModalCreatePost({ openModel, closeModel, openFile }) {
                             {openSelectFile && (
                                 <div className="select_file_post">
                                     <MdCancel className="icon-cancel" onClick={handleCancel} />
-                                    {selectedImage ? (
-                                        <img src={selectedImage} alt="Selected" className="selected-image" />
-                                    ) : (
-                                        <>
-                                            <div>
-                                                <MdAddPhotoAlternate className="icon-add" />
-                                            </div>
-                                            <div className="text-heading">Add photos</div>
-                                            <span className="text-subheading">or drag and drop</span>
-                                        </>
-                                    )}
+                                    <div className="images_preview">
+                                        <div className="image_container">
+                                            {selectedImages.length > 0 && (
+                                                <div className={`image-grid`}>
+                                                    {selectedImages.map((image, index) => (
+                                                        <img key={index} src={image} alt={`Selected ${index}`} />
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {!selectedImages.length && (
+                                                <>
+                                                    <div>
+                                                        <MdAddPhotoAlternate className="icon-add" />
+                                                    </div>
+                                                    <div className="text-heading">Add photos</div>
+                                                    <span className="text-subheading">or drag and drop</span>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
                                     <input
                                         type="file"
                                         accept="image/*"
+                                        multiple
                                         className="input-file"
                                         onChange={handleFileChange}
                                     />
                                 </div>
                             )}
                         </div>
+
                         <div className="btn_dang">
-                            <Button variant="contained">Đăng bài</Button>
+                            <ButtonCustom type="submit" onClick={handlePost} title="Đăng bài" className="primary" />
                         </div>
                     </div>
 
-                    {/* <div className="close_modal" onClick={closeModel}>
-                        <FontAwesomeIcon icon={faXmark} />
-                    </div> */}
                     <span className="close_btn_model">
                         <CloseBtn onClick={closeModel} />
                     </span>

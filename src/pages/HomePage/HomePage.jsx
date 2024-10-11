@@ -8,22 +8,31 @@ import ListStory from '../../components/ListStory/ListStory';
 import { useContext, useEffect, useState } from 'react';
 import FriendList from '../../components/Friend/FriendList/FriendList';
 import { OwnDataContext } from '../../provider/own_data';
-import { API_GET_ALL_USERS } from '../../API/api_server';
+import { API_GET_ALL_USERS, API_GET_POSTS } from '../../API/api_server';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import { FaUser } from 'react-icons/fa';
 import HorizontalItem from '../../components/HorizontalItem/HorizontalItem';
-import images from '../../assets/imgs';
 import PrimaryIcon from '../../components/PrimaryIcon/PrimaryIcon';
 function HomePage() {
-    // const [allUser, setAllUser] = useState([]);
-    // const getAllFriend = async () => {
-    //     const response = await getData(API_GET_ALL_USERS);
-    //     setAllUser(response.users);
-    // };
-    // useEffect(() => {
-    //     getAllFriend();
-    // }, []);
     const dataUser = useContext(OwnDataContext);
+    const [listPosts, setListPosts] = useState([]);
+    // Gọi API danh sách bài viết
+    useEffect(() => {
+        const listPosts = async () => {
+            try {
+                const response = await getData(API_GET_POSTS);
+                if (response.status === true) {
+                    setListPosts(response.data); // Lưu danh sách bài viết vào state
+                } else {
+                    console.error('Lỗi khi lấy danh sách bài viết:', response.message);
+                }
+            } catch (error) {
+                console.error('Lỗi khi gọi API:', error);
+            }
+        };
+
+        listPosts();
+    }, []);
     return (
         <div className="home__container">
             <div className="left__container">
@@ -37,7 +46,11 @@ function HomePage() {
                             />
                         </li>
                         <li>
-                            <HorizontalItem to={config.routes.friends} icon={<PrimaryIcon icon={<FaUser />} />} title="Bạn bè" />
+                            <HorizontalItem
+                                to={config.routes.friends}
+                                icon={<PrimaryIcon icon={<FaUser />} />}
+                                title="Bạn bè"
+                            />
                         </li>
                         {/* <FriendList ListUser={allUser} /> */}
                     </ul>
@@ -51,12 +64,13 @@ function HomePage() {
                 {/* đăng bài viết và danh sách bài viết */}
                 <div className="post__container">
                     <div className="create_my_post">
-                        <CreatePost />
+                        <CreatePost dataOwner={dataUser} />
                     </div>
+                    {/* Danh sách bài viết */}
                     <div className="list_post">
-                        <PostItem />
-                        <PostItem />
-                        <PostItem />
+                        {listPosts?.map((post) => (
+                            <PostItem key={post.post_id} dataPost={post} />
+                        ))}
                     </div>
                 </div>
             </div>

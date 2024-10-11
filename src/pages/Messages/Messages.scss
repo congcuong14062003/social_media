@@ -76,6 +76,9 @@
                     overflow-y: auto; /* Cho phép cuộn theo chiều dọc */
                 }
             }
+            .hear {
+                color: var(--primary-text);
+            }
             .chat_footer {
                 box-shadow: 0 2px 4px 0 var(--box-shadow1), 0 2px 15px 0 var(--box-shadow2);
                 border-top: 1px solid var(--comment-backgroud);

@@ -13,7 +13,9 @@ import { TextField } from '@mui/material';
 import Cropper from 'react-easy-crop';
 import config from '../../configs';
 import CloseBtn from '../../components/CloseBtn/CloseBtn';
+import { OwnDataContext } from '../../provider/own_data';
 function CreateStory() {
+    const dataOwner = useContext(OwnDataContext);
     const [openAccess, setOpenAccess] = useState(false);
     const [openImageStory, setOpenImageStory] = useState(false);
     const [openTextStory, setOpenTextStory] = useState(false);
@@ -154,10 +156,10 @@ function CreateStory() {
                                     <PrimaryIcon icon={<IoMdSettings />} />
                                 </div>
                             </div>
-                            <Link to={config.routes.profile}>
+                            <Link to={`${config.routes.profile}/${dataOwner?.user_id}`}>
                                 <div className="user_infor">
                                     <AvatarUser />
-                                    <div className="name_user">Công Cường</div>
+                                    <div className="name_user">{dataOwner?.user_name}</div>
                                 </div>
                             </Link>
                         </div>

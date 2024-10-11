@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './ListStory.scss';
 import { Link } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa6';
 import { FaCircleChevronLeft, FaCircleChevronRight } from 'react-icons/fa6';
 import StoryItem from '../StoryItem/StoryItem';
 import images from '../../assets/imgs';
-
+import { OwnDataContext } from '../../provider/own_data';
 function ListStory() {
+    const dataOwner = useContext(OwnDataContext);
     const [indexItemStart, setIndexItemStart] = useState(0);
 
     useEffect(() => {
@@ -57,7 +58,7 @@ function ListStory() {
                         <Link to="/story/create">
                             <img
                                 className="avt_logo"
-                                src={images.avt}
+                                src={dataOwner?.avatar}
                                 alt=""
                             />
                             <div className="icon_container">
