@@ -32,13 +32,13 @@ const createPost = async (req, res) => {
   }
 };
 const listPost = async (req, res) => {
+  const my_id = req.body?.data?.user_id ?? null;
   try {
-    const posts = await Post.getAllPosts(); // Call the model method to get posts
-
+    const posts = await Post.getAllPosts(my_id); // Call the model method to get posts
     if (posts.length > 0) {
       res.status(200).json({ status: true, data: posts });
     } else {
-      res.status(404).json({ status: false, message: "No posts found" });
+      res.status(404).json({ status: false});
     }
   } catch (error) {
     console.error("Error fetching posts:", error);

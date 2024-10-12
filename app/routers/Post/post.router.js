@@ -6,7 +6,7 @@ import express from "express";
 const router = express.Router();
 export default function PostRouter() {
   router.post("/create-post", Authentication, Authorization, createPost);
-  router.get("/list-post", listPost);
+  router.get("/list-post",Authentication, Authorization, listPost);
 
   return router;
 }

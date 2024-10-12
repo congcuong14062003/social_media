@@ -3,9 +3,11 @@ import { generateId } from "../../ultils/crypto.js";
 
 class Post {
   constructor(data) {
+    console.log("dataaaaaaaa: ", data);
+
     this.post_id = data.post_id;
     this.user_id = data.user_id;
-    this.post_privacy = data.post_privacy || 1; // Mặc định là công khai nếu không có giá trị
+    this.post_privacy = data.post_privacy;
     this.post_text = data.post_text || null; // Nếu không có text, mặc định là null
     this.react_emoji = data.react_emoji || null; // Mặc định null nếu không có emoji
   }
@@ -33,7 +35,7 @@ class Post {
       throw error;
     }
   }
-  static async getAllPosts() {
+  static async getAllPosts(my_id) {
     const query = `
 SELECT 
     p.post_id, 
@@ -62,12 +64,15 @@ LEFT JOIN (
             GROUP BY user_id
         )
 ) up ON u.user_id = up.user_id
+WHERE 
+    (p.user_id = ? AND p.post_privacy IN (0, 1))  -- Lấy bài viết của người dùng hiện tại với phạm vi 0 hoặc 1
+    OR (p.user_id != ? AND p.post_privacy = 1)    -- Lấy bài viết của người khác chỉ khi phạm vi là 1
 ORDER BY 
     p.created_at DESC;
   `;
 
     try {
-      const [results] = await pool.execute(query);
+      const [results] = await pool.execute(query, [my_id, my_id]); // Truyền my_id vào 2 lần
       return results;
     } catch (error) {
       console.error("Error fetching posts:", error);

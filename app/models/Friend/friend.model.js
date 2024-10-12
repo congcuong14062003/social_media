@@ -72,15 +72,14 @@ class Friend {
         WHERE f.relationship_status = 1
         ORDER BY pm.created_at DESC
       `;
-  
+
       const [result] = await pool.execute(getFriendsQuery, [user_id, user_id]);
-  
+
       return result;
     } catch (error) {
       return error;
     }
   }
-  
 
   // danh sách bạn bè gợi ý
   static async getAllFriendsSuggest(user_id) {
@@ -126,19 +125,28 @@ ORDER BY pm.created_at DESC;
   static async getAllFriendsInvitedSuggest(user_id) {
     try {
       const getFriendsInvitedSuggestQuery = `
-        SELECT 
-          u.user_id AS friend_id,
-          u.user_name,
-          pm.media_link AS avatar_link
-        FROM Friend f
-        JOIN users u 
-          ON u.user_id = f.receiver_id
-        LEFT JOIN ProfileMedia pm 
-          ON pm.user_id = u.user_id
-        WHERE f.requestor_id = ?
-          AND f.relationship_status = 0  -- Trạng thái kết bạn đang chờ
-          AND pm.media_type = 'avatar'
-        ORDER BY pm.created_at
+     SELECT 
+    u.user_id AS friend_id,
+    u.user_name,
+    pm.media_link AS avatar_link
+FROM Friend f
+JOIN users u 
+    ON u.user_id = f.receiver_id
+LEFT JOIN (
+    SELECT user_id, media_link, created_at
+    FROM ProfileMedia
+    WHERE media_type = 'avatar'
+      AND created_at IN (
+          SELECT MAX(created_at)
+          FROM ProfileMedia
+          WHERE media_type = 'avatar'
+          GROUP BY user_id
+      )
+) pm 
+    ON pm.user_id = u.user_id
+WHERE f.requestor_id = ?
+  AND f.relationship_status = 0  -- Trạng thái kết bạn đang chờ
+ORDER BY pm.created_at DESC;
       `;
       const [result] = await pool.execute(getFriendsInvitedSuggestQuery, [
         user_id,
