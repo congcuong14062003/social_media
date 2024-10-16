@@ -12,8 +12,6 @@ function ChatItem({ avatar, name, lastMessage, time, link, sender_id, isActive, 
     const dataOwner = useContext(OwnDataContext);
     // Kiểm tra xem sender_id có phải là ID của người dùng hiện tại không
     const isSenderCurrentUser = dataOwner && dataOwner.user_id === sender_id;
-    console.log(avatar);
-    
     return (
         <Link to={link}>
             <div onClick={onClick} className={`chat_item_container ${isActive ? 'active' : ''}`}>
@@ -36,6 +34,7 @@ function ChatItem({ avatar, name, lastMessage, time, link, sender_id, isActive, 
                             {type === 'other' ? 'đã gửi file đính kèm' : ''}
                             {type === 'image' ? 'đã gửi một ảnh' : ''}
                             {type === 'audio' ? 'đã gửi một tin nhắn thoại' : ''}
+                            {type === 'video' ? 'đã gửi một video' : ''}
                         </div>
                         {/* Hiển thị thời gian đã format */}
                         <div className="time">

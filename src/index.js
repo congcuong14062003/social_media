@@ -1,16 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import '../src/assets/styles/mixin.scss';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import store from './redux/Store/store';
+import { Provider } from 'react-redux';
 import GlobalStyles from './components/GlobalStyles/index.js';
 import app from './configs/firebase.js';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
-        <GlobalStyles>
-            <App />
-        </GlobalStyles>
+        <Provider store={store}>
+            <GlobalStyles>
+                <App />
+            </GlobalStyles>
+        </Provider>
     </React.StrictMode>,
 );
 

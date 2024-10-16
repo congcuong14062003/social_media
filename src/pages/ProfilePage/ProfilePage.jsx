@@ -6,7 +6,6 @@ import CreateIcon from '@mui/icons-material/Create';
 import { Box, Button, Tab, Tabs } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useState, useEffect, useContext } from 'react';
-import PostProfile from '../../components/PostProfile/PostProfile';
 import ContentProfileUser from '../../components/ContentProfileUser/ContentProfileUser';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
@@ -15,7 +14,6 @@ import { OwnDataContext } from '../../provider/own_data';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import { FaFacebookMessenger } from 'react-icons/fa';
 import { FaUser, FaUserCheck } from 'react-icons/fa';
-import { HiUserAdd } from 'react-icons/hi';
 import { FaHeart } from 'react-icons/fa';
 import {
     API_ACCEPT_INVITE,
@@ -24,7 +22,6 @@ import {
     API_GET_INFO_OWNER_PROFILE_BY_ID,
     API_GET_INFO_USER_PROFILE_BY_ID,
 } from '../../API/api_server';
-import { MessageIcon } from '../../assets/icons/icons';
 import ModalProfile from '../../components/Modal/ModalProfile/ModalProfile';
 
 function CustomTabPanel(props) {
@@ -121,7 +118,7 @@ function ProfilePage() {
                         ) : (
                             <div className="footer_cover">
                                 {dataUser?.user_id === myData?.user_id && (
-                                    <div className="add_cover_image">
+                                    <div onClick={()=>setOpenEditProfile(true)} className="add_cover_image">
                                         <IoCamera />
                                         <span>Thêm ảnh bìa</span>
                                     </div>

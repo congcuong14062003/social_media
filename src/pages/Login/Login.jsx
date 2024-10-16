@@ -7,6 +7,7 @@ import './Login.scss';
 import signUpWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
 import config from '../../configs';
 import signUpWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
+import { LuScanFace } from "react-icons/lu";
 import getToken from '../../ultils/getToken/get_token';
 import ShowPopupLoginWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
 import { API_CHECK_EXIST_USER, API_LOGIN_POST, API_SIGNUP_SOCIALNETWORK_POST } from '../../API/api_server';
@@ -28,7 +29,7 @@ function Login() {
         }
         const data = getDataForm('.form_login');
         const respone = await postData(API_LOGIN_POST, {
-            type_account: "register",
+            type_account: 'register',
             ...data,
         });
         if (respone?.status === true) {
@@ -55,7 +56,7 @@ function Login() {
                 });
                 if (responseLogin?.status) {
                     console.log(responseLogin);
-                    
+
                     navigate('/');
                 } else {
                     toast.error('Lỗi đăng nhập, vui lòng thử lại hoặc dùng phương thức đăng nhập khác');
@@ -180,12 +181,15 @@ function Login() {
                         />
                     </div>
                     <div className="form-meta">
-                        <a href="#" className="form-link">
+                        <Link to={config.routes.forgotPassword} className="form-link">
                             Forgot Password
-                        </a>
+                        </Link>
                     </div>
                     <ButtonCustom type="submit" title="Đăng nhập" className="primary form-btn" />
                 </form>
+                <Link to="/login/face-recognition/">
+                    <LuScanFace className="icon-face" />
+                </Link>
                 <div className="form-option">
                     Bạn chưa có tài khoản
                     <Link to={config.routes.signup}>Đăng ký nhanh</Link>

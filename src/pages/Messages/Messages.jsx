@@ -3,6 +3,7 @@ import {
     AudioIcon,
     ExtendChatIcon,
     LikeMessageIcon,
+    LoadingIcon,
     PhoneIcon,
     SendFileIcon,
     SendMessageIcon,
@@ -76,6 +77,8 @@ function MessagesPage() {
     const navigate = useNavigate();
     const [isOnline, setIsOnline] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [isSending, setIsSending] = useState(false); // State to track if a message is being sent
+    const [loadingSend, setLoadingSend] = useState(false);
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
     const privateKey = localStorage.getItem('private-key');
@@ -163,6 +166,7 @@ function MessagesPage() {
                     ...prevMessages,
                     {
                         reply_text: data?.reply_text,
+                        reply_type: data?.reply_type,
                         sender_id: data?.sender_id,
                         receiver_id: id_receiver,
                         content_text: data?.content_text,
@@ -237,16 +241,12 @@ function MessagesPage() {
             });
             //Lắng nghe sự kiện đối phương nhắn tin
             socket.on('receiverNotifiWritting', (data) => {
-                console.log('dataaaaaa: ', data);
                 setReceiverIsTyping(data?.status);
             });
         } catch (error) {
             // console.log("error", error);
         }
     }, [isTyping]);
-
-    console.log('Typing: ', isTyping);
-    console.log('receiverIsTyping: ', receiverIsTyping);
 
     // Controlled input code verification
     const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -334,6 +334,7 @@ function MessagesPage() {
     }, [mediaRecorder]);
     // bắt đầu ghi âm
     const startRecording = async () => {
+        console.log('aaaaaaaaaaa:', navigator);
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const recorder = new MediaRecorder(stream);
 
@@ -346,9 +347,19 @@ function MessagesPage() {
         mediaRecorder.stop();
         setIsRecording(false);
     };
-
+    // khi thay đổi file
+    const handleFilesChange = (newFiles) => {
+        setFiles(newFiles); // Update the files state
+        if (newFiles.length > 0 && inputRef.current) {
+            inputRef.current.focus(); // Automatically focus the input if there are files
+        }
+    };
     // Gửi tin nhắn khi click vào icon gửi tin nhắn
     const handleSendMessage = async () => {
+        if (isSending) return; // Prevent sending if already sending
+
+        setIsSending(true); // Set to true when starting to send
+        setLoadingSend(true); // Show loading icon
         const urlRegex = /(https?:\/\/[^\s]+)/g;
 
         // Kiểm tra nếu tin nhắn là văn bản
@@ -365,6 +376,7 @@ function MessagesPage() {
                     sender_id: dataOwner?.user_id,
                     receiver_id: id_receiver,
                     reply_text: contentReply?.content,
+                    reply_type: contentReply?.reply_type,
                 };
             } else {
                 newMessage = {
@@ -373,6 +385,7 @@ function MessagesPage() {
                     sender_id: dataOwner?.user_id,
                     receiver_id: id_receiver,
                     reply_text: contentReply?.content,
+                    reply_type: contentReply?.reply_type,
                 };
             }
 
@@ -384,6 +397,7 @@ function MessagesPage() {
                     sender_id: newMessage.sender_id,
                     receiver_id: newMessage.receiver_id,
                     reply_text: newMessage.reply_text,
+                    reply_type: newMessage.reply_type,
                 });
             } catch (error) {
                 console.log('Error sending text message: ', error);
@@ -423,6 +437,7 @@ function MessagesPage() {
                 formData.append('receiver_id', id_receiver);
                 if (showReply) {
                     formData.append('reply_text', contentReply?.content);
+                    formData.append('reply_type', contentReply?.reply_type);
                 }
                 // Gửi từng file qua API
                 try {
@@ -440,6 +455,7 @@ function MessagesPage() {
                         receiver_id: id_receiver,
                         name_file: file.file.name ?? 'Không xác định',
                         reply_text: contentReply?.content,
+                        reply_type: contentReply?.reply_type,
                     };
 
                     setMessages((prevMessages) => [...prevMessages, fileMessage]);
@@ -458,6 +474,8 @@ function MessagesPage() {
         setShowAudio(false);
         setShowReply(false);
         setContentReply({});
+        setLoadingSend(false);
+        setIsSending(false); // Set back to false when done
     };
     // gửi audio
     const handleSendAudio = async (audioFile) => {
@@ -482,6 +500,7 @@ function MessagesPage() {
         formData.append('receiver_id', id_receiver);
         if (showReply) {
             formData.append('reply_text', contentReply?.content);
+            formData.append('reply_type', contentReply?.reply_type);
         }
         // Try sending the audio file via API
         try {
@@ -573,6 +592,7 @@ function MessagesPage() {
                                     {messages.map((msg, index) => (
                                         <MessagesItems
                                             reply_text={msg.reply_text}
+                                            reply_type={msg.reply_type}
                                             setShowReply={setShowReply}
                                             setContentReply={setContentReply}
                                             key={index}
@@ -607,7 +627,13 @@ function MessagesPage() {
                                                 ? dataFriend?.user_name
                                                 : 'chính mình'}
                                         </div>
-                                        <p>{contentReply?.content || 'Nội dung trả lời...'}</p>
+                                        {contentReply.reply_type === 'image' && <img src={contentReply.content} />}
+                                        {contentReply.reply_type ==='text' && <p>{contentReply?.content}</p>}
+                                        {contentReply.reply_type ==='audio' && <p>{contentReply?.title}</p>}
+                                        {contentReply.reply_type ==='video' && <p>{contentReply?.title}</p>}
+                                        {contentReply.reply_type ==='other' && <p>{contentReply?.name}</p>}
+                                        {/* {contentReply.reply_type ==='link' && <p>{contentReply?.content}</p>} */}
+                                        {contentReply.reply_type ==='link' && <p dangerouslySetInnerHTML={{ __html: contentReply?.content }}></p>}
                                     </div>
                                     <div className="right_reply">
                                         <IoMdCloseCircle
@@ -621,7 +647,7 @@ function MessagesPage() {
                                 <FilePond
                                     files={files}
                                     allowMultiple={true}
-                                    onupdatefiles={setFiles}
+                                    onupdatefiles={handleFilesChange}
                                     labelIdle='Kéo và Thả tệp phương tiện or <span className="filepond--label-action">Duyệt</span>'
                                 />
                             )}
@@ -655,17 +681,21 @@ function MessagesPage() {
                                         value={message}
                                         onChange={handleInputChange}
                                     />
+                                    {loadingSend ? (
+                                        <div className="send_mesage_action">
+                                            <LoadingIcon />
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className={`send_mesage_action ${
+                                                message || files.length > 0 ? '' : 'hidden'
+                                            }`}
+                                            onClick={handleSendMessage}
+                                        >
+                                            <SendMessageIcon />
+                                        </div>
+                                    )}
 
-                                    <div
-                                        className={`send_mesage_action ${message || files.length > 0 ? '' : 'hidden'}`}
-                                        onClick={handleSendMessage}
-                                    >
-                                        <SendMessageIcon />
-                                    </div>
-
-                                    {/* <div className={`send_mesage_action`} onClick={handleSendMessage}>
-                                    <SendMessageIcon />
-                                </div> */}
                                     <div
                                         className={`like_message_action ${message || files.length > 0 ? 'hidden' : ''}`}
                                     >

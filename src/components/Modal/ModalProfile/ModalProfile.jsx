@@ -13,13 +13,13 @@ import { useNavigate } from 'react-router-dom';
 import config from '../../../configs';
 
 function ModalProfile({ openModel, closeModel, dataUser }) {
-    const [avatar, setAvatar] = useState('');
-    const [coverPhoto, setCoverPhoto] = useState('');
-    const [user_name, setUsername] = useState('');
-    const [date_of_birth, setDob] = useState('');
-    const [user_work, setWorkplace] = useState('');
-    const [user_school, setSchoolPlace] = useState('');
-    const [user_address, setAddress] = useState('');
+    const [avatar, setAvatar] = useState(null);
+    const [coverPhoto, setCoverPhoto] = useState(null);
+    const [user_name, setUsername] = useState(null);
+    const [date_of_birth, setDob] = useState(null);
+    const [user_work, setWorkplace] = useState(null);
+    const [user_school, setSchoolPlace] = useState(null);
+    const [user_address, setAddress] = useState(null);
     const [fileInput, setFileInput] = useState(null); // Biến lưu file ảnh được chọn
     const [coverFileInput, setCoverFileInput] = useState(null); // Biến lưu file ảnh bìa được chọn
     const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -84,36 +84,32 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
         setCoverPhoto(croppedImage);
         setShowCoverCropper(false);
     };
-
     const handleSubmit = async () => {
         try {
-            // Khởi tạo FormData
             const formData = new FormData();
-    
+
             // Thêm ảnh đại diện nếu có
             if (fileInput) {
-                const avatarFile = await fetch(avatar).then(res => res.blob()); // Chuyển ảnh từ URL sang Blob
-                formData.append('avatar', avatarFile, 'avatar.jpg'); // Tên file tùy chỉnh
+                const avatarFile = await fetch(avatar).then((res) => res.blob());
+                formData.append('avatar', avatarFile, 'avatar.jpg');
             }
-    
+
             // Thêm ảnh bìa nếu có
             if (coverFileInput) {
-                const coverFile = await fetch(coverPhoto).then(res => res.blob()); // Chuyển ảnh từ URL sang Blob
-                formData.append('cover', coverFile, 'cover.jpg'); // Tên file tùy chỉnh
+                const coverFile = await fetch(coverPhoto).then((res) => res.blob());
+                formData.append('cover', coverFile, 'cover.jpg');
             }
-    
-            // Thêm các thông tin người dùng
-            formData.append('user_name', user_name);
-            formData.append('date_of_birth', date_of_birth);
-            formData.append('user_work', user_work);
-            formData.append('user_school', user_school);
-            formData.append('user_address', user_address);
-    
-            // Gửi request cập nhật thông tin
+
+            // Chỉ thêm thông tin nếu có giá trị hợp lệ
+            if (user_name) formData.append('user_name', user_name);
+            if (date_of_birth) formData.append('date_of_birth', date_of_birth);
+            if (user_work) formData.append('user_work', user_work);
+            if (user_school) formData.append('user_school', user_school);
+            if (user_address) formData.append('user_address', user_address);
+
             const response = await putData(API_UPDATE_USER, formData);
-            // Xử lý phản hồi từ API
-            if(response?.status === true) {
-                window.location.reload(); // Tải lại trang
+            if (response?.status === true) {
+                window.location.reload();
             }
         } catch (error) {
             console.error('Error updating profile:', error);
@@ -166,7 +162,9 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
                                     zoom={zoom}
                                     aspect={1} // Tỷ lệ 1:1 cho hình tròn
                                     onCropChange={setCrop}
-                                    onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
+                                    onCropComplete={(croppedArea, croppedAreaPixels) =>
+                                        setCroppedAreaPixels(croppedAreaPixels)
+                                    }
                                     onZoomChange={setZoom}
                                 />
                                 <ButtonCustom title="Cắt ảnh" className="primary" onClick={onAvatarCropComplete} />
@@ -209,7 +207,9 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
                                     zoom={zoom}
                                     aspect={4 / 2} // Tỷ lệ 3:1 cho ảnh bìa
                                     onCropChange={setCrop}
-                                    onCropComplete={(croppedArea, croppedAreaPixels) => setCroppedAreaPixels(croppedAreaPixels)}
+                                    onCropComplete={(croppedArea, croppedAreaPixels) =>
+                                        setCroppedAreaPixels(croppedAreaPixels)
+                                    }
                                     onZoomChange={setZoom}
                                 />
                                 <ButtonCustom title="Cắt ảnh" className="primary" onClick={onCoverCropComplete} />

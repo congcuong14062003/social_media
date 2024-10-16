@@ -14,6 +14,7 @@ import ButtonCustom from '../../ButtonCustom/ButtonCustom';
 import { postData } from '../../../ultils/fetchAPI/fetch_API';
 import { API_CREATE_POST } from '../../../API/api_server';
 
+// Modal style
 const style = {
     position: 'absolute',
     top: '50%',
@@ -23,13 +24,11 @@ const style = {
     boxShadow: 24,
 };
 
-const getCSSVariableValue = (variableName) => {
-    return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
-};
-
+// Component
 export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner }) {
     const [openAccess, setOpenAccess] = useState(false);
-    const [accessLabel, setAccessLabel] = useState('Công khai');
+    const [accessLabel, setAccessLabel] = useState(dataOwner?.post_privacy === 1 ? "Công khai" : "Chỉ mình tôi");
+    const [accessIcon, setAccessIcon] = useState(dataOwner?.post_privacy === 1 ? images.global : images.private);
     const [openSelectFile, setOpenSelectFile] = useState(false);
     const [valueInput, setValueInput] = useState('');
     const [selectedImages, setSelectedImages] = useState([]);
@@ -43,15 +42,15 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     };
 
     const handleAccessChange = (newAccess) => {
-        setAccessLabel(getAccessLabel(newAccess));
+        const updatedLabel = getAccessLabel(newAccess);
+        setAccessLabel(updatedLabel);
+        setAccessIcon(newAccess === 'Công khai' ? images.global : images.private); // Update icon based on access level
     };
 
     const getAccessLabel = (value) => {
         switch (value) {
             case 'Công khai':
                 return 'Công khai';
-            case 'Bạn bè':
-                return 'Bạn bè';
             case 'Chỉ mình tôi':
                 return 'Chỉ mình tôi';
             default:
@@ -80,30 +79,36 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
         }
     }, [openFile]);
 
-    const handlePost = async () => {
-        // Handle post submission logic here
-        // const formData = new FormData();
+    useEffect(() => {
+        if (dataOwner) {
+            const initialAccess = dataOwner.post_privacy === 1 ? "Công khai" : "Chỉ mình tôi";
+            setAccessLabel(initialAccess);
+            setAccessIcon(initialAccess === "Công khai" ? images.global : images.private);
+        }
+    }, [dataOwner]);
 
-        // Lấy các giá trị cần thiết
-        const userId = dataOwner?.user_id; // Giả sử `dataOwner` chứa thông tin người dùng
-        const privacy = accessLabel === 'Công khai' ? 1 : accessLabel === 'Bạn bè' ? 2 : 0;
-        const postText = valueInput; // Nội dung bài viết từ textarea
+    const handlePost = async () => {
+        const userId = dataOwner?.user_id; // Get user ID
+        const privacy = accessLabel === 'Công khai' ? 1 : 0; // Determine privacy value
+        const postText = valueInput; // Get post content
+
+        // Log for debugging
+        console.log('Access Label:', accessLabel); 
+
+        // Send POST request
         const response = await postData(API_CREATE_POST, {
             user_id: userId,
             post_privacy: privacy,
             post_text: postText,
         });
-        console.log(response);
-        if ((response.status = true)) {
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000);
-        }
 
-        // Nếu có ảnh/video được chọn
-        // selectedImages.forEach((image, index) => {
-        //     formData.append(`file_${index}`, image); // Chèn file vào formData
-        // });
+        console.log(response);
+
+        if (response.status) {
+            setTimeout(() => {
+                window.location.reload(); // Refresh the page on successful post
+            }, 1000);
+        }
     };
 
     const hanleChangeInput = (e) => {
@@ -128,7 +133,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                             <div className="infor_user">
                                 <div className="user_name">{dataOwner?.user_name}</div>
                                 <div className="access_post" onClick={handleOpenAccess}>
-                                    <img src={images.global} alt="" />
+                                    <img src={accessIcon} alt="Access Icon" /> {/* Use the state for icon */}
                                     <span>{accessLabel}</span>
                                     <FontAwesomeIcon icon={faCaretDown} />
                                 </div>
@@ -215,7 +220,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                         title="Đối tượng bài viết"
                         openAccess={openAccess}
                         closeAccess={handleCloseAccess}
-                        initialValue={accessLabel}
+                        initialValue={accessLabel} // Truyền giá trị accessLabel vào ModalAccess
                         onAccessChange={handleAccessChange}
                     />
                 </Box>

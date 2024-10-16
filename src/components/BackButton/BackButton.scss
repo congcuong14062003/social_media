@@ -1,0 +1,25 @@
+.back-button {
+  display: flex;
+  align-items: center;
+  background-color: var(--primary-color);
+  justify-content: flex-start;
+  color: var(--text-color);
+  border: none;
+  padding: 7px;
+  height: 28px;
+  margin-bottom: 4px;
+  margin-right: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  align-self: flex-start;
+  svg {
+    font-size: 18px;
+    path{
+      color: white !important;
+    }
+  }
+  &:hover {
+    opacity: 0.8;
+  }
+}

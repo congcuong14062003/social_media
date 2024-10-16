@@ -52,7 +52,6 @@ function ModalAccess({ openAccess, closeAccess, initialValue, onAccessChange, ti
         closeAccess();
     };
 
-    // console.log(selectedValue);
     return (
         <Fragment>
             <Modal
@@ -76,12 +75,6 @@ function ModalAccess({ openAccess, closeAccess, initialValue, onAccessChange, ti
                                 value="Công khai"
                                 control={<Radio className="radio_custom" sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }} />}
                                 label={<AccessPost image={images.bigglobal} heading="Công khai" title="Bất kỳ ai ở trên hoặc ngoài Facebook" />}
-                                labelPlacement="start"
-                            />
-                            <FormControlLabel
-                                value="Bạn bè"
-                                control={<Radio className="radio_custom" sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }} />}
-                                label={<AccessPost image={images.friend} heading="Bạn bè" title="Bạn bè của bạn trên Facebook" />}
                                 labelPlacement="start"
                             />
                             <FormControlLabel

@@ -162,7 +162,9 @@
 
                 // Main comment styling
                 .main_comment {
+                    flex: 1;
                     .container_comment {
+                        width: max-content;
                         padding: 10px;
                         border-radius: 20px;
                         background-color: var(--comment-backgroud);
@@ -213,6 +215,22 @@
                         .like_comment,
                         .responsive_comment {
                             font-weight: var(--main-font-weight);
+                        }
+                    }
+                    .count_subs_comment {
+                        color: var(--primary-text);
+                        font-size: var(--fourteen-px);
+                        text-decoration: underline;
+                        cursor: pointer;
+                        margin-bottom: 10px;
+                    }
+                    .comment_sub_input {
+                        display: flex;
+                        width: 100%;
+                        align-items: center;
+                        margin: 10px 0;
+                        .search_container {
+                            flex: 1;
                         }
                     }
                 }

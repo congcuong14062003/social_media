@@ -6,6 +6,8 @@ import images from '../../assets/imgs';
 import ModalCreatePost from '../Modal/ModalCreatePost/ModalCreatePost';
 import { OwnDataContext } from '../../provider/own_data';
 import AvatarWithText from '../../skeleton/avatarwithtext';
+import { Link } from 'react-router-dom';
+import config from '../../configs';
 const CreatePost = () => {
     const [open, setOpen] = useState(false);
     const [openFile, setOpenFile] = useState(false);
@@ -29,7 +31,9 @@ const CreatePost = () => {
             {loaded ? (
                 <div className="container_create_post">
                     <div className="header_post">
-                        <AvatarUser />
+                        <Link to={`${config.routes.profile}/${dataOwner?.user_id}`}>
+                            <AvatarUser />
+                        </Link>
                         <Search onClick={handleOpen} placeholder={`${dataOwner?.user_name} ơi bạn đang nghĩ gì thế`} />
                     </div>
                     <div className="footer_post">

@@ -1,0 +1,60 @@
+// Khai báo kích thước tương ứng với màn hình thiết bị
+
+@mixin Responsive($breakpoint) {
+    @if $breakpoint == phone {
+        @media (max-width: 500px) {
+            @content;
+        }
+    }
+
+    @if $breakpoint == mobile {
+        @media (max-width: 768px) {
+            @content;
+        }
+    }
+
+    @if $breakpoint == tablet {
+        @media (min-width: 769px) and (max-width: 1024px) {
+            @content;
+        }
+    }
+    @if $breakpoint == tabletandmobile {
+        @media (max-width: 1024px) {
+            @content;
+        }
+    }
+
+    @if $breakpoint == nestHub {
+        @media (min-width: 1024px) and (max-width: 1300px) {
+            @content;
+        }
+    }
+
+    @if $breakpoint == desktop {
+        @media (min-width: 1025px) {
+            @content;
+        }
+    }
+    // @if $breakpoint == pc {
+    //     @media (min-width: 1601px) {
+    //         @content;
+    //     }
+    // }
+
+    @if $breakpoint == home {
+        @media (max-width: 1100px) {
+            @content;
+        }
+    }
+    @if $breakpoint == tablethome {
+        @media (max-width: 900px) {
+            @content;
+        }
+    }
+
+    @if $breakpoint == pc {
+        @media (min-width: 1281px) {
+            @content;
+        }
+    }
+}

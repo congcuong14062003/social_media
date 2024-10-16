@@ -130,9 +130,15 @@
                         font-size: var(--sixteen-px);
                         font-weight: var(--main-font-weight);
                     }
-                    p, a{
+                    p,
+                    a {
                         color: var(--secondary-text);
                         font-size: var(--fourteen-px);
+                    }
+                    img {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 5px;
                     }
                 }
                 .right_reply {

@@ -6,37 +6,68 @@ import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import './Signup.scss';
 import config from '../../configs';
 import { postData } from '../../ultils/fetchAPI/fetch_API';
-import { API_SIGNUP_POST } from '../../API/api_server';
+import { API_CREATE_OTP_SIGNUP, API_SIGNUP_POST } from '../../API/api_server';
 import getDataForm from '../../ultils/getDataForm/get_data_form';
+import OtpPopup from '../../components/PopupOTP/OtpPopup';
 
 function Signup() {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showOtpPopup, setShowOtpPopup] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [payloadSignup, setPayloadSignup] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!email || !username || !password) {
-            console.log('vào');
-            toast.error('Vui lòng nhập đầy đủ thông tin');
-            return;
-        }
-        if (password !== confirmPassword) {
-            toast.error('Mật khẩu xác nhận không khớp');
-            return;
-        }
-        const data = getDataForm('.form_signup');
-        const respone = await postData(API_SIGNUP_POST, data)
-        if (respone.status === true) {
+    const handleOtpVerifySuccess = async () => {
+        setShowOtpPopup(false);
+        console.log(payloadSignup);
+
+        const responseSignup = await postData(API_SIGNUP_POST, payloadSignup);
+        if (responseSignup?.status) {
             navigate('/login');
         }
     };
+    const handleCloseOtpPopup = () => {
+        setShowOtpPopup(false);
+    };
+    const handleResendOtp = async (e) => {
+        await handleSignup(e);
+    };
+    const handleSignup = async (e) => {
+        e.preventDefault();
+
+        // Kiểm tra xem có trường nào bị bỏ trống không
+        if (!email || !username || !password || !confirmPassword) {
+            toast.error('Vui lòng nhập đầy đủ thông tin!');
+            return;
+        }
+
+        // Kiểm tra mật khẩu có khớp không
+        if (password !== confirmPassword) {
+            toast.error('Mật khẩu không trùng khớp!');
+            return;
+        }
+
+        const data = getDataForm('.form_signup');
+        setPayloadSignup(data);
+
+        try {
+            const response = await postData(API_CREATE_OTP_SIGNUP, data);
+            if (response?.status) {
+                setShowOtpPopup(true);
+            } else {
+                toast.error('Đăng ký thất bại, vui lòng thử lại!');
+            }
+        } catch (error) {
+            toast.error('Có lỗi xảy ra, vui lòng thử lại!');
+        }
+    };
+
     return (
         <div className="login_container">
             <div className="bt-form-login-simple-1">
-                <form className="form_signup form" autoComplete="off" onSubmit={handleSubmit}>
+                <form className="form_signup form" autoComplete="off" onSubmit={handleSignup}>
                     <div className="form-group">
                         <label htmlFor="email">Email: </label>
                         <input
@@ -87,6 +118,14 @@ function Signup() {
                     <Link to={config.routes.login}> Đăng nhập</Link>
                 </div>
             </div>
+            {showOtpPopup && (
+                <OtpPopup
+                    email={email}
+                    onVerifySuccess={handleOtpVerifySuccess}
+                    onClose={handleCloseOtpPopup}
+                    onResendOtp={handleResendOtp}
+                />
+            )}
         </div>
     );
 }

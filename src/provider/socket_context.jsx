@@ -145,7 +145,7 @@ export const SocketProvider = ({ children }) => {
         socket.off("user-calling"); // Cleanup listener khi socket thay đổi hoặc component unmount
       }
     };
-  }, [dataOwner, socket]);
+  }, [dataOwner, socket, handleAccept, handleDecline]);
 
   return (
     <SocketContext.Provider value={socket}>
