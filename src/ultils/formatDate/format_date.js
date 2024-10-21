@@ -74,3 +74,20 @@ export function calculateDaysWorked(startDate) {
   
     return timeString;
   }
+
+
+  
+// timeFormatter.js
+
+export function formatSecondsToTime(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+
+  // Đảm bảo rằng giờ, phút, giây có định dạng 2 chữ số
+  const formattedHours = hours.toString().padStart(2, '0');
+  const formattedMinutes = minutes.toString().padStart(2, '0');
+  const formattedSeconds = secs.toString().padStart(2, '0');
+
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+}

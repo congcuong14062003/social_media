@@ -43,6 +43,7 @@
             .action_user_post {
                 width: 30px;
                 height: 30px;
+                position: relative;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -55,6 +56,26 @@
                     background-color: var(--comment-backgroud);
                     cursor: pointer;
                 }
+                .action_user_post_detail {
+                    display: none;
+                    position: absolute;
+                    top: 100%;
+                    width: max-content;
+                    left: -200%;
+                    transform: translateX(-50%);
+                    background-color: var(--comment-backgroud);
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+                    button {
+                        margin: 5px;
+                    }
+                }
+                &:hover {
+                    .action_user_post_detail {
+                        display: flex;
+                    }
+                }
             }
         }
 
@@ -65,11 +86,47 @@
             font-weight: var(--secon-font-weight);
         }
     }
+    .image_or_video_container {
+        display: grid;
+        width: 100%;
+    }
 
-    .content_post_container {
-        img {
-            width: 100%;
-        }
+    .content_post_container img,
+    .content_post_container video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; 
+        // max-height: 700px;
+    }
+    /* Các layout cho số lượng media khác nhau */
+    .image_or_video_container {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+
+    /* Nếu chỉ có 1 media */
+    .image_or_video_container.media-1 {
+        grid-template-columns: 1fr;
+    }
+
+    /* Nếu có 2 media */
+    .image_or_video_container.media-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Nếu có 3 media */
+    .image_or_video_container.media-3 {
+        grid-template-columns: 2fr 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+
+    /* Đảm bảo phần tử đầu tiên chiếm 2 hàng (nếu 3 media) */
+    .image_or_video_container.media-3 .content_post_container:first-child {
+        grid-row: span 2;
+    }
+
+    /* Nếu có từ 4 media trở lên */
+    .image_or_video_container.media-4 {
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .footer_post_container {
@@ -121,9 +178,9 @@
         .action_user_post_footer {
             font-size: var(--fourteen-px);
             padding: 5px 0;
+            margin-bottom: 10px;
             border-top: 1px solid var(--comment-backgroud);
             border-bottom: 1px solid var(--comment-backgroud);
-
             .action_detail {
                 margin: 0 -5px;
                 display: flex;
@@ -153,8 +210,6 @@
         }
 
         .comment_post_container {
-            margin-top: 20px;
-
             .user_comment_container {
                 display: flex;
                 align-items: flex-start;

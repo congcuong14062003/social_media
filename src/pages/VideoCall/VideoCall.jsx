@@ -1,38 +1,64 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import React, { useReducer, useRef, useEffect, useContext, useState } from 'react';
 import './VideoCall.scss';
 import { FaVideoSlash, FaVideo, FaMicrophoneSlash, FaMicrophone, FaPhoneAlt } from 'react-icons/fa';
 import { getURLParam } from '../../ultils/getParamURL/get_param_URL';
-import { getData } from '../../ultils/fetchAPI/fetch_API';
-import { API_GET_INFO_USER_PROFILE_BY_ID } from '../../API/api_server';
+import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
+import { API_GET_INFO_USER_PROFILE_BY_ID, API_SEND_MESSAGE } from '../../API/api_server';
 import { useSocket } from '../../provider/socket_context';
 import { OwnDataContext } from '../../provider/own_data';
-import { useNavigate } from 'react-router-dom';
 import Peer from 'peerjs';
 import { toast } from 'react-toastify';
+import { formatSecondsToTime } from '../../ultils/formatDate/format_date';
 
-const VideoCall = ({ isVideoCall }) => {
-    // useEffect(() => {
-    //   document.title = titlePage;
-    // }, [titlePage]);
+const VideoCall = ({ isVideoCall, titlePage, userId }) => {
+    useEffect(() => {
+        document.title = titlePage;
+    }, [titlePage]);
+
+    const initialState = {
+        isCallAccepted: true,
+        isVideoMuted: false,
+        isAudioMuted: false,
+    };
+
+    const callReducer = (state, action) => {
+        switch (action.type) {
+            case 'ACCEPT_CALL':
+                return { ...state, isCallAccepted: true };
+            case 'TOGGLE_VIDEO':
+                return { ...state, isVideoMuted: !state.isVideoMuted };
+            case 'TOGGLE_AUDIO':
+                return { ...state, isAudioMuted: !state.isAudioMuted };
+            case 'END_CALL':
+                return { ...state, isCallAccepted: false };
+            default:
+                return state;
+        }
+    };
 
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
     const peerRef = useRef(null);
     const localStreamRef = useRef(null);
 
+    const [state, dispatch] = useReducer(callReducer, initialState);
+    const { isCallAccepted, isVideoMuted, isAudioMuted } = state;
+    const [stateRemote, setStateRemote] = useState({
+        isCallRemoteAccepted: false,
+        isVideoRemoteMuted: false,
+        isAudioRemoteMuted: false,
+    });
+    const [callEnded, setCallEnded] = useState(false);
     const [receiver_id, setReceiverID] = useState();
     const [room_id, setRoomID] = useState();
     const [sender_id, setSenderID] = useState();
-    const [isCallAccepted, setIsCallAccepted] = useState(false);
-    const [isVideoMuted, setIsVideoMuted] = useState(isVideoCall !== false);
-    const [isAudioMuted, setIsAudioMuted] = useState(false);
-    const [avatarUrl, setAvatarUrl] = useState();
-
+    const [dataReceiver, setDataReceiver] = useState();
+    const [statusCall, setStatusCall] = useState(false);
+    const [time, setTime] = useState(0);
     const dataOwner = useContext(OwnDataContext);
     const socket = useSocket();
-    const navigate = useNavigate();
 
-    // Lấy tham số từ URL
+    // Get URL params
     useEffect(() => {
         const params = getURLParam();
         setSenderID(params?.sender_id);
@@ -40,39 +66,68 @@ const VideoCall = ({ isVideoCall }) => {
         setReceiverID(params?.receiver_id);
     }, []);
 
-    // Get thông tin người nghe
     useEffect(() => {
-        const fetchAPI = async () => {
-            try {
-                const response = await getData(
-                    API_GET_INFO_USER_PROFILE_BY_ID(dataOwner?.user_id !== sender_id ? sender_id : receiver_id),
-                );
+        if (socket && sender_id && receiver_id && dataOwner?.user_id) {
+            const handleStatusAccepted = async (data) => {
+                if (data?.status === 'Accepted') {
+                    toast('Người nghe đang vào cuộc hội thoại...');
+                    dispatch({ type: 'ACCEPT_CALL' });
+                    setStatusCall(true);
+                } else if (data?.status === 'Declined') {
+                    toast.error('Người nghe đã từ chối gọi...');
+                    await handleSendMessage('missed');
 
-                if (response.status === true && response.data?.avatar) {
-                    const { avatar } = response.data;
-                    setAvatarUrl(avatar);
+                    window.location.href = `/messages/${dataOwner?.user_id !== sender_id ? sender_id : receiver_id}`;
                 }
-            } catch (error) {
-                console.log('Error: ', error);
+            };
+
+            if (receiver_id === dataOwner?.user_id) {
+                setStatusCall(true);
+                dispatch({ type: 'ACCEPT_CALL' });
             }
-        };
 
-        fetchAPI();
-    }, [receiver_id, sender_id, dataOwner]);
+            socket.on('statusAcceptedCallUser', handleStatusAccepted);
 
-    // Khởi tạo PeerJS client và kết nối tới PeerJS server
+            return () => {
+                socket.off('statusAcceptedCallUser', handleStatusAccepted); // Cleanup on unmount
+            };
+        }
+    }, [socket, receiver_id, sender_id, dataOwner]);
+
+    // Fetch receiver's profile information
+    useEffect(() => {
+        if (receiver_id && dataOwner) {
+            const fetchAPI = async () => {
+                try {
+                    const response = await getData(
+                        API_GET_INFO_USER_PROFILE_BY_ID(dataOwner?.user_id !== sender_id ? sender_id : receiver_id),
+                    );
+
+                    if (response.status === true && response.data?.avatar) {
+                        const data = response.data;
+                        setDataReceiver(data);
+                    }
+                } catch (error) {
+                    console.log('Error: ', error);
+                }
+            };
+
+            fetchAPI();
+        }
+    }, [receiver_id, dataOwner]);
+
+    // Initialize PeerJS client and handle stream events
     useEffect(() => {
         if (socket && sender_id && receiver_id && dataOwner) {
             const peer = new Peer(undefined, {
-                host: 'localhost',
-                port: 1406,
+                host: process.env.REACT_APP_HOST,
+                port: process.env.REACT_APP_PORT_PEER,
                 path: '/peerjs',
             });
 
             peerRef.current = peer;
 
-            // Lắng nghe sự kiện khi nhận được peerId từ PeerJS server
-            peer?.on('open', (id) => {
+            peer.on('open', (id) => {
                 console.log('peer: ', id);
                 socket.emit('getPeerIDCaller', {
                     receiver_id: receiver_id,
@@ -85,205 +140,232 @@ const VideoCall = ({ isVideoCall }) => {
                 callPeer(id);
             });
 
-            // Lắng nghe sự kiện khi nhận được stream từ peer khác
             peer.on('call', (call) => {
-                // Trả lời cuộc gọi với stream của mình
-                navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-                    localStreamRef.current = stream;
-                    if (localVideoRef.current) {
-                        localVideoRef.current.srcObject = stream;
-                    }
+                navigator.mediaDevices
+                    .getUserMedia({ video: true, audio: true })
+                    .then((stream) => {
+                        localStreamRef.current = stream;
+                        if (localVideoRef.current) {
+                            localVideoRef.current.srcObject = stream;
+                        }
 
-                    call.answer(stream); // Trả lời cuộc gọi bằng stream video của mình
+                        call.answer(stream);
 
-                    // Nhận stream từ remote peer
-                    call.on('stream', (remoteStream) => {
+                        call.on('stream', (remoteStream) => {
+                            if (remoteStream.getVideoTracks().length > 0) {
+                                if (remoteVideoRef.current) {
+                                    remoteVideoRef.current.srcObject = remoteStream;
+                                }
+                            } else {
+                                console.log('Remote video is not enabled.');
+                            }
+
+                            remoteStream.getVideoTracks()[0].onended = () => {};
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Error accessing media devices: ', error);
+                        toast.error('Failed to access camera or microphone.');
+                    });
+            });
+
+            peer.on('error', (err) => {
+                console.error('PeerJS error: ', err);
+            });
+        }
+    }, [socket, receiver_id, sender_id, dataOwner]);
+
+    // Call another peer by peer ID
+    const callPeer = (id) => {
+        navigator.mediaDevices
+            .getUserMedia({ video: true, audio: true })
+            .then((stream) => {
+                localStreamRef.current = stream;
+                if (localVideoRef.current) {
+                    localVideoRef.current.srcObject = stream;
+                }
+
+                const call = peerRef.current.call(id, stream);
+
+                call.on('stream', (remoteStream) => {
+                    if (remoteStream.getVideoTracks().length > 0) {
                         if (remoteVideoRef.current) {
                             remoteVideoRef.current.srcObject = remoteStream;
-                        } else {
-                            console.log('remoteVideoRef.current is null, cannot set srcObject');
                         }
-                    });
+                    } else {
+                        console.log('Remote video is not enabled.');
+                    }
+
+                    remoteStream.getVideoTracks()[0].onended = () => {};
                 });
+            })
+            .catch((error) => {
+                console.error('Error accessing media devices: ', error);
+                toast.error('Failed to access camera or microphone.');
             });
-        }
-    }, [socket, receiver_id, sender_id, dataOwner]);
-
-    // Register user and send a call request
-    useEffect(() => {
-        console.log("tình trang:", socket , sender_id , receiver_id , dataOwner?.user_id);
-        if(socket){
-            // Lắng nghe sự kiện chấp nhận hoặc từ chối cuộc gọi
-            const handleStatusCall = (data) => {
-                console.log(data);
-
-                if (data?.status === 'Accepted') {
-                    toast('Người nghe đang vào cuộc hội thoại...');
-                    setIsCallAccepted(true);
-                } else if (data?.status === 'Declined') {
-                    toast.error('Người nghe đã từ chối gọi...');
-                    setTimeout(() => {
-                        window.location.href = `/messages/${receiver_id}`;
-                    }, 1500);
-                }
-            };
-
-            socket.on('statusAcceptedCallUser', handleStatusCall);
-
-            // Cleanup listener khi socket hoặc các giá trị phụ thuộc thay đổi
-            return () => {
-                socket.off('statusAcceptedCallUser', handleStatusCall);
-            };
-        }
-    }, [socket, receiver_id, sender_id, dataOwner]);
-
-    const callPeer = (id) => {
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-            localStreamRef.current = stream;
-            if (localVideoRef.current) {
-                localVideoRef.current.srcObject = stream;
-            }
-
-            // Gọi tới peer khác
-            const call = peerRef.current.call(id, stream);
-
-            // Nhận stream từ remote peer
-            call?.on('stream', (remoteStream) => {
-                if (remoteVideoRef.current) {
-                    remoteVideoRef.current.srcObject = remoteStream;
-                } else {
-                    console.log('remoteVideoRef.current is null, cannot set srcObject');
-                }
-            });
-        });
     };
 
+    // Sync remote state with the server
     useEffect(() => {
-        if (socket) {
-            socket?.on('callEnded', () => {
-                // Dừng stream và xử lý việc kết thúc cuộc gọi
-                if (localStreamRef.current) {
-                    localStreamRef.current.getTracks().forEach((track) => {
-                        track.stop(); // Dừng tất cả các track
-                        console.log(`${track.kind} track stopped after call ended`);
-                    });
-                }
+        if (socket && state) {
+            socket.emit('statusCall', {
+                ...state,
+                to: dataOwner?.user_id !== sender_id ? sender_id : receiver_id,
+            });
 
-                peerRef.current.destroy(); // Hủy kết nối PeerJS
-                // navigate(-1); // Quay lại trang trước đó
-                if (dataOwner.user_id === sender_id) {
-                    window.location.href = `/messages/${receiver_id}`;
-                } else {
-                    window.location.href = `/messages/${sender_id}`;
+            socket.on('statusCallToUser', (data) => {
+                setStateRemote(data);
+                if (statusCall && !data.isCallRemoteAccepted) {
+                    handleEndCall();
                 }
             });
+            return () => socket.off('statusCallToUser'); // Cleanup khi component unmount
         }
+    }, [state]);
 
-        return () => {
-            socket?.off('callEnded'); // Gỡ bỏ listener khi component bị hủy
-        };
-    }, [socket, sender_id, dataOwner, receiver_id]);
+    socket?.on('statusCallToUser', (data) => {
+        console.log(data);
+    });
 
-    const handleEndCall = () => {
-        console.log('Vào');
-
-        // Dừng tất cả các track (audio và video)
+    // End call and navigate back
+    const handleEndCall = async () => {
+        if (callEnded) return; // Ngăn không cho hàm gọi nhiều lần
+        setCallEnded(true); // Đặt cờ để lần sau không gọi lại
         if (localStreamRef.current) {
-            localStreamRef.current.getTracks().forEach((track) => {
-                track.stop();
-                console.log(`${track.kind} track stopped`);
-            });
+            localStreamRef.current.getTracks().forEach((track) => track.stop());
         }
+        peerRef.current.destroy();
 
-        // Hủy kết nối PeerJS
-        if (peerRef.current) {
-            peerRef.current.destroy();
-            console.log('PeerJS connection destroyed');
-        }
-
-        // Gửi sự kiện kết thúc cuộc gọi qua socket
-        socket.emit('endCall', { room_id, receiver_id, sender_id });
-
-        // Điều hướng người dùng quay lại trang tin nhắn
-        if (dataOwner.user_id === sender_id) {
-            window.location.href = `/messages/${receiver_id}`;
+        dispatch({ type: 'END_CALL' });
+        if (statusCall) {
+            await handleSendMessage('accepted');
         } else {
-            window.location.href = `/messages/${sender_id}`;
+            await handleSendMessage('missed');
         }
+
+        if (sender_id && receiver_id && dataOwner)
+            window.location.href = `/messages/${dataOwner?.user_id !== sender_id ? sender_id : receiver_id}`;
     };
 
-    useEffect(() => {
-        console.log('???:', isCallAccepted);
-
-        const timeDownDelineCall = setTimeout(() => {
-            console.log('>>>>>>:', isCallAccepted, receiver_id);
-
-            if (!isCallAccepted && receiver_id) {
-                toast.error('Người dùng đang bận vui lòng gọi lại sau!');
-                setTimeout(() => {
-                    window.location.href = `/messages/${receiver_id}`;
-                }, 1500);
-            } else {
-                console.log('Cuộc gị diện ra bbinhf thường');
-
-                clearTimeout(timeDownDelineCall);
-            }
-        }, 5000);
-
-        return () => {
-            clearTimeout(timeDownDelineCall);
-        };
-    }, [isCallAccepted, receiver_id]);
-    // hàm bật tắt cam
     const handleVideoToggle = () => {
         const videoTrack = localStreamRef.current?.getTracks().find((track) => track.kind === 'video');
+
         if (videoTrack) {
-            videoTrack.enabled = !isVideoMuted;
-            setIsVideoMuted((prev) => !prev);
+            videoTrack.enabled = !videoTrack.enabled; // Toggle the video track
+
+            dispatch({ type: 'TOGGLE_VIDEO' }); // Update UI state
+
+            if (videoTrack.enabled) {
+                // If the video is re-enabled, renegotiate the stream
+                socket.emit('renegotiateStream', {
+                    peer_id: peerRef.current.id,
+                    videoEnabled: videoTrack.enabled,
+                });
+            }
         }
     };
-    // hàm bật tắt âm thanh
+
+    const handleSendMessage = async (status) => {
+        if (time === 0 && status === 'accepted') return; // Không gửi nếu thời gian là 0 giây
+
+        try {
+            await postData(API_SEND_MESSAGE(receiver_id), {
+                content_type: `call:${status}`,
+                content_text: time,
+                sender_id: sender_id,
+            });
+        } catch (error) {
+            console.error('Error sending call message:', error);
+        }
+    };
+
+    // Toggle audio stream
     const handleAudioToggle = () => {
         const audioTrack = localStreamRef.current?.getTracks().find((track) => track.kind === 'audio');
         if (audioTrack) {
-            audioTrack.enabled = !isAudioMuted;
-            setIsAudioMuted((prev) => !prev);
+            // Directly toggle the track's enabled state
+            audioTrack.enabled = !audioTrack.enabled;
+            dispatch({ type: 'TOGGLE_AUDIO' }); // Update the UI state
         }
     };
+    // Trong useEffect này, kiểm tra và cập nhật trạng thái khi video bị mute hoặc unmute
+    useEffect(() => {
+        const avtImage = document.querySelector('.avatar');
+        avtImage.style.display = 'none'; // ��n ảnh đại diện khi video bị mute
+
+        if (remoteVideoRef.current) {
+            if (stateRemote.isVideoRemoteMuted) {
+                remoteVideoRef.current.style.display = 'none'; // Ẩn video khi video bị mute
+                avtImage.style.display = 'block'; // ��n ảnh đại diện khi video bị mute
+            } else {
+                remoteVideoRef.current.style.display = 'block'; // Hiển thị video khi video không bị mute
+                avtImage.style.display = 'none'; // ��n ảnh đại diện khi video bị mute
+            }
+        }
+    }, [stateRemote.isVideoRemoteMuted]);
+
+    useEffect(() => {
+        if (statusCall) {
+            const timeCounter = setTimeout(() => {
+                setTime((time) => time + 1);
+            }, 1000);
+            return () => clearTimeout(timeCounter);
+        }
+    }, [time, statusCall]);
+    console.log(receiver_id);
+
+    useEffect(() => {
+        if (!statusCall) {
+            const timeoutId = setTimeout(async () => {
+                await handleSendMessage('missed');
+                window.location.href = `/messages/${receiver_id}`;
+            }, 5000); // 60 seconds
+
+            // Clear the timeout if the component unmounts or if statusCall becomes true
+            return () => clearTimeout(timeoutId);
+        }
+    }, [statusCall, receiver_id]);
 
     return (
         <React.Fragment>
             <div className="video-call-container">
                 <div className="video-wrapper">
                     <video ref={localVideoRef} playsInline autoPlay muted className="user-video" />
-                    {
-                        // Display video for receiver or sender based on role and call acceptance
-                        dataOwner?.user_id === sender_id ? (
-                            // For the sender (caller), show video only after the call is accepted
-                            isCallAccepted ? (
-                                <video ref={remoteVideoRef} autoPlay playsInline className="partner-video" />
-                            ) : (
-                                <div className="avatar">
-                                    <img src={avatarUrl} alt="Avatar" className="partner-avatar" />
-                                </div>
-                            )
-                        ) : (
-                            // For the receiver (callee), always show the video
+
+                    {dataOwner?.user_id === sender_id ? (
+                        statusCall ? (
                             <video ref={remoteVideoRef} autoPlay playsInline className="partner-video" />
+                        ) : (
+                            <div className="avatar">
+                                <img src={dataReceiver?.avatar} alt="Avatar" className="partner-avatar" />
+                            </div>
                         )
-                    }
-                    {/* Hiện avatar nếu chưa có video từ remote */}
+                    ) : (
+                        <>
+                            <video ref={remoteVideoRef} autoPlay playsInline className="partner-video" />
+                        </>
+                    )}
+                    <div className="avatar">
+                        <img src={dataReceiver?.avatar} alt="Avatar" className="partner-avatar" />
+                    </div>
                 </div>
+                <div className="time">{formatSecondsToTime(time)}</div>
                 <div className="controls">
-                    <button onClick={handleVideoToggle} className="control-button">
-                        {isVideoMuted ? <FaVideo /> : <FaVideoSlash />}
+                    {/* <ToolTipCustom content={"Bật/Tắt video"}> */}
+                    <button className="control-button" onClick={handleVideoToggle}>
+                        {isVideoMuted ? <FaVideoSlash /> : <FaVideo />}
                     </button>
-                    <button onClick={handleAudioToggle} className="control-button">
+                    {/* </ToolTipCustom> */}
+                    {/* <ToolTipCustom content={"Bật/Tắt âm thanh"}> */}
+                    <button className="control-button" onClick={handleAudioToggle}>
                         {isAudioMuted ? <FaMicrophoneSlash /> : <FaMicrophone />}
                     </button>
+                    {/* </ToolTipCustom> */}
+                    {/* <ToolTipCustom content={"Kết thúc cuộc gọi"}> */}
                     <button className="control-button end-call" onClick={handleEndCall}>
                         <FaPhoneAlt />
                     </button>
+                    {/* </ToolTipCustom> */}
                 </div>
             </div>
         </React.Fragment>

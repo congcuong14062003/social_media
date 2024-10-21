@@ -12,6 +12,7 @@ const CreatePost = () => {
     const [open, setOpen] = useState(false);
     const [openFile, setOpenFile] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [openIconModal, setOpenIconModal] = useState(false); // State for Icon Modal
     setTimeout(() => {
         setLoaded(true);
     }, 1000);
@@ -25,6 +26,10 @@ const CreatePost = () => {
     const handleOpenCreatePost = () => {
         setOpen(true);
         setOpenFile(true);
+    };
+    const handleOpenIcon = () => {
+        setOpen(true);
+        setOpenIconModal(true)
     };
     return (
         <>
@@ -41,7 +46,7 @@ const CreatePost = () => {
                             <img src={images.anhvavideo} alt="" />
                             <span>Ảnh/video</span>
                         </div>
-                        <div className="image_and_video">
+                        <div className="image_and_video" onClick={handleOpenIcon}>
                             <img src={images.iconvahoatdong} alt="" />
                             <span>Cảm xúc/hoạt động</span>
                         </div>
@@ -49,6 +54,7 @@ const CreatePost = () => {
                     <ModalCreatePost
                         dataOwner={dataOwner}
                         openFile={openFile}
+                        openIcon={openIconModal}
                         closeModel={handleClose}
                         openModel={open}
                     />

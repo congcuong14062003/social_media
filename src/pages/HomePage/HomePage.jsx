@@ -8,7 +8,7 @@ import ListStory from '../../components/ListStory/ListStory';
 import { useContext, useEffect, useState } from 'react';
 import FriendList from '../../components/Friend/FriendList/FriendList';
 import { OwnDataContext } from '../../provider/own_data';
-import { API_GET_ALL_USERS, API_GET_POSTS } from '../../API/api_server';
+import { API_GET_ALL_USERS, API_GET_POSTS, API_LIST_FRIEND } from '../../API/api_server';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import { FaUser } from 'react-icons/fa';
 import HorizontalItem from '../../components/HorizontalItem/HorizontalItem';
@@ -16,6 +16,24 @@ import PrimaryIcon from '../../components/PrimaryIcon/PrimaryIcon';
 function HomePage() {
     const dataUser = useContext(OwnDataContext);
     const [listPosts, setListPosts] = useState([]);
+    const [listFriend, setListFriend] = useState([]);
+    useEffect(() => {
+        const fetchFriends = async () => {
+            try {
+                const response = await getData(API_LIST_FRIEND);
+                // Kiểm tra nếu response và response.users tồn tại
+                if (response && response.users) {
+                    setListFriend(response.users);
+                } else {
+                    setListFriend([]); // Nếu không có dữ liệu, đặt thành mảng rỗng
+                }
+            } catch (error) {
+                console.error('Error fetching friends:', error);
+                setListFriend([]); // Xử lý lỗi bằng cách đặt mảng rỗng
+            }
+        };
+        fetchFriends();
+    }, []);
     // Gọi API danh sách bài viết
     useEffect(() => {
         const listPosts = async () => {
@@ -78,7 +96,7 @@ function HomePage() {
                 </div>
             </div>
             <div className="right__container">
-                <FriendList />
+                <FriendList ListUser={listFriend} />
             </div>
         </div>
     );

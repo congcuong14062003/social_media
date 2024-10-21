@@ -6,9 +6,11 @@ import ImageComponent from '../ImageComponent/ImageComponent';
 import FriendComponent from '../FriendComponent/FriendComponent';
 import { API_GET_POSTS_BY_ID } from '../../API/api_server';
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { getData } from '../../ultils/fetchAPI/fetch_API';
+import { OwnDataContext } from '../../provider/own_data';
 function PostProfile() {
+    const dataOwner = useContext(OwnDataContext);
     const { id_user } = useParams();
     const [listPosts, setListPosts] = useState([]);
     // Gọi API danh sách bài viết
@@ -26,18 +28,17 @@ function PostProfile() {
             }
         };
 
-
         listPosts();
     }, [id_user]);
     return (
         <div className="post_profile_container">
             <div className="left_container">
-                <IntroduceComponent/>
+                <IntroduceComponent />
                 <ImageComponent />
                 <FriendComponent />
             </div>
             <div className="right_container">
-                <CreatePost />
+                {dataOwner?.user_id === id_user && <CreatePost />}
                 {listPosts.map((post, index) => (
                     <PostItem key={index} dataPost={post} />
                 ))}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
     AudioIcon,
     ExtendChatIcon,
@@ -126,7 +126,7 @@ function MessagesPage() {
         scrollToBottom();
     }, [messages]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         // Kiểm tra xem "private-key" có tồn tại trong localStorage không
         const privateKey = localStorage.getItem('private-key');
         if (privateKey) {
@@ -558,7 +558,7 @@ function MessagesPage() {
                         <div className="messages_container">
                             <div className="chat_header">
                                 {loading ? (
-                                    <FriendItem to={`${config.routes.profile}/${id_receiver}`} data={dataFriend} />
+                                    <FriendItem data={dataFriend} />
                                 ) : (
                                     <div className="loading-skeleton">
                                         <AvatarWithText />
@@ -713,7 +713,7 @@ function MessagesPage() {
                     </div>
                     {openSettingChat && (
                         <div className="right_messenger">
-                            <SettingMessages />
+                            <SettingMessages dataFriend={dataFriend} messages={messages}/>
                         </div>
                     )}
                 </>

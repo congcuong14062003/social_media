@@ -68,6 +68,11 @@ function MessagesItems({
                         </a>
                     )}
                     {type === 'link' && <p dangerouslySetInnerHTML={{ __html: message }}></p>}
+                    {type === 'call:accepted' && (
+                        <div className="content_receiver">
+                            <span>Cuộc gọi thoại: {message} giây</span>
+                        </div>
+                    )}
                     {type === 'other' && (
                         <div className="file-container">
                             <a href={message} download>

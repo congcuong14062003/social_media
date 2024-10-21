@@ -29,6 +29,7 @@
                     font-weight: var(--secon-font-weight);
                 }
                 .access_post {
+                    width: max-content;
                     margin-top: 3px;
                     background-color: var(--secondary-button);
                     padding: 3px 8px;
@@ -103,11 +104,15 @@
                 position: relative;
                 .images_preview {
                     height: 100%;
+                    display: flex;
                     .image_container {
+                        margin: auto;
+                        .icon_file_chose {
+                            display: flex;
+                            justify-content: center;
+                        }
                         .image-grid {
-                            display: grid;
-                            grid-template-columns: 1fr 1fr;
-                            img {
+                            img, video {
                                 width: 100%;
                                 object-fit: cover;
                             }

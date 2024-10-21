@@ -99,5 +99,4 @@ function ModalAccess({ openAccess, closeAccess, initialValue, onAccessChange, ti
         </Fragment>
     );
 }
-
 export default ModalAccess;

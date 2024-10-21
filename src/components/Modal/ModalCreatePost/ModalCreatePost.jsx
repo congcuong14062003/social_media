@@ -13,8 +13,9 @@ import CloseBtn from '../../CloseBtn/CloseBtn';
 import ButtonCustom from '../../ButtonCustom/ButtonCustom';
 import { postData } from '../../../ultils/fetchAPI/fetch_API';
 import { API_CREATE_POST } from '../../../API/api_server';
+import { LoadingIcon } from '../../../assets/icons/icons';
+import ModalIcon from '../ModalIcon/ModalIcon';
 
-// Modal style
 const style = {
     position: 'absolute',
     top: '50%',
@@ -24,14 +25,34 @@ const style = {
     boxShadow: 24,
 };
 
-// Component
-export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner }) {
+export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner, openIcon }) {
     const [openAccess, setOpenAccess] = useState(false);
-    const [accessLabel, setAccessLabel] = useState(dataOwner?.post_privacy === 1 ? "Công khai" : "Chỉ mình tôi");
+    const [accessLabel, setAccessLabel] = useState(dataOwner?.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi');
     const [accessIcon, setAccessIcon] = useState(dataOwner?.post_privacy === 1 ? images.global : images.private);
     const [openSelectFile, setOpenSelectFile] = useState(false);
     const [valueInput, setValueInput] = useState('');
     const [selectedImages, setSelectedImages] = useState([]);
+    const [selectedFiles, setSelectedFiles] = useState([]); // State to hold selected files with media types
+    const [loadingSendPost, setLoadingSendPost] = useState(false);
+    const [openIconModal, setOpenIconModal] = useState(false); // State for Icon Modal
+    const [selectedIcon, setSelectedIcon] = useState(null);
+    const [showBtnSubmit, setShowBtnSubmit] = useState(false);
+    useEffect(() => {
+        if (openIcon === true) {
+            handleOpenIconModal();
+        }
+    }, [openIcon]);
+    console.log("valueInput: ", valueInput);
+    console.log("selectedFiles: ", selectedFiles);
+    console.log("selectedIcon: ", selectedIcon);
+    console.log(selectedIcon !==  null);
+    
+    useEffect(() => {
+        if (valueInput !==  "" || selectedFiles.length > 0 || selectedIcon !== null) {
+            setShowBtnSubmit(true);
+        }
+    }, [valueInput, selectedFiles, selectedIcon]);
+    console.log('openIcon: ', openIcon);
 
     const handleOpenAccess = () => {
         setOpenAccess(true);
@@ -44,7 +65,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     const handleAccessChange = (newAccess) => {
         const updatedLabel = getAccessLabel(newAccess);
         setAccessLabel(updatedLabel);
-        setAccessIcon(newAccess === 'Công khai' ? images.global : images.private); // Update icon based on access level
+        setAccessIcon(newAccess === 'Công khai' ? images.global : images.private);
     };
 
     const getAccessLabel = (value) => {
@@ -60,13 +81,30 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
 
     const handleFileChange = (e) => {
         const files = Array.from(e.target.files);
-        const imageUrls = files.map((file) => URL.createObjectURL(file));
+        const imageUrls = [];
+        const validFiles = [];
+
+        files.forEach((file) => {
+            const mediaType = file.type.startsWith('image/')
+                ? 'image'
+                : file.type.startsWith('video/')
+                ? 'video'
+                : null;
+
+            if (mediaType) {
+                imageUrls.push(URL.createObjectURL(file));
+                validFiles.push({ file, mediaType }); // Store valid file with its media type
+            }
+        });
+
         setSelectedImages(imageUrls);
+        setSelectedFiles(validFiles); // Store valid files
     };
 
     const handleCancel = () => {
         setOpenSelectFile(false);
         setSelectedImages([]);
+        setSelectedFiles([]);
     };
 
     const handleOpenSelectFile = () => {
@@ -81,38 +119,53 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
 
     useEffect(() => {
         if (dataOwner) {
-            const initialAccess = dataOwner.post_privacy === 1 ? "Công khai" : "Chỉ mình tôi";
+            const initialAccess = dataOwner.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi';
             setAccessLabel(initialAccess);
-            setAccessIcon(initialAccess === "Công khai" ? images.global : images.private);
+            setAccessIcon(initialAccess === 'Công khai' ? images.global : images.private);
         }
     }, [dataOwner]);
 
     const handlePost = async () => {
-        const userId = dataOwner?.user_id; // Get user ID
-        const privacy = accessLabel === 'Công khai' ? 1 : 0; // Determine privacy value
-        const postText = valueInput; // Get post content
+        setLoadingSendPost(true); // Show loading icon
+        const userId = dataOwner?.user_id;
+        const privacy = accessLabel === 'Công khai' ? 1 : 0;
+        const postText = valueInput;
+        const emoji = selectedIcon ? `đang cảm thấy ${selectedIcon?.label} ${selectedIcon?.icon}` : '';
+        const formData = new FormData();
+        formData.append('user_id', userId);
+        formData.append('post_privacy', privacy);
+        formData.append('post_text', postText);
+        formData.append('react_emoji', emoji);
 
-        // Log for debugging
-        console.log('Access Label:', accessLabel); 
+        for (const { file, mediaType } of selectedFiles) {
+            formData.append('file', file);
+            formData.append('media_type', mediaType); // Add media type to FormData
+        }
 
-        // Send POST request
-        const response = await postData(API_CREATE_POST, {
-            user_id: userId,
-            post_privacy: privacy,
-            post_text: postText,
-        });
-
+        const response = await postData(API_CREATE_POST, formData);
         console.log(response);
-
-        if (response.status) {
+        // Handle response as needed
+        if (response.status === true) {
+            setLoadingSendPost(false);
+            closeModel();
             setTimeout(() => {
                 window.location.reload(); // Refresh the page on successful post
-            }, 1000);
+            }, 2000);
         }
     };
 
     const hanleChangeInput = (e) => {
         setValueInput(e.target.value);
+    };
+
+    const handleOpenIconModal = () => setOpenIconModal(true);
+    const handleCloseIconModal = () => setOpenIconModal(false);
+
+    const handleSelectIcon = (icon) => {
+        // const newValue = `Đang cảm thấy ${icon.label} ${icon.icon}`;
+        // setValueInput(newValue); // Cập nhật giá trị input
+        setSelectedIcon(icon);
+        setOpenIconModal(false); // Đóng modal sau khi chọn
     };
 
     return (
@@ -131,9 +184,14 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                         <div className="user_control">
                             <AvatarUser />
                             <div className="infor_user">
-                                <div className="user_name">{dataOwner?.user_name}</div>
+                                <div className="user_name">
+                                    {dataOwner?.user_name}{' '}
+                                    {selectedIcon && (
+                                        <span>{`đang cảm thấy ${selectedIcon.label} ${selectedIcon.icon}`}</span>
+                                    )}
+                                </div>
                                 <div className="access_post" onClick={handleOpenAccess}>
-                                    <img src={accessIcon} alt="Access Icon" /> {/* Use the state for icon */}
+                                    <img src={accessIcon} alt="Access Icon" />
                                     <span>{accessLabel}</span>
                                     <FontAwesomeIcon icon={faCaretDown} />
                                 </div>
@@ -161,7 +219,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                                         <div>
                                             <img src={images.usertag} alt="" />
                                         </div>
-                                        <div>
+                                        <div onClick={handleOpenIconModal}>
                                             <img src={images.iconvahoatdong} alt="" />
                                         </div>
                                         <div>
@@ -178,19 +236,28 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                                     <MdCancel className="icon-cancel" onClick={handleCancel} />
                                     <div className="images_preview">
                                         <div className="image_container">
-                                            {selectedImages.length > 0 && (
+                                            {selectedFiles.length > 0 && (
                                                 <div className={`image-grid`}>
-                                                    {selectedImages.map((image, index) => (
-                                                        <img key={index} src={image} alt={`Selected ${index}`} />
-                                                    ))}
+                                                    {selectedFiles.map((item, index) => {
+                                                        const { mediaType } = item;
+                                                        const mediaUrl = URL.createObjectURL(item.file);
+                                                        return mediaType === 'image' ? (
+                                                            <img key={index} src={mediaUrl} alt={`Selected ${index}`} />
+                                                        ) : (
+                                                            <video key={index} controls className="video-preview">
+                                                                <source src={mediaUrl} type={item.file.type} />
+                                                                Your browser does not support the video tag.
+                                                            </video>
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
-                                            {!selectedImages.length && (
+                                            {!selectedFiles.length && (
                                                 <>
-                                                    <div>
+                                                    <div className="icon_file_chose">
                                                         <MdAddPhotoAlternate className="icon-add" />
                                                     </div>
-                                                    <div className="text-heading">Add photos</div>
+                                                    <div className="text-heading">Add photos/videos</div>
                                                     <span className="text-subheading">or drag and drop</span>
                                                 </>
                                             )}
@@ -198,7 +265,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                                     </div>
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        accept="image/*,video/*" // Accept only images and videos
                                         multiple
                                         className="input-file"
                                         onChange={handleFileChange}
@@ -208,7 +275,22 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                         </div>
 
                         <div className="btn_dang">
-                            <ButtonCustom type="submit" onClick={handlePost} title="Đăng bài" className="primary" />
+                            {loadingSendPost ? (
+                                <div className="send_mesage_action">
+                                    <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary" />
+                                </div>
+                            ) : (
+                                <>
+                                    {showBtnSubmit && (
+                                        <ButtonCustom
+                                            type="submit"
+                                            onClick={handlePost}
+                                            title="Đăng bài"
+                                            className="primary"
+                                        />
+                                    )}
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -220,8 +302,14 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                         title="Đối tượng bài viết"
                         openAccess={openAccess}
                         closeAccess={handleCloseAccess}
-                        initialValue={accessLabel} // Truyền giá trị accessLabel vào ModalAccess
+                        initialValue={accessLabel}
                         onAccessChange={handleAccessChange}
+                    />
+                    <ModalIcon
+                        onSelectIcon={handleSelectIcon} // Pass the function here
+                        title="Bạn đang cảm thấy thế nào?"
+                        openIconModal={openIconModal}
+                        handleClose={() => setOpenIconModal(false)}
                     />
                 </Box>
             </Modal>
