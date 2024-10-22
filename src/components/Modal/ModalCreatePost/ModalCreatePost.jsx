@@ -42,17 +42,14 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
             handleOpenIconModal();
         }
     }, [openIcon]);
-    console.log("valueInput: ", valueInput);
-    console.log("selectedFiles: ", selectedFiles);
-    console.log("selectedIcon: ", selectedIcon);
-    console.log(selectedIcon !==  null);
-    
     useEffect(() => {
-        if (valueInput !==  "" || selectedFiles.length > 0 || selectedIcon !== null) {
+        if (valueInput !== '' || selectedFiles.length > 0 || selectedIcon !== null) {
+            console.log('hiện nút');
             setShowBtnSubmit(true);
+        } else {
+            setShowBtnSubmit(false);
         }
     }, [valueInput, selectedFiles, selectedIcon]);
-    console.log('openIcon: ', openIcon);
 
     const handleOpenAccess = () => {
         setOpenAccess(true);

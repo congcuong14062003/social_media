@@ -206,7 +206,7 @@ export const LoadingIcon = ({fill}) => (
     >
         <circle
             fill="none"
-            stroke="#0866ff"
+            stroke="currentColor"
             strokeWidth="5"
             cx="25"
             cy="25"

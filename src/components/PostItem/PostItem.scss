@@ -95,7 +95,7 @@
     .content_post_container video {
         width: 100%;
         height: 100%;
-        object-fit: cover; 
+        object-fit: cover;
         // max-height: 700px;
     }
     /* Các layout cho số lượng media khác nhau */
@@ -142,8 +142,12 @@
 
             .count_icon {
                 display: flex;
+                margin-left: 10px;
                 align-items: center;
-
+                .reaction_icon {
+                    margin-left: -10px;
+                    font-size: var(--twenty-px);
+                }
                 svg {
                     margin-right: 2px;
                     margin-bottom: 2px;
@@ -195,7 +199,53 @@
                     display: flex;
                     align-items: center;
                     color: var(--secondary-text);
+                    .react_post {
+                        position: relative;
+                        display: inline-block;
+                        .icon_react_post {
+                            font-size: var(--twenty-px);
+                        }
+                        .reactions-popup {
+                            position: absolute;
+                            top: -50px;
+                            left: -75px;
+                            display: none;
+                            gap: 10px;
+                            background-color: #fff;
+                            border-radius: 25px;
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                            padding: 5px 10px;
+                            transition: opacity 0.3s ease;
+                        }
 
+                        .reaction-icon {
+                            cursor: pointer;
+                            font-size: 24px;
+                            transition: transform 0.2s ease;
+                        }
+
+                        .reaction-icon:hover {
+                            transform: scale(1.2);
+                        }
+                        &::after {
+                            content: "";
+                            position: absolute;
+                            top: -10px;
+                            left: 56px;
+                            width: 250px;
+                            height: 4px;
+                            background-color: transparent;
+                            /* border-radius: 50%; */
+                            transform: translateX(-50%) translateY(-50%);
+                            transition: transform 0.2s ease;
+                        
+                        }
+                        &:hover {
+                            .reactions-popup {
+                                display: flex;
+                            }
+                        }
+                    }
                     .icon_action {
                         margin-right: 5px;
                         margin-top: 1px;

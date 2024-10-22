@@ -6,10 +6,12 @@ import { FaCircleChevronLeft, FaCircleChevronRight } from 'react-icons/fa6';
 import StoryItem from '../StoryItem/StoryItem';
 import images from '../../assets/imgs';
 import { OwnDataContext } from '../../provider/own_data';
+import { getData } from '../../ultils/fetchAPI/fetch_API';
+import { API_LIST_STORY } from '../../API/api_server';
 function ListStory() {
     const dataOwner = useContext(OwnDataContext);
     const [indexItemStart, setIndexItemStart] = useState(0);
-
+    const [listStory, setListStory] = useState([]);
     useEffect(() => {
         const btnPrev = document.querySelector('.btn.btn-prev');
         const btnNext = document.querySelector('.btn.btn-next');
@@ -48,7 +50,15 @@ function ListStory() {
 
         listStories.style.transform = `translateX(calc(-25% * ${indexItemStart}))`;
     }, [indexItemStart]);
-
+    useEffect(() => {
+        const listStory = async () => {
+            const response = await getData(API_LIST_STORY);
+            if (response.status === true) {
+                setListStory(response.stories);
+            }
+        };
+        listStory();
+    }, []);
     return (
         <React.Fragment>
             <div className="list_stories_container">
@@ -56,31 +66,14 @@ function ListStory() {
                 <ul className="list_story">
                     <li className="story_item add_story_icon">
                         <Link to="/story/create">
-                            <img
-                                className="avt_logo"
-                                src={dataOwner?.avatar}
-                                alt=""
-                            />
+                            <img className="avt_logo" src={dataOwner?.avatar} alt="" />
                             <div className="icon_container">
                                 <FaPlus />
                             </div>
                             <p>Tạo tin</p>
                         </Link>
                     </li>
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
-                    <StoryItem />
+                    {listStory && listStory.map((data, index) => <StoryItem key={index} data={data} />)}
                 </ul>
                 <FaCircleChevronRight className="btn btn-next" />
             </div>

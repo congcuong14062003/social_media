@@ -21,8 +21,10 @@ import { OwnDataContext } from '../../provider/own_data';
 import { deleteData, getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import {
     API_CREATE_COMMENT_POST,
+    API_CREATE_REACT_POST,
     API_CREATE_SUB_COMMENT,
     API_DELETE_POST,
+    API_DELETE_REACT_POST,
     API_LIST_COMMENT_POST,
 } from '../../API/api_server'; // Đảm bảo bạn đã có API_CREATE_SUB_COMMENT
 import { useSocket } from '../../provider/socket_context';
@@ -33,6 +35,16 @@ import { Link } from 'react-router-dom';
 import config from '../../configs';
 
 function PostItem({ dataPost }) {
+    const reactionIcons = [
+        { id: 'like', icon: '👍' },
+        { id: 'heart', icon: '❤️' },
+        { id: 'laugh', icon: '😂' },
+        { id: 'wow', icon: '😮' },
+        { id: 'sad', icon: '😢' },
+        { id: 'angry', icon: '😡' },
+    ];
+    const dataOwner = useContext(OwnDataContext);
+
     const [loaded, setLoaded] = useState(false);
     const [comment, setComment] = useState('');
     const [subComment, setSubComment] = useState(''); // State cho bình luận cấp 2
@@ -40,9 +52,16 @@ function PostItem({ dataPost }) {
     const [showCommentPost, setShowCommentPost] = useState(false);
     const [showSubCommentInput, setShowSubCommentInput] = useState({}); // State để kiểm soát hiển thị input bình luận cấp 2
     const [showSubComment, setShowSubComment] = useState({});
-    const dataOwner = useContext(OwnDataContext);
+    const [showReactions, setShowReactions] = useState(false);
+    const [hoveredReaction, setHoveredReaction] = useState(null); // Trạng thái lưu biểu tượng đang hover
+    const [selectedReaction, setSelectedReaction] = useState(() => {
+        const userReaction = dataPost?.reacts?.find((item) => item?.user_id === dataOwner?.user_id);
+        return reactionIcons.find((i) => i.id === userReaction?.react);
+    });
+
     const socket = useSocket();
     const inputRef = useRef(null); // Tạo ref cho input
+
     useEffect(() => {
         setTimeout(() => setLoaded(true), 1000);
         fetchComments();
@@ -117,7 +136,9 @@ function PostItem({ dataPost }) {
         }
     };
 
-    const handleShowCommentInput = (commentId) => {
+    const handleShowCommentInput = (commentId, comment_user_name, comment_user_id) => {
+        const comment = `Trả lời ${comment_user_name}: `;
+        setSubComment(comment);
         setShowSubCommentInput((prev) => ({
             ...prev,
             [commentId]: !prev[commentId], // Toggle hiển thị input bình luận phụ
@@ -135,6 +156,13 @@ function PostItem({ dataPost }) {
             return !prev; // Toggle hiển thị comment post
         });
     };
+
+    // const setShowInforReply = (id_user_comment, user_name_comment, id_comment) => {
+    //     console.log(id_user_comment, user_name_comment);
+    //     const subCommentReply = `Trả lời ${user_name_comment}: `;
+    //     setSubComment(subCommentReply)
+    // }
+
     // Tính tổng số comment (comment chính + subcomment)
     const totalCommentsCount = comments.reduce((total, commentData) => {
         return total + 1 + commentData?.sub_comments?.length; // 1 cho comment chính và thêm số lượng subcomments
@@ -154,6 +182,90 @@ function PostItem({ dataPost }) {
             console.error('Error deleting post:', error);
         }
     };
+
+    // thích bài viết
+    // const handleCreateReactPost = async () => {
+    //     const payload = {
+    //         user_id: dataOwner?.user_id,
+    //         react: reactPost,
+    //     };
+    //     try {
+    //         const response = await postData(API_CREATE_REACT_POST(dataPost?.post_id), payload);
+    //         if (response.status === true) {
+    //             // Cập nhật lại số lượt thích bài viết qua WebSocket
+    //             // socket.emit('updateLike', {
+    //             //     post_id: dataPost?.post_id,
+    //             //     like_count: response.data.like_count,
+    //             // });
+    //         }
+    //     } catch (error) {
+    //         console.error('Error liking post:', error);
+    //     }
+    // };
+    const handleReactionSelect = async (reaction, event) => {
+        event.stopPropagation(); // Chặn sự kiện lan truyền
+
+        if (selectedReaction) {
+            await handleDeleteReactPost(); // Xóa reaction cũ nếu tồn tại
+        }
+
+        try {
+            const payload = {
+                user_id: dataOwner?.user_id,
+                react: reaction.id,
+            };
+            const response = await postData(API_CREATE_REACT_POST(dataPost?.post_id), payload);
+            if (response.status === true) {
+                setSelectedReaction(reaction); // Cập nhật phản ứng
+                setShowReactions(false); // Ẩn popup
+            }
+        } catch (error) {
+            console.error('Error saving reaction:', error);
+        }
+    };
+
+    const handleDeleteReactPost = async () => {
+        if (!selectedReaction) {
+            const payload = {
+                user_id: dataOwner?.user_id,
+                react: reactionIcons[0].id,
+            };
+            const response = await postData(API_CREATE_REACT_POST(dataPost?.post_id), payload);
+            setSelectedReaction(reactionIcons[0]); // Cập nhật phản ứng
+        } else {
+            try {
+                const response = await deleteData(API_DELETE_REACT_POST(dataPost?.post_id));
+                if (response.status === true) {
+                    setSelectedReaction(null); // Xóa phản ứng trong state
+                }
+            } catch (error) {
+                console.error('Error deleting reaction:', error);
+            }
+        }
+    };
+    // Đếm số lượng cảm xúc và lấy ra 3 loại cảm xúc nhiều nhất
+    const getTopReactions = () => {
+        const reactionCount = {};
+
+        // Đếm số lượng từng loại cảm xúc
+        dataPost?.reacts.forEach((react) => {
+            if (reactionCount[react.react]) {
+                reactionCount[react.react]++;
+            } else {
+                reactionCount[react.react] = 1;
+            }
+        });
+
+        // Chuyển đổi thành mảng và sắp xếp để lấy 3 loại cảm xúc nhiều nhất
+        const sortedReactions = Object.entries(reactionCount)
+            .map(([react, count]) => ({ react, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 3);
+
+        return sortedReactions;
+    };
+
+    const topReactions = getTopReactions();
     const mediaLength = dataPost?.media?.length || 0;
     return (
         <div className="post_item_container">
@@ -165,7 +277,9 @@ function PostItem({ dataPost }) {
                                 <div className="user_post_detai">
                                     <AvatarUser avatar={dataPost?.avatar} />
                                     <div className="infor_user_post">
-                                        <div className="user_name_post">{dataPost?.user_name} {dataPost?.react_emoji}</div>
+                                        <div className="user_name_post">
+                                            {dataPost?.user_name} {dataPost?.react_emoji}
+                                        </div>
                                         <div className="time_post">
                                             {timeAgo(dataPost?.created_at)}
                                             <ToolTip
@@ -230,8 +344,14 @@ function PostItem({ dataPost }) {
                     <div className="footer_post_container">
                         <div className="action_count_post">
                             <div className="count_icon">
-                                <AiFillLike />
-                                500
+                                {topReactions.map((reaction, index) => (
+                                    <ToolTip title={`${reaction.count} lượt ${reaction.react}`}>
+                                        <div key={index} className="reaction_icon">
+                                            {reactionIcons.find((icon) => icon.id === reaction.react)?.icon}
+                                        </div>
+                                    </ToolTip>
+                                ))}
+                                {dataPost.reacts.length}
                             </div>
                             <div className="count_comment_shared">
                                 <div className="count_comment" onClick={handleShowCommentPost}>
@@ -243,17 +363,42 @@ function PostItem({ dataPost }) {
 
                         <div className="action_user_post_footer">
                             <div className="action_detail">
-                                <div className="action_item">
-                                    <div className="icon_action">
-                                        <AiOutlineLike />
+                                <div className="action_item" onClick={handleDeleteReactPost}>
+                                    <div
+                                        className="name_action react_post"
+                                        // onMouseEnter={() => setShowReactions(true)}
+                                        // onMouseLeave={() => setShowReactions(false)}
+                                    >
+                                        {selectedReaction ? (
+                                            <span className="icon_react_post">{selectedReaction.icon}</span>
+                                        ) : (
+                                            <>
+                                                <AiOutlineLike />
+                                                Thích
+                                            </>
+                                        )}
+                                        {/* {showReactions && ( */}
+                                        <div className="reactions-popup">
+                                            {reactionIcons.map((reaction) => (
+                                                <span
+                                                    key={reaction.id}
+                                                    className="reaction-icon"
+                                                    onClick={(event) => handleReactionSelect(reaction, event)}
+                                                >
+                                                    {reaction.icon}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        {/* )} */}
                                     </div>
-                                    <div className="name_action">Thích</div>
                                 </div>
                                 <div className="action_item">
                                     <div className="icon_action">
                                         <FaRegComment />
                                     </div>
-                                    <div className="name_action" onClick={handleFocusComment}>Bình luận</div>
+                                    <div className="name_action" onClick={handleFocusComment}>
+                                        Bình luận
+                                    </div>
                                 </div>
                                 <div className="action_item">
                                     <div className="icon_action">
@@ -286,7 +431,13 @@ function PostItem({ dataPost }) {
                                                 <div className="item_status like_comment">Thích</div>
                                                 <div
                                                     className="item_status responsive_comment"
-                                                    onClick={() => handleShowCommentInput(commentData?.comment_id)}
+                                                    onClick={() =>
+                                                        handleShowCommentInput(
+                                                            commentData?.comment_id,
+                                                            commentData?.commenting_user_name,
+                                                            commentData?.commenting_user_id,
+                                                        )
+                                                    }
                                                 >
                                                     {showSubCommentInput[commentData?.comment_id] ? 'Ẩn' : 'Phản hồi'}
                                                 </div>
@@ -310,39 +461,42 @@ function PostItem({ dataPost }) {
                                             </div>
                                             {showSubComment[commentData?.comment_id] && (
                                                 <div className="sub_comment_container">
-                                                    {commentData?.sub_comments?.map((subCommentData) => (
-                                                        <div
-                                                            key={subCommentData?.sub_comment_id}
-                                                            className="user_comment_container"
-                                                        >
-                                                            <div className="avatar_user_comment">
-                                                                <AvatarUser
-                                                                    avatar={subCommentData?.replying_user_avatar}
-                                                                />
-                                                            </div>
-                                                            <div className="main_comment">
-                                                                <div className="container_comment">
-                                                                    <div className="username_comment">
-                                                                        {subCommentData?.replying_user_name}
+                                                    {commentData?.sub_comments?.map((subCommentData) => {
+                                                        console.log(subCommentData);
+                                                        return (
+                                                            <div
+                                                                key={subCommentData?.sub_comment_id}
+                                                                className="user_comment_container"
+                                                            >
+                                                                <div className="avatar_user_comment">
+                                                                    <AvatarUser
+                                                                        avatar={subCommentData?.replying_user_avatar}
+                                                                    />
+                                                                </div>
+                                                                <div className="main_comment">
+                                                                    <div className="container_comment">
+                                                                        <div className="username_comment">
+                                                                            {subCommentData?.replying_user_name}
+                                                                        </div>
+                                                                        <div className="content_comment">
+                                                                            <p>{subCommentData?.comment_text}</p>
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="content_comment">
-                                                                        <p>{subCommentData?.comment_text}</p>
+                                                                    <div className="status_post_comment">
+                                                                        <div className="item_status time_comment">
+                                                                            {timeAgo(subCommentData?.created_at)}
+                                                                        </div>
+                                                                        <div className="item_status like_comment">
+                                                                            Thích
+                                                                        </div>
+                                                                        {/* <div className="item_status responsive_comment" onClick={()=>setShowInforReply(subCommentData?.replying_user_id, subCommentData?.replying_user_name,commentData?.comment_id)}>
+                                                                            Phản hồi
+                                                                        </div> */}
                                                                     </div>
                                                                 </div>
-                                                                <div className="status_post_comment">
-                                                                    <div className="item_status time_comment">
-                                                                        {timeAgo(subCommentData?.created_at)}
-                                                                    </div>
-                                                                    <div className="item_status like_comment">
-                                                                        Thích
-                                                                    </div>
-                                                                    {/* <div className="item_status responsive_comment">
-                                                                    Phản hồi
-                                                                </div> */}
-                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
 

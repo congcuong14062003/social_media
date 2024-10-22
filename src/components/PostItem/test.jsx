@@ -137,4 +137,5 @@ function PostItem({ dataPost }) {
     );
 }
 
+
 export default PostItem;

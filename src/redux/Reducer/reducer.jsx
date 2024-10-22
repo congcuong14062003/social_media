@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const counterSlice = createSlice({
   name: 'themeUI',
   initialState: {
-    theme: 'light', 
+    theme: 'dark', 
   },
   reducers: {
     lightHandle: (state) => {

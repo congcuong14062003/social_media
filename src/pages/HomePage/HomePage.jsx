@@ -39,8 +39,8 @@ function HomePage() {
         const listPosts = async () => {
             try {
                 const response = await getData(API_GET_POSTS);
-                if (response.status === true) {
-                    setListPosts(response.data); // Lưu danh sách bài viết vào state
+                if (response?.status === true) {
+                    setListPosts(response?.data); // Lưu danh sách bài viết vào state
                 } else {
                     console.error('Lỗi khi lấy danh sách bài viết:', response.message);
                 }

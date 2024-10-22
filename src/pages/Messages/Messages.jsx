@@ -64,7 +64,7 @@ function MessagesPage() {
     const [openSettingChat, setOpenSettingChat] = useState(false);
     const { id_receiver } = useParams();
     const audioChunks = useRef([]);
-    const [hasKeyPairFriend, setHasKeyPairFriend] = useState(false);
+    const [hasKeyPairFriend, setHasKeyPairFriend] = useState(true); // Bắt đầu bằng null
     const [dataFriend, setDataFriend] = useState();
     const [codeMessage, setCodeMessage] = useState(false);
     const [hasPrivateKey, setHasPrivateKey] = useState(false);
@@ -202,6 +202,20 @@ function MessagesPage() {
 
     // Lấy thông tin bạn bè từ API
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await getData(API_GET_INFO_USER_PROFILE_BY_ID(id_receiver));
+                if (response.status === true) {
+                    setDataFriend(response.data);
+                    setLoading(true);
+                }
+            } catch (error) {
+                console.error('Error fetching data: ', error);
+            }
+        };
+        fetchData();
+    }, [id_receiver]);
+    useLayoutEffect(() => {
         const checkKeyFriend = async () => {
             try {
                 const response = await getData(API_CHECK_KEY_FRIEND(id_receiver));
@@ -214,21 +228,8 @@ function MessagesPage() {
                 console.error('Error fetching data: ', error);
             }
         };
-        const fetchData = async () => {
-            try {
-                const response = await getData(API_GET_INFO_USER_PROFILE_BY_ID(id_receiver));
-                if (response.status === true) {
-                    setDataFriend(response.data);
-                    setLoading(true);
-                }
-            } catch (error) {
-                console.error('Error fetching data: ', error);
-            }
-        };
         checkKeyFriend();
-        fetchData();
     }, [id_receiver]);
-
     // xử lý khi ai đó đang nhắn:
     //Sự kiện có đang nhắn?
     useEffect(() => {
@@ -628,12 +629,14 @@ function MessagesPage() {
                                                 : 'chính mình'}
                                         </div>
                                         {contentReply.reply_type === 'image' && <img src={contentReply.content} />}
-                                        {contentReply.reply_type ==='text' && <p>{contentReply?.content}</p>}
-                                        {contentReply.reply_type ==='audio' && <p>{contentReply?.title}</p>}
-                                        {contentReply.reply_type ==='video' && <p>{contentReply?.title}</p>}
-                                        {contentReply.reply_type ==='other' && <p>{contentReply?.name}</p>}
+                                        {contentReply.reply_type === 'text' && <p>{contentReply?.content}</p>}
+                                        {contentReply.reply_type === 'audio' && <p>{contentReply?.title}</p>}
+                                        {contentReply.reply_type === 'video' && <p>{contentReply?.title}</p>}
+                                        {contentReply.reply_type === 'other' && <p>{contentReply?.name}</p>}
                                         {/* {contentReply.reply_type ==='link' && <p>{contentReply?.content}</p>} */}
-                                        {contentReply.reply_type ==='link' && <p dangerouslySetInnerHTML={{ __html: contentReply?.content }}></p>}
+                                        {contentReply.reply_type === 'link' && (
+                                            <p dangerouslySetInnerHTML={{ __html: contentReply?.content }}></p>
+                                        )}
                                     </div>
                                     <div className="right_reply">
                                         <IoMdCloseCircle
@@ -713,7 +716,7 @@ function MessagesPage() {
                     </div>
                     {openSettingChat && (
                         <div className="right_messenger">
-                            <SettingMessages dataFriend={dataFriend} messages={messages}/>
+                            <SettingMessages dataFriend={dataFriend} messages={messages} />
                         </div>
                     )}
                 </>

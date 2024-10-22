@@ -4,7 +4,7 @@ import './CreateStory.scss';
 import { IoMdSettings } from 'react-icons/io';
 import PrimaryIcon from '../../components/PrimaryIcon/PrimaryIcon';
 import ModalAccess from '../../components/Modal/ModalAccess/ModalAccess';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { IoText } from 'react-icons/io5';
 import { FaImage } from 'react-icons/fa6';
 import AvatarUser from '../../components/AvatarUser/AvatarUser';
@@ -14,6 +14,8 @@ import Cropper from 'react-easy-crop';
 import config from '../../configs';
 import CloseBtn from '../../components/CloseBtn/CloseBtn';
 import { OwnDataContext } from '../../provider/own_data';
+import { postData } from '../../ultils/fetchAPI/fetch_API';
+import { API_CREATE_STORY } from '../../API/api_server';
 function CreateStory() {
     const dataOwner = useContext(OwnDataContext);
     const [openAccess, setOpenAccess] = useState(false);
@@ -44,12 +46,19 @@ function CreateStory() {
     ];
     const [accessLabel, setAccessLabel] = useState('Công khai');
 
+    // Khởi tạo quyền truy cập dựa trên story_privacy
+    useEffect(() => {
+        if (dataOwner?.story_privacy === 0) {
+            setAccessLabel('Chỉ mình tôi');
+        } else if (dataOwner?.story_privacy === 1) {
+            setAccessLabel('Công khai');
+        }
+    }, [dataOwner]);
+
     const getAccessLabel = (value) => {
         switch (value) {
             case 'Công khai':
                 return 'Công khai';
-            case 'Bạn bè':
-                return 'Bạn bè';
             case 'Chỉ mình tôi':
                 return 'Chỉ mình tôi';
             default:
@@ -63,7 +72,6 @@ function CreateStory() {
     const onCropComplete = (croppedArea, croppedAreaPixels) => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-
         const image = new Image();
         image.src = fileInput;
 
@@ -82,8 +90,13 @@ function CreateStory() {
                 croppedAreaPixels.height,
             );
 
-            const croppedImageUrl = canvas.toDataURL();
-            setBgImageStory(croppedImageUrl);
+            // Sử dụng Promise để đảm bảo blob được cập nhật
+            canvas.toBlob((blob) => {
+                if (blob) {
+                    const croppedFile = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+                    setBgImageStory(URL.createObjectURL(croppedFile)); // Hiển thị ảnh trực tiếp
+                }
+            }, 'image/jpeg');
         };
     };
 
@@ -94,10 +107,16 @@ function CreateStory() {
         const file = inputRef.current.files[0];
         if (file) {
             const imageURL = URL.createObjectURL(file);
+
+            // Clear ảnh cũ trước khi set ảnh mới
+            setFileInput('');
+            setBgImageStory('');
+
             setOpenImageStory(true);
             setFileInput(imageURL);
         }
     };
+
     const textStyle = {
         color: color,
         fontSize: `${fontSize}px`,
@@ -131,7 +150,7 @@ function CreateStory() {
         setOpenImageStory(false);
         setHiddenCropper(false);
         setBtnCutImage(false);
-        setFileInput("")
+        setFileInput('');
     };
     // Xử lí cắt ảnh
     const handleCutImage = () => {
@@ -144,6 +163,31 @@ function CreateStory() {
     };
     console.log('file input: ', fileInput);
     console.log('bgImage: ', bgImageStory);
+
+    // đăng tin ảnh hoặc dạng văn bản
+    const handleCreateStory = async () => {
+        console.log('Cropped file: ', bgImageStory);
+        const response = await fetch(bgImageStory);
+        const blob = await response.blob();
+        const payload = new FormData();
+        payload.append('content', blob); // Dùng file từ state
+        payload.append('user_id', dataOwner.user_id);
+        payload.append('story_privacy', accessLabel === 'Công khai' ? 1 : 0);
+
+        try {
+            const responseData = await postData(API_CREATE_STORY, payload);
+            if (responseData.status === true) {
+                setTimeout(() => {
+                    window.location.href = config.routes.home;
+                }, 1000);
+            }
+            setBgImageStory('');
+            setFileInput('');
+        } catch (error) {
+            console.error('Error uploading story:', error);
+        }
+    };
+
     return (
         <div className="create_story_container">
             <div className="left_container">
@@ -284,7 +328,7 @@ function CreateStory() {
                                 <ButtonCustom className="secondary" title="Bỏ" />
                             </div>
                             <div className="btn_ok_story">
-                                <ButtonCustom className="primary" title="Chia sẻ lên tin" />
+                                <ButtonCustom onClick={handleCreateStory} className="primary" title="Chia sẻ lên tin" />
                             </div>
                         </div>
                     )}
@@ -363,9 +407,9 @@ function CreateStory() {
                                         )}
                                     </div>
                                 )}
-                                {btnCutImage  || (
+                                {btnCutImage || (
                                     <div className="btn_cut_image" onClick={handleCutImage}>
-                                    <ButtonCustom title="Cắt ảnh" />
+                                        <ButtonCustom title="Cắt ảnh" />
                                     </div>
                                 )}
                             </div>

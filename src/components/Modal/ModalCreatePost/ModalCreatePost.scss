@@ -199,6 +199,7 @@
         }
 
         .btn_dang {
+
             margin-top: 20px;
             button {
                 font-size: var(--fourteen-px);
@@ -206,6 +207,11 @@
                 background-color: var(--disable-button);
                 color: var(--disable-button-text);
                 text-transform: none;
+            }
+            .send_mesage_action {
+                svg {
+                    color: #fff;
+                }
             }
         }
     }
