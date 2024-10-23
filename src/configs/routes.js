@@ -7,6 +7,7 @@ const routes = {
     signup: '/signup',
     profile: '/profile',
     createStory: '/story/create', 
+    story: '/story', 
     video: '/video',
     group: '/group',
     friends: '/friends',

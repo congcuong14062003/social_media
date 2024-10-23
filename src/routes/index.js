@@ -18,6 +18,7 @@ import MessagesPage from '../pages/Messages/Messages';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import SettingPage from '../pages/SettingPage/SettingPage';
 import Signup from '../pages/Signup/Signup';
+import StoryPage from '../pages/StoryPage/StoryPage';
 import VideoCall from '../pages/VideoCall/VideoCall';
 import VideoPage from '../pages/VideoPage/VideoPage';
 
@@ -83,9 +84,13 @@ const publicRouter = [
         requireAuth: true,
     },
     {
-        // path: '/story/create',
         path: config.routes.createStory,
         component: CreateStory,
+        requireAuth: true,
+    },
+    {
+        path: `${config.routes.story}/:id_story`,
+        component: StoryPage,
         requireAuth: true,
     },
     {

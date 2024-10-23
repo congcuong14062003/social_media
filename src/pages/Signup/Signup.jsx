@@ -9,6 +9,7 @@ import { postData } from '../../ultils/fetchAPI/fetch_API';
 import { API_CREATE_OTP_SIGNUP, API_SIGNUP_POST } from '../../API/api_server';
 import getDataForm from '../../ultils/getDataForm/get_data_form';
 import OtpPopup from '../../components/PopupOTP/OtpPopup';
+import { LoadingIcon } from '../../assets/icons/icons';
 
 function Signup() {
     const [email, setEmail] = useState('');
@@ -17,6 +18,7 @@ function Signup() {
     const [showOtpPopup, setShowOtpPopup] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
     const [payloadSignup, setPayloadSignup] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleOtpVerifySuccess = async () => {
@@ -35,23 +37,21 @@ function Signup() {
         await handleSignup(e);
     };
     const handleSignup = async (e) => {
+        setLoading(true);
         e.preventDefault();
-
         // Kiểm tra xem có trường nào bị bỏ trống không
         if (!email || !username || !password || !confirmPassword) {
             toast.error('Vui lòng nhập đầy đủ thông tin!');
+            setLoading(false);
             return;
         }
-
         // Kiểm tra mật khẩu có khớp không
         if (password !== confirmPassword) {
             toast.error('Mật khẩu không trùng khớp!');
             return;
         }
-
         const data = getDataForm('.form_signup');
         setPayloadSignup(data);
-
         try {
             const response = await postData(API_CREATE_OTP_SIGNUP, data);
             if (response?.status) {
@@ -59,6 +59,7 @@ function Signup() {
             } else {
                 toast.error('Đăng ký thất bại, vui lòng thử lại!');
             }
+            setLoading(false);
         } catch (error) {
             toast.error('Có lỗi xảy ra, vui lòng thử lại!');
         }
@@ -111,7 +112,13 @@ function Signup() {
                             className="form-input"
                         />
                     </div>
-                    <ButtonCustom type="submit" title="Đăng ký" className="primary form-btn" />
+                    {loading ? (
+                        <div className="send_mesage_action">
+                            <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary form-btn" />
+                        </div>
+                    ) : (
+                        <ButtonCustom type="submit" title="Đăng ký" className="primary form-btn" />
+                    )}
                 </form>
                 <div className="form-option">
                     Bạn đã có tài khoản

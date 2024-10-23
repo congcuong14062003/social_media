@@ -7,23 +7,27 @@ import './Login.scss';
 import signUpWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
 import config from '../../configs';
 import signUpWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
-import { LuScanFace } from "react-icons/lu";
+import { LuScanFace } from 'react-icons/lu';
 import getToken from '../../ultils/getToken/get_token';
 import ShowPopupLoginWithGoogle from '../../components/HandleLoginGoogle/HandleLoginGoogle';
 import { API_CHECK_EXIST_USER, API_LOGIN_POST, API_SIGNUP_SOCIALNETWORK_POST } from '../../API/api_server';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import getDataForm from '../../ultils/getDataForm/get_data_form';
 import ShowPopupLoginWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
+import { LoadingIcon } from '../../assets/icons/icons';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
+        setLoading(true)
         e.preventDefault();
         if (!email || !password) {
             console.log('vào');
+            setLoading(false);
             toast.error('Vui lòng nhập đầy đủ thông tin');
             return;
         }
@@ -35,6 +39,7 @@ function Login() {
         if (respone?.status === true) {
             navigate('/');
         }
+        setLoading(false)
     };
     useEffect(() => {
         const storedToken = getToken();
@@ -44,6 +49,7 @@ function Login() {
     }, []);
 
     const handleLoginSocial = async (payload) => {
+        setLoading(true);
         try {
             console.log(payload);
 
@@ -69,6 +75,7 @@ function Login() {
                     await handleLoginSocial(payload);
                 }
             }
+            setLoading(false);
         } catch (error) {
             console.log(error.message);
         }
@@ -182,10 +189,16 @@ function Login() {
                     </div>
                     <div className="form-meta">
                         <Link to={config.routes.forgotPassword} className="form-link">
-                            Forgot Password
+                            Quên mật khẩu
                         </Link>
                     </div>
-                    <ButtonCustom type="submit" title="Đăng nhập" className="primary form-btn" />
+                    {loading ? (
+                        <div className="send_mesage_action">
+                            <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary form-btn" />
+                        </div>
+                    ) : (
+                        <ButtonCustom type="submit" title="Đăng nhập" className="primary form-btn" />
+                    )}
                 </form>
                 <Link to="/login/face-recognition/">
                     <LuScanFace className="icon-face" />

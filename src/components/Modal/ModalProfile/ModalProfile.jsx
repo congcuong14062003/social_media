@@ -11,6 +11,7 @@ import { postData, putData } from '../../../ultils/fetchAPI/fetch_API';
 import { API_UPDATE_USER } from '../../../API/api_server';
 import { useNavigate } from 'react-router-dom';
 import config from '../../../configs';
+import { LoadingIcon } from '../../../assets/icons/icons';
 
 function ModalProfile({ openModel, closeModel, dataUser }) {
     const [avatar, setAvatar] = useState(null);
@@ -28,6 +29,8 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
     const [showAvatarCropper, setShowAvatarCropper] = useState(false); // Hiển thị cropper cho ảnh đại diện
     const [showCoverCropper, setShowCoverCropper] = useState(false); // Hiển thị cropper cho ảnh bìa
     const [dataUsers, setDataUsers] = useState('');
+    const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
     const style = {
         position: 'absolute',
@@ -85,9 +88,9 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
         setShowCoverCropper(false);
     };
     const handleSubmit = async () => {
+        setLoading(true);
         try {
             const formData = new FormData();
-
             // Thêm ảnh đại diện nếu có
             if (fileInput) {
                 const avatarFile = await fetch(avatar).then((res) => res.blob());
@@ -111,6 +114,7 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
             if (response?.status === true) {
                 window.location.reload();
             }
+            setLoading(false);
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('Có lỗi xảy ra!');
@@ -247,7 +251,11 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
                         </div>
 
                         {/* Submit Button */}
-                        <ButtonCustom title="Cập nhật" className="primary" onClick={handleSubmit} />
+                        {loading ? (
+                            <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary" />
+                        ) : (
+                            <ButtonCustom title="Cập nhật" className="primary" onClick={handleSubmit} />
+                        )}
                     </div>
 
                     <span className="close_btn_model">

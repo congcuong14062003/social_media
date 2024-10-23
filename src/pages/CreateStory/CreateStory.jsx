@@ -16,6 +16,11 @@ import CloseBtn from '../../components/CloseBtn/CloseBtn';
 import { OwnDataContext } from '../../provider/own_data';
 import { postData } from '../../ultils/fetchAPI/fetch_API';
 import { API_CREATE_STORY } from '../../API/api_server';
+import { LoadingIcon } from '../../assets/icons/icons';
+import { toast } from 'react-toastify';
+import domtoimage from 'dom-to-image-more';
+
+
 function CreateStory() {
     const dataOwner = useContext(OwnDataContext);
     const [openAccess, setOpenAccess] = useState(false);
@@ -30,6 +35,7 @@ function CreateStory() {
     const [backgroundImage, setBackgroundImage] = useState(images.bg1);
     const [bgImageStory, setBgImageStory] = useState('');
     const [hiddenCropper, setHiddenCropper] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const [btnCutImage, setBtnCutImage] = useState(false);
     const bgImages = [
@@ -107,7 +113,6 @@ function CreateStory() {
         const file = inputRef.current.files[0];
         if (file) {
             const imageURL = URL.createObjectURL(file);
-
             // Clear ảnh cũ trước khi set ảnh mới
             setFileInput('');
             setBgImageStory('');
@@ -166,25 +171,46 @@ function CreateStory() {
 
     // đăng tin ảnh hoặc dạng văn bản
     const handleCreateStory = async () => {
-        console.log('Cropped file: ', bgImageStory);
-        const response = await fetch(bgImageStory);
-        const blob = await response.blob();
-        const payload = new FormData();
-        payload.append('content', blob); // Dùng file từ state
-        payload.append('user_id', dataOwner.user_id);
-        payload.append('story_privacy', accessLabel === 'Công khai' ? 1 : 0);
+        if (!bgImageStory && !valueInput) {
+            toast.error('Vui lòng chọn ảnh hoặc nhập văn bản');
+            return;
+        }
+
+        setLoading(true);
+        let blob;
 
         try {
+            if (bgImageStory) {
+                const response = await fetch(bgImageStory);
+                if (!response.ok) throw new Error('Lỗi khi tải ảnh.');
+                blob = await response.blob();
+            } else if (valueInput) {
+                const contentTextInput = document.querySelector('.preview');
+                // Sử dụng `dom-to-image-more` để chuyển đổi DOM thành PNG
+                const dataUrl = await domtoimage.toPng(contentTextInput, { quality: 0.95 });
+                const response = await fetch(dataUrl);
+                blob = await response.blob();
+            }
+
+            const payload = new FormData();
+            payload.append('content', blob);
+            payload.append('user_id', dataOwner.user_id);
+            payload.append('story_privacy', accessLabel === 'Công khai' ? 1 : 0);
+
             const responseData = await postData(API_CREATE_STORY, payload);
             if (responseData.status === true) {
-                setTimeout(() => {
-                    window.location.href = config.routes.home;
-                }, 1000);
+                toast.success('Tin đã được đăng thành công!');
+                navigate(config.routes.home);
+            } else {
+                throw new Error('Đăng tin thất bại.');
             }
-            setBgImageStory('');
-            setFileInput('');
         } catch (error) {
             console.error('Error uploading story:', error);
+            toast.error('Đã xảy ra lỗi khi đăng tin.');
+        } finally {
+            setLoading(false);
+            setBgImageStory('');
+            setFileInput('');
         }
     };
 
@@ -324,12 +350,26 @@ function CreateStory() {
 
                     {(openTextStory || openImageStory) && (
                         <div className="action_left_story">
-                            <div className="btn_cancel_story" onClick={handleCancel}>
-                                <ButtonCustom className="secondary" title="Bỏ" />
-                            </div>
-                            <div className="btn_ok_story">
-                                <ButtonCustom onClick={handleCreateStory} className="primary" title="Chia sẻ lên tin" />
-                            </div>
+                            {loading ? (
+                                <ButtonCustom
+                                    title=""
+                                    startIcon={<LoadingIcon />}
+                                    className="primary btn_loading_story"
+                                />
+                            ) : (
+                                <>
+                                    <div className="btn_cancel_story" onClick={handleCancel}>
+                                        <ButtonCustom className="secondary" title="Bỏ" />
+                                    </div>
+                                    <div className="btn_ok_story">
+                                        <ButtonCustom
+                                            onClick={handleCreateStory}
+                                            className="primary"
+                                            title="Chia sẻ lên tin"
+                                        />
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
                     <ModalAccess
@@ -380,11 +420,17 @@ function CreateStory() {
                             <p className="title_render">Xem trước</p>
                             <div className="body_render">
                                 {openTextStory && (
-                                    <div
-                                        className="content_text_input"
-                                        style={{ background: `url("${backgroundImage}") top center / cover no-repeat` }}
-                                    >
-                                        <p style={textStyle}>{valueInput}</p>
+                                    <div className="preview">
+                                        <div
+                                            className="content_text_input"
+                                            style={{
+                                                background: `url("${backgroundImage}") top center / cover no-repeat`,
+                                            }}
+                                        >
+                                            <p className="text-status" style={textStyle}>
+                                                {valueInput}
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
                                 {openImageStory && (

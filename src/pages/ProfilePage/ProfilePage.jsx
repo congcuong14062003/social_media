@@ -114,11 +114,13 @@ function ProfilePage() {
                 <div className="content_profile_header">
                     <div className="cover_image">
                         {dataUser?.cover ? (
-                            <img src={dataUser?.cover} alt="" />
+                            <Link to={dataUser?.cover} target='blank'>
+                                <img src={dataUser?.cover} alt="" />
+                            </Link>
                         ) : (
                             <div className="footer_cover">
                                 {dataUser?.user_id === myData?.user_id && (
-                                    <div onClick={()=>setOpenEditProfile(true)} className="add_cover_image">
+                                    <div onClick={() => setOpenEditProfile(true)} className="add_cover_image">
                                         <IoCamera />
                                         <span>Thêm ảnh bìa</span>
                                     </div>
@@ -130,7 +132,9 @@ function ProfilePage() {
                 <div className="infor_user_container">
                     <div className="infor_user_content">
                         <div className="avatar_user">
-                            <img src={dataUser?.avatar} alt="" />
+                            <Link to={dataUser?.avatar} target='blank'>
+                                <img src={dataUser?.avatar} alt="" />
+                            </Link>
                         </div>
                         <div className="infor_header_user">
                             <div className="user_name_header">{dataUser && dataUser?.user_name}</div>

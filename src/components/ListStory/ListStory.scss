@@ -1,15 +1,10 @@
 .list_stories_container {
     overflow-y: hidden;
-    overflow-x: auto;
+    overflow-x: hidden;
     width: 100%;
     padding: 20px 0;
     padding-top: 0;
-    scroll-snap-type: x mandatory;
-    scroll-padding: 0;
     position: relative;
-    &::-webkit-scrollbar {
-        display: none;
-    }
 
     .btn {
         position: absolute;
@@ -20,9 +15,11 @@
         font-size: 35px;
         border-radius: 50%;
         opacity: 0.8;
+
         path {
             color: var(--navbar-color);
         }
+
         &.btn-prev {
             left: 10px;
         }
@@ -39,19 +36,22 @@
     ul.list_story {
         display: flex;
         align-items: center;
-        scroll-snap-type: x mandatory;
-        transition: 1s ease-out;
+        transition: transform 0.5s ease; // Thay đổi transition để tạo hiệu ứng mượt mà
         margin: 0 -5px;
+        transform: translateX(0); // Thiết lập giá trị ban đầu cho transform
     }
 
-    li.story_item.add_story_icon {
-        position: relative;
+    li.story_item {
+        flex: 0 0 25%; // Chiều rộng mỗi story item (4 items)
+        margin: 0 5px; // Để có khoảng cách giữa các items
         background-color: var(--card-background);
+
         img {
             width: 100%;
             height: 80%;
             object-fit: cover;
         }
+
         .icon_container {
             padding: 10px;
             border-radius: 50%;
@@ -66,6 +66,7 @@
             position: absolute;
             color: var(--alway-white);
         }
+
         p {
             margin-top: 25px;
             height: 20%;

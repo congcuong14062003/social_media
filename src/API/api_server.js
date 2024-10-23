@@ -68,6 +68,8 @@ const API_DELETE_REACT_POST = (id) => `${API_HOST}/posts/delete-react-post/${id}
 ////// STORY
 const API_CREATE_STORY = API_HOST + '/stories/create-story';
 const API_LIST_STORY = API_HOST + '/stories/list-story';
+const API_STORY_BY_ID = (id) => `${API_HOST}/stories//story-by-id/${id}`;
+
 
 // User infomanation API endpoint
 const API_GET_INFO_USER_PROFILE_BY_ID = (id) => `${API_HOST}/users/info-profile/${id}`;
@@ -148,4 +150,5 @@ export {
     // api story
     API_CREATE_STORY,
     API_LIST_STORY,
+    API_STORY_BY_ID,
 };

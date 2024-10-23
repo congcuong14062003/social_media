@@ -22,7 +22,7 @@ export default async function ShowPopupLoginWithGoogle() {
             user_name: user.providerData[0].displayName,
             user_email: user.providerData[0].email,
             created_at: user.metadata.createdAt,
-            user_password: user.providerData[0].displayName,
+            user_password: user.providerData[0].email,
             media: {
                 media_type: 'avatar',
                 media_link: user.providerData[0].photoURL

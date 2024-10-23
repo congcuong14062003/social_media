@@ -158,6 +158,9 @@
                 bottom: 0;
                 right: 0;
                 z-index: 1;
+                .btn_loading_story {
+                    width: 100%;
+                }
                 .btn_cancel_story {
                     flex-grow: 1;
                     button {
@@ -270,29 +273,35 @@
                     width: 100%;
                     background-color: #18191a;
                     display: flex;
+                    align-items: center;
+                    justify-content: center;
                     overflow-y: scroll;
-                    .content_text_input {
-                        max-width: 300px;
-                        height: 95%;
+                    .preview {
                         width: 300px;
-                        overflow-y: scroll;
-                        margin: auto;
-                        background-color: var(--primary-color);
-                        color: var(--alway-white);
-                        border-radius: 8px;
-                        text-align: center;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        padding: 20px;
-                        p {
-                            font-size: var(--twenty-one-px);
+                        height: 95%;
+                        .content_text_input {
+                            max-width: 300px;
+                            height: 100%;
                             width: 100%;
-                            max-height: 100%;
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
+                            margin: auto;
+                            background-color: var(--primary-color);
+                            color: var(--alway-white);
+                            border-radius: 8px;
+                            text-align: center;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            padding: 20px;
+                            p {
+                                font-size: var(--twenty-one-px);
+                                width: 100%;
+                                max-height: 100%;
+                                white-space: pre-wrap;
+                                word-wrap: break-word;
+                            }
                         }
                     }
+
                     .content_img_input {
                         max-width: 300px;
                         height: 95%;

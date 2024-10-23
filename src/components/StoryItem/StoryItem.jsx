@@ -3,21 +3,21 @@ import './StoryItem.scss';
 import { Link } from 'react-router-dom';
 import images from '../../assets/imgs';
 import InstagramStyle from '../../skeleton/insta_style';
-function StoryItem({data}) {
+import FacebookStoryLoader from '../../skeleton/facebook_story_loader';
+import config from '../../configs';
+function StoryItem({ data }) {
     const [loaded, setLoaded] = useState(false);
-    setTimeout(() => {
-        setLoaded(true);
-    }, 1000);
+    useEffect(() => {
+        if (data) {
+            setLoaded(true);
+        }
+    }, [data]);
     return (
         <Fragment>
             <li className="story_item">
                 {loaded ? (
-                    <Link to="/story/123">
-                        <img
-                            className="media_story"
-                            src={data?.media_link}
-                            alt=""
-                        />
+                    <Link to={`${config.routes.story}/${data?.story_id}`}>
+                        <img className="media_story" src={data?.media_link} alt="" />
                         <div className="info_container">
                             <span>
                                 <img src={data?.user_avatar} alt="" />
@@ -28,7 +28,7 @@ function StoryItem({data}) {
                     </Link>
                 ) : (
                     <div className="loading-skeleton">
-                        <InstagramStyle />
+                        <FacebookStoryLoader />
                     </div>
                 )}
             </li>

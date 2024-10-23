@@ -248,7 +248,7 @@ function PostItem({ dataPost }) {
         const reactionCount = {};
 
         // Đếm số lượng từng loại cảm xúc
-        dataPost?.reacts.forEach((react) => {
+        dataPost?.reacts?.forEach((react) => {
             if (reactionCount[react.react]) {
                 reactionCount[react.react]++;
             } else {
@@ -351,7 +351,7 @@ function PostItem({ dataPost }) {
                                         </div>
                                     </ToolTip>
                                 ))}
-                                {dataPost.reacts.length}
+                                {dataPost.reacts.length > 0 && dataPost.reacts.length}
                             </div>
                             <div className="count_comment_shared">
                                 <div className="count_comment" onClick={handleShowCommentPost}>
