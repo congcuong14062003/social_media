@@ -149,6 +149,7 @@ function CreateStory() {
     };
     const handleOpenTextStory = () => {
         setOpenTextStory(true);
+        setBtnCutImage(true)
     };
     const handleCancel = () => {
         setOpenTextStory(false);

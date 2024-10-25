@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import CloseBtn from '../../CloseBtn/CloseBtn';
 import ButtonCustom from '../../ButtonCustom/ButtonCustom';
 import { postData } from '../../../ultils/fetchAPI/fetch_API';
-import { API_CREATE_POST } from '../../../API/api_server';
+import { API_CREATE_POST, API_UPDATE_POST } from '../../../API/api_server';
 import { LoadingIcon } from '../../../assets/icons/icons';
 import ModalIcon from '../ModalIcon/ModalIcon';
 
@@ -25,7 +25,7 @@ const style = {
     boxShadow: 24,
 };
 
-export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner, openIcon }) {
+export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner, openIcon, isEdit, dataEdit }) {
     const [openAccess, setOpenAccess] = useState(false);
     const [accessLabel, setAccessLabel] = useState(dataOwner?.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi');
     const [accessIcon, setAccessIcon] = useState(dataOwner?.post_privacy === 1 ? images.global : images.private);
@@ -37,6 +37,32 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     const [openIconModal, setOpenIconModal] = useState(false); // State for Icon Modal
     const [selectedIcon, setSelectedIcon] = useState(null);
     const [showBtnSubmit, setShowBtnSubmit] = useState(false);
+    const [isMediaChanged, setIsMediaChanged] = useState(false);
+    console.log(isEdit, dataEdit, dataOwner);
+    useEffect(() => {
+        if (openModel) {
+            if (isEdit && dataEdit) {
+                console.log(123123232312312);
+                // Gán dữ liệu bài viết cũ vào các trường input
+                setOpenSelectFile(true);
+                setValueInput(dataEdit?.post_text || '');
+                const emojiObject =
+                    typeof dataEdit.react_emoji === 'string' ? JSON.parse(dataEdit.react_emoji) : dataEdit.react_emoji;
+
+                setSelectedIcon(emojiObject || null);
+                setSelectedFiles(dataEdit?.media || []);
+
+                const initialPrivacy = dataEdit.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi';
+                setAccessLabel(initialPrivacy);
+                setAccessIcon(initialPrivacy === 'Công khai' ? images.global : images.private);
+            } else if (dataOwner) {
+                const defaultPrivacy = dataOwner.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi';
+                setAccessLabel(defaultPrivacy);
+                setAccessIcon(defaultPrivacy === 'Công khai' ? images.global : images.private);
+            }
+        }
+    }, [isEdit, dataEdit, dataOwner, openModel]);
+
     useEffect(() => {
         if (openIcon === true) {
             handleOpenIconModal();
@@ -93,15 +119,17 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                 validFiles.push({ file, mediaType }); // Store valid file with its media type
             }
         });
-
+        // Update selectedFiles with new files and clear out previous selections
+        setSelectedFiles(validFiles);
         setSelectedImages(imageUrls);
-        setSelectedFiles(validFiles); // Store valid files
+        setIsMediaChanged(true);
     };
 
     const handleCancel = () => {
         setOpenSelectFile(false);
         setSelectedImages([]);
         setSelectedFiles([]);
+        setIsMediaChanged(true);
     };
 
     const handleOpenSelectFile = () => {
@@ -123,31 +151,36 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     }, [dataOwner]);
 
     const handlePost = async () => {
-        setLoadingSendPost(true); // Show loading icon
-        const userId = dataOwner?.user_id;
-        const privacy = accessLabel === 'Công khai' ? 1 : 0;
-        const postText = valueInput;
-        const emoji = selectedIcon ? `đang cảm thấy ${selectedIcon?.label} ${selectedIcon?.icon}` : '';
+        setLoadingSendPost(true);
         const formData = new FormData();
-        formData.append('user_id', userId);
-        formData.append('post_privacy', privacy);
-        formData.append('post_text', postText);
-        formData.append('react_emoji', emoji);
-
-        for (const { file, mediaType } of selectedFiles) {
-            formData.append('file', file);
-            formData.append('media_type', mediaType); // Add media type to FormData
+        formData.append('is_media_changed', isMediaChanged);
+        formData.append('user_id', dataOwner?.user_id);
+        formData.append('post_privacy', accessLabel === 'Công khai' ? 1 : 0);
+        formData.append('post_text', valueInput);
+        // Kiểm tra nếu có icon được chọn, chuyển thành chuỗi JSON trước khi gửi
+        if (selectedIcon) {
+            const emojiData = JSON.stringify({
+                label: selectedIcon.label,
+                icon: selectedIcon.icon,
+            });
+            formData.append('react_emoji', emojiData);
+        } else {
+            formData.append('react_emoji', '');
         }
 
-        const response = await postData(API_CREATE_POST, formData);
-        console.log(response);
-        // Handle response as needed
-        if (response.status === true) {
+        selectedFiles.forEach(({ file, mediaType }) => {
+            formData.append('file', file);
+            formData.append('media_type', mediaType);
+        });
+
+        const apiUrl = isEdit ? API_UPDATE_POST(dataEdit?.post_id) : API_CREATE_POST; // Xác định API phù hợp
+        if (isEdit) formData.append('post_id', dataEdit.post_id); // Thêm post_id khi cập nhật
+
+        const response = await postData(apiUrl, formData);
+        if (response.status) {
             setLoadingSendPost(false);
             closeModel();
-            setTimeout(() => {
-                window.location.reload(); // Refresh the page on successful post
-            }, 2000);
+            setTimeout(() => window.location.reload(), 1000);
         }
     };
 
@@ -164,6 +197,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
         setSelectedIcon(icon);
         setOpenIconModal(false); // Đóng modal sau khi chọn
     };
+    console.log('selected file: ', selectedFiles);
 
     return (
         <div className="modal_container">
@@ -175,7 +209,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
             >
                 <Box sx={{ ...style }} className="model_content">
                     <div className="header_modal">
-                        <h2 id="parent-modal-title">Tạo bài viết</h2>
+                        <h2>{isEdit ? 'Chỉnh sửa bài viết' : 'Tạo bài viết'}</h2>
                     </div>
                     <div className="content_modal">
                         <div className="user_control">
@@ -205,76 +239,82 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                             />
                         </div>
 
-                        <div className="file_and_others">
-                            {!openSelectFile && (
-                                <div className="option_activity">
-                                    <p>Thêm vào bài viết của bạn</p>
-                                    <div className="activities_post">
-                                        <div onClick={handleOpenSelectFile}>
-                                            <img src={images.anhvavideo} alt="" />
-                                        </div>
-                                        <div>
-                                            <img src={images.usertag} alt="" />
-                                        </div>
-                                        <div onClick={handleOpenIconModal}>
-                                            <img src={images.iconvahoatdong} alt="" />
-                                        </div>
-                                        <div>
-                                            <img src={images.location} alt="" />
-                                        </div>
-                                        <div>
-                                            <img src={images.gif} alt="" />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            {openSelectFile && (
+                        {openSelectFile && (
+                            <div className="file_and_others">
                                 <div className="select_file_post">
                                     <MdCancel className="icon-cancel" onClick={handleCancel} />
                                     <div className="images_preview">
                                         <div className="image_container">
-                                            {selectedFiles.length > 0 && (
-                                                <div className={`image-grid`}>
+                                            {selectedFiles.length > 0 ? (
+                                                <div className="image-grid">
                                                     {selectedFiles.map((item, index) => {
-                                                        const { mediaType } = item;
-                                                        const mediaUrl = URL.createObjectURL(item.file);
-                                                        return mediaType === 'image' ? (
-                                                            <img key={index} src={mediaUrl} alt={`Selected ${index}`} />
-                                                        ) : (
-                                                            <video key={index} controls className="video-preview">
-                                                                <source src={mediaUrl} type={item.file.type} />
-                                                                Your browser does not support the video tag.
-                                                            </video>
-                                                        );
+                                                        // Kiểm tra xem item.file có hợp lệ không
+                                                        if (item) {
+                                                            const mediaUrl = item?.file
+                                                                ? URL.createObjectURL(item.file)
+                                                                : item.media_link;
+                                                            return item.media_type === 'image' ||
+                                                                item.mediaType === 'image' ? (
+                                                                <img
+                                                                    key={index}
+                                                                    src={mediaUrl}
+                                                                    alt={`Selected ${index}`}
+                                                                />
+                                                            ) : (
+                                                                <video key={index} controls className="video-preview">
+                                                                    <source src={mediaUrl} type={item?.file?.type} />
+                                                                    Trình duyệt của bạn không hỗ trợ thẻ video.
+                                                                </video>
+                                                            );
+                                                        } else {
+                                                            // Xử lý trường hợp item.file không hợp lệ
+                                                            return <p>Ảnh/Video trống</p>; // Hoặc một giao diện thay thế nào đó
+                                                        }
                                                     })}
                                                 </div>
-                                            )}
-                                            {!selectedFiles.length && (
-                                                <>
-                                                    <div className="icon_file_chose">
-                                                        <MdAddPhotoAlternate className="icon-add" />
-                                                    </div>
-                                                    <div className="text-heading">Add photos/videos</div>
-                                                    <span className="text-subheading">or drag and drop</span>
-                                                </>
+                                            ) : (
+                                                ''
                                             )}
                                         </div>
                                     </div>
+
                                     <input
                                         type="file"
-                                        accept="image/*,video/*" // Accept only images and videos
+                                        accept="image/*,video/*"
                                         multiple
                                         className="input-file"
                                         onChange={handleFileChange}
                                     />
                                 </div>
-                            )}
+                            </div>
+                        )}
+                        <div className="file_and_others">
+                            <div className="option_activity">
+                                <p>Thêm vào bài viết của bạn</p>
+                                <div className="activities_post">
+                                    <div onClick={handleOpenSelectFile}>
+                                        <img src={images.anhvavideo} alt="" />
+                                    </div>
+                                    <div>
+                                        <img src={images.usertag} alt="" />
+                                    </div>
+                                    <div onClick={handleOpenIconModal}>
+                                        <img src={images.iconvahoatdong} alt="" />
+                                    </div>
+                                    <div>
+                                        <img src={images.location} alt="" />
+                                    </div>
+                                    <div>
+                                        <img src={images.gif} alt="" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
                         <div className="btn_dang">
                             {loadingSendPost ? (
                                 <div className="send_mesage_action">
                                     <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary" />
+                                    {/* <Loading /> */}
                                 </div>
                             ) : (
                                 <>
@@ -282,7 +322,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                                         <ButtonCustom
                                             type="submit"
                                             onClick={handlePost}
-                                            title="Đăng bài"
+                                            title={isEdit ? 'Cập nhật' : 'Đăng bài'}
                                             className="primary"
                                         />
                                     )}

@@ -61,6 +61,7 @@
                     position: absolute;
                     top: 100%;
                     width: max-content;
+                    z-index: 1;
                     left: -200%;
                     transform: translateX(-50%);
                     background-color: var(--comment-backgroud);
@@ -86,49 +87,151 @@
             font-weight: var(--secon-font-weight);
         }
     }
-    .image_or_video_container {
-        display: grid;
-        width: 100%;
-    }
 
+    .image_or_video_container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3px;
+        justify-content: center;
+    }
+    
+    .content_post_container {
+        position: relative;
+        overflow: hidden;
+    }
+    
     .content_post_container img,
     .content_post_container video {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        // max-height: 700px;
+        transition: transform 0.5s ease;
     }
-    /* Các layout cho số lượng media khác nhau */
-    .image_or_video_container {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    
+    /* Hiệu ứng hover để phóng to nhẹ */
+    .content_post_container:hover img,
+    .content_post_container:hover video {
+        transform: scale(1.05);
     }
+    
+    /* Căn chỉnh theo số lượng phương tiện */
+    .media-1 .content_post_container {
+        width: 100%;
+        max-height: 600px;
+    }
+    
+    .media-2 .content_post_container {
+        width: calc(50% - 4px); /* Hai phương tiện chia đôi */
+        height: 500px;
+    }
+    
+    .media-3 .content_post_container {
+        width: calc(33.33% - 6px); /* Ba phương tiện chia đều */
+        height: 300px;
+    }
+    
+    .media-4 .content_post_container {
+        width: calc(50% - 4px);
+        height: 300px;
+    }
+    
+    .media-5 .content_post_container {
+        width: calc(33.33% - 6px);
+        height: 200px;
+    }
+    
+    /* Đảm bảo video có các thuộc tính phù hợp */
+    .video-preview {
+        background-color: #000;
+        border-radius: 8px;
+    }
+    
+    // .image_or_video_container {
+    //     display: grid;
+    //     width: 100%;
+    // }
 
-    /* Nếu chỉ có 1 media */
-    .image_or_video_container.media-1 {
-        grid-template-columns: 1fr;
-    }
+    // .content_post_container img,
+    // .content_post_container video {
+    //     width: 100%;
+    //     height: 100%;
+    //     object-fit: cover;
+    //     // max-height: 700px;
+    // }
+    // /* Các layout cho số lượng media khác nhau */
+    // .image_or_video_container {
+    //     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    // }
 
-    /* Nếu có 2 media */
-    .image_or_video_container.media-2 {
-        grid-template-columns: 1fr 1fr;
-    }
+    // /* Nếu chỉ có 1 media */
+    // .image_or_video_container.media-1 {
+    //     grid-template-columns: 1fr;
+    // }
 
-    /* Nếu có 3 media */
-    .image_or_video_container.media-3 {
-        grid-template-columns: 2fr 1fr;
-        grid-template-rows: 1fr 1fr;
-    }
+    // /* Nếu có 2 media */
+    // .image_or_video_container.media-2 {
+    //     grid-template-columns: 1fr 1fr;
+    // }
 
-    /* Đảm bảo phần tử đầu tiên chiếm 2 hàng (nếu 3 media) */
-    .image_or_video_container.media-3 .content_post_container:first-child {
-        grid-row: span 2;
-    }
+    // /* Nếu có 3 media */
+    // .image_or_video_container.media-3 {
+    //     grid-template-columns: 2fr 1fr;
+    //     grid-template-rows: 1fr 1fr;
+    // }
 
-    /* Nếu có từ 4 media trở lên */
-    .image_or_video_container.media-4 {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    // /* Đảm bảo phần tử đầu tiên chiếm 2 hàng (nếu 3 media) */
+    // .image_or_video_container.media-3 .content_post_container:first-child {
+    //     grid-row: span 2;
+    // }
 
+    // /* Nếu có từ 4 media trở lên */
+    // .image_or_video_container.media-4 {
+    //     grid-template-columns: repeat(2, 1fr);
+    // }
+    // .content-media {
+    //     font-size: 14px;
+    //     padding-top: 15px;
+      
+    //     .row-content {
+    //       display: flex;
+    //       width: 100%;
+    //       height: 300px;
+    //       position: relative;
+    //       img,
+    //       video {
+    //         flex: 1 1;
+    //         width: 100%;
+    //         height: 100%;
+    //         overflow: hidden;
+    //         background: black;
+    //         aspect-ratio: 1;
+    //         object-fit: contain;
+    //         border-radius: 5px;
+    //         border: 3px solid var(--card-background);
+    //     }
+    //       .more-media {
+    //         position: absolute;
+    //         top: 0;
+    //         left: 50%;
+    //         height: 100%;
+    //         background-color: rgba(0, 0, 0, 0.3);
+    //         width: 50%;
+    //         display: none;
+    //         align-items: center;
+    //         justify-content: center;
+    //         p {
+    //           font-size: 40px;
+    //           color: white;
+    //         }
+    //       }
+    //       &.active {
+    //         .more-media {
+    //           display: flex;
+    //         }
+    //       }
+    //     }
+    //   }
+      
     .footer_post_container {
         font-size: var(--fourteen-px);
         padding: 0 20px;

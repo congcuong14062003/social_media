@@ -33,6 +33,7 @@ import { MdDelete } from 'react-icons/md';
 import { MdModeEditOutline } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import config from '../../configs';
+import ModalCreatePost from '../Modal/ModalCreatePost/ModalCreatePost';
 
 function PostItem({ dataPost }) {
     const reactionIcons = [
@@ -54,6 +55,7 @@ function PostItem({ dataPost }) {
     const [showSubComment, setShowSubComment] = useState({});
     const [showReactions, setShowReactions] = useState(false);
     const [hoveredReaction, setHoveredReaction] = useState(null); // Trạng thái lưu biểu tượng đang hover
+    const [showEditPost, setShowEditPost] = useState(false);
     const [selectedReaction, setSelectedReaction] = useState(() => {
         const userReaction = dataPost?.reacts?.find((item) => item?.user_id === dataOwner?.user_id);
         return reactionIcons.find((i) => i.id === userReaction?.react);
@@ -61,7 +63,6 @@ function PostItem({ dataPost }) {
 
     const socket = useSocket();
     const inputRef = useRef(null); // Tạo ref cho input
-
     useEffect(() => {
         setTimeout(() => setLoaded(true), 1000);
         fetchComments();
@@ -157,13 +158,6 @@ function PostItem({ dataPost }) {
         });
     };
 
-    // const setShowInforReply = (id_user_comment, user_name_comment, id_comment) => {
-    //     console.log(id_user_comment, user_name_comment);
-    //     const subCommentReply = `Trả lời ${user_name_comment}: `;
-    //     setSubComment(subCommentReply)
-    // }
-
-    // Tính tổng số comment (comment chính + subcomment)
     const totalCommentsCount = comments.reduce((total, commentData) => {
         return total + 1 + commentData?.sub_comments?.length; // 1 cho comment chính và thêm số lượng subcomments
     }, 0);
@@ -243,6 +237,13 @@ function PostItem({ dataPost }) {
             }
         }
     };
+
+    const handlEditPost = () => {
+        setShowEditPost(true);
+    }
+    const handleClose = () => {
+        setShowEditPost(false);
+    };
     // Đếm số lượng cảm xúc và lấy ra 3 loại cảm xúc nhiều nhất
     const getTopReactions = () => {
         const reactionCount = {};
@@ -267,6 +268,8 @@ function PostItem({ dataPost }) {
 
     const topReactions = getTopReactions();
     const mediaLength = dataPost?.media?.length || 0;
+    const emoji_post = JSON.parse(dataPost.react_emoji);
+
     return (
         <div className="post_item_container">
             {loaded && dataPost ? (
@@ -278,7 +281,7 @@ function PostItem({ dataPost }) {
                                     <AvatarUser avatar={dataPost?.avatar} />
                                     <div className="infor_user_post">
                                         <div className="user_name_post">
-                                            {dataPost?.user_name} {dataPost?.react_emoji}
+                                            {dataPost?.user_name}  {emoji_post ? `Đang cảm thấy ${emoji_post?.label} ${emoji_post?.icon}`: ''}
                                         </div>
                                         <div className="time_post">
                                             {timeAgo(dataPost?.created_at)}
@@ -309,6 +312,7 @@ function PostItem({ dataPost }) {
                                             startIcon={<MdModeEditOutline />}
                                             title="Chỉnh sửa"
                                             className="primary"
+                                            onClick={handlEditPost}
                                         />
                                         <ButtonCustom
                                             onClick={handleDeletePost}
@@ -322,10 +326,10 @@ function PostItem({ dataPost }) {
                         </div>
                         <div className="title_post">{dataPost?.post_text}</div>
                     </div>
+
                     <div className={`image_or_video_container media-${mediaLength}`}>
                         {dataPost?.media?.map((data, index) => (
                             <div className="content_post_container" key={index}>
-                                {/* Thêm thẻ <a> bao bọc xung quanh ảnh hoặc video */}
                                 <a href={data?.media_link} target="_blank" rel="noopener noreferrer">
                                     {data.media_type === 'image' && (
                                         <img src={data?.media_link} alt={`media-${index}`} />
@@ -341,6 +345,27 @@ function PostItem({ dataPost }) {
                         ))}
                     </div>
 
+                    {/* {dataPost?.media?.length > 0 && (
+                        <Link to="/post/123">
+                            <div className="content-media">
+                                <div className="row-content active">
+                                    {dataPost?.media.slice(0, 2).map((mediaItem, index) => (
+                                        <div key={index}>{renderMedia(mediaItem)}</div>
+                                    ))}
+                                </div>
+                                {dataPost?.media.length > 2 && (
+                                    <div className="row-content active">
+                                        {dataPost?.media.slice(2, 4).map((mediaItem, index) => (
+                                            <div key={index + 2}>{renderMedia(mediaItem)}</div>
+                                        ))}
+                                        <div className="more-media">
+                                            {dataPost.media.length > 5 && <p>+{dataPost.media.length - 4}</p>}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </Link>
+                    )} */}
                     <div className="footer_post_container">
                         <div className="action_count_post">
                             <div className="count_icon">
@@ -360,15 +385,10 @@ function PostItem({ dataPost }) {
                                 <div className="count_shared">17 lượt chia sẻ</div>
                             </div>
                         </div>
-
                         <div className="action_user_post_footer">
                             <div className="action_detail">
                                 <div className="action_item" onClick={handleDeleteReactPost}>
-                                    <div
-                                        className="name_action react_post"
-                                        // onMouseEnter={() => setShowReactions(true)}
-                                        // onMouseLeave={() => setShowReactions(false)}
-                                    >
+                                    <div className="name_action react_post">
                                         {selectedReaction ? (
                                             <span className="icon_react_post">{selectedReaction.icon}</span>
                                         ) : (
@@ -377,7 +397,6 @@ function PostItem({ dataPost }) {
                                                 Thích
                                             </>
                                         )}
-                                        {/* {showReactions && ( */}
                                         <div className="reactions-popup">
                                             {reactionIcons.map((reaction) => (
                                                 <span
@@ -389,7 +408,6 @@ function PostItem({ dataPost }) {
                                                 </span>
                                             ))}
                                         </div>
-                                        {/* )} */}
                                     </div>
                                 </div>
                                 <div className="action_item">
@@ -538,6 +556,7 @@ function PostItem({ dataPost }) {
                     <InstagramStyle />
                 </div>
             )}
+            <ModalCreatePost dataOwner={dataOwner} openModel={showEditPost} closeModel={handleClose} isEdit={true} dataEdit={dataPost} />
         </div>
     );
 }

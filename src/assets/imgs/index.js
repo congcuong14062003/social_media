@@ -30,6 +30,7 @@ const images = {
     bg10: require('./bg10.jpg'),
     bglogin: require('./bglogin.jpg'),
     bgAuthen: require('./bgAuthen.jpg'),
+    heartStory: require('./heart-5573.gif'),
 };
 
 export default images;

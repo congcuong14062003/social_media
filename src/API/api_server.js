@@ -52,6 +52,7 @@ const API_DECODE_MESSAGE = `${API_HOST}/messages/decode-message`;
 ////// POST
 const API_CREATE_POST = API_HOST + '/posts/create-post';
 const API_DELETE_POST = (id) =>  `${API_HOST}/posts/delete-post/${id}`;
+const API_UPDATE_POST = (id) =>  `${API_HOST}/posts/edit-post/${id}`;
 const API_GET_POSTS = API_HOST + '/posts/list-post';
 const API_GET_POSTS_BY_ID = (id) => `${API_HOST}/posts/list-post-by-user/${id}`;
 
@@ -68,7 +69,8 @@ const API_DELETE_REACT_POST = (id) => `${API_HOST}/posts/delete-react-post/${id}
 ////// STORY
 const API_CREATE_STORY = API_HOST + '/stories/create-story';
 const API_LIST_STORY = API_HOST + '/stories/list-story';
-const API_STORY_BY_ID = (id) => `${API_HOST}/stories//story-by-id/${id}`;
+const API_STORY_BY_ID = (id) => `${API_HOST}/stories/story-by-id/${id}`;
+const API_CREATE_HEART_STORY = (id) => `${API_HOST}/stories/create-heart-story/${id}`;
 
 
 // User infomanation API endpoint
@@ -140,6 +142,7 @@ export {
     // api post
     API_CREATE_POST,
     API_DELETE_POST,
+    API_UPDATE_POST,
     API_CREATE_SUB_COMMENT,
     API_GET_POSTS,
     API_GET_POSTS_BY_ID,
@@ -151,4 +154,5 @@ export {
     API_CREATE_STORY,
     API_LIST_STORY,
     API_STORY_BY_ID,
+    API_CREATE_HEART_STORY
 };
