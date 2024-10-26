@@ -10,6 +10,7 @@ import BackButton from '../../components/BackButton/BackButton';
 import images from '../../assets/imgs';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import { LoadingIcon } from '../../assets/icons/icons';
+import { useLoading } from '../../components/Loading/Loading';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ const ForgotPassword = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [loadingSendEmail, setLoadingSendEmail] = useState(false);
-
+    const { showLoading, hideLoading } = useLoading();
     useEffect(() => {
         const params = getURLParam();
         if (params.input_code !== '') {
@@ -30,14 +31,14 @@ const ForgotPassword = () => {
     }, []);
 
     const handleEmailSubmit = async (e) => {
-        setLoadingSendEmail(true);
+        showLoading(); // Hiển thị loading
         try {
             e.preventDefault();
             await postData(API_CREATE_LINK_OTP, { user_email: email });
         } catch (error) {
             console.error(error.message);
         }
-        setLoadingSendEmail(false);
+        hideLoading(); // Ẩn loading
     };
 
     useEffect(() => {
@@ -60,7 +61,7 @@ const ForgotPassword = () => {
 
     const handlePasswordReset = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        showLoading(); // Hiển thị loading
         try {
             if (newPassword === confirmPassword) {
                 const response = await putData(API_UPDATE_USER_PASSWORD, {
@@ -71,10 +72,11 @@ const ForgotPassword = () => {
                     navigate(config.routes.login);
                 }
             }
-            setLoading(false);
         } catch (err) {
             console.error(err.message);
         }
+        hideLoading(); // Ẩn loading
+
     };
 
     return (
@@ -96,21 +98,11 @@ const ForgotPassword = () => {
                                     required
                                 />
                             </div>
-                            {loadingSendEmail ? (
-                                <div className="send_mesage_action">
-                                    <ButtonCustom
-                                        title=""
-                                        startIcon={<LoadingIcon />}
-                                        className="forgot-password-button primary"
-                                    />
-                                </div>
-                            ) : (
                                 <ButtonCustom
                                     type="submit"
                                     className="forgot-password-button primary"
                                     title="Gửi mã OTP"
                                 />
-                            )}
                         </form>
                     ) : (
                         <form onSubmit={handlePasswordReset}>
@@ -135,21 +127,11 @@ const ForgotPassword = () => {
                                 />
                             </div>
                             {/* <button type="submit" className="forgot-password-button">Đặt lại mật khẩu</button> */}
-                            {loading ? (
-                                <div className="send_mesage_action">
-                                    <ButtonCustom
-                                        title=""
-                                        startIcon={<LoadingIcon />}
-                                        className="forgot-password-button primary"
-                                    />
-                                </div>
-                            ) : (
                                 <ButtonCustom
                                     type="submit"
                                     className="forgot-password-button primary"
                                     title="Đặt lại mật khẩu"
                                 />
-                            )}
                         </form>
                     )}
                     <BackButton />

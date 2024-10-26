@@ -19,6 +19,7 @@ import { API_CREATE_STORY } from '../../API/api_server';
 import { LoadingIcon } from '../../assets/icons/icons';
 import { toast } from 'react-toastify';
 import domtoimage from 'dom-to-image-more';
+import { useLoading } from '../../components/Loading/Loading';
 
 
 function CreateStory() {
@@ -36,7 +37,7 @@ function CreateStory() {
     const [bgImageStory, setBgImageStory] = useState('');
     const [hiddenCropper, setHiddenCropper] = useState(false);
     const [loading, setLoading] = useState(false);
-
+    const { showLoading, hideLoading } = useLoading();
     const [btnCutImage, setBtnCutImage] = useState(false);
     const bgImages = [
         images.bg1,
@@ -176,8 +177,7 @@ function CreateStory() {
             toast.error('Vui lòng chọn ảnh hoặc nhập văn bản');
             return;
         }
-
-        setLoading(true);
+        showLoading()
         let blob;
 
         try {
@@ -209,7 +209,7 @@ function CreateStory() {
             console.error('Error uploading story:', error);
             toast.error('Đã xảy ra lỗi khi đăng tin.');
         } finally {
-            setLoading(false);
+            hideLoading()
             setBgImageStory('');
             setFileInput('');
         }
@@ -351,13 +351,7 @@ function CreateStory() {
 
                     {(openTextStory || openImageStory) && (
                         <div className="action_left_story">
-                            {loading ? (
-                                <ButtonCustom
-                                    title=""
-                                    startIcon={<LoadingIcon />}
-                                    className="primary btn_loading_story"
-                                />
-                            ) : (
+
                                 <>
                                     <div className="btn_cancel_story" onClick={handleCancel}>
                                         <ButtonCustom className="secondary" title="Bỏ" />
@@ -370,7 +364,7 @@ function CreateStory() {
                                         />
                                     </div>
                                 </>
-                            )}
+
                         </div>
                     )}
                     <ModalAccess
@@ -381,14 +375,6 @@ function CreateStory() {
                         closeAccess={handleCloseAccess}
                     />
                 </div>
-                {/* <div className="action_go_home">
-                    <Link to={config.routes.home}>
-                        <CloseBtn className="close_create_story" />
-                    </Link>
-                    <div className="logo_app">
-                        <img src={images.logo} alt="" />
-                    </div>
-                </div> */}
             </div>
             <div className="right_container">
                 {openTextStory || openImageStory || (

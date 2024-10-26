@@ -8,6 +8,7 @@ const routes = {
     profile: '/profile',
     createStory: '/story/create', 
     story: '/story', 
+    post: '/post', 
     video: '/video',
     group: '/group',
     friends: '/friends',

@@ -12,7 +12,7 @@ const OtpPopup = ({ email, onVerifySuccess, onClose, onResendOtp }) => {
     const [isExpired, setIsExpired] = useState(false);
 
     useEffect(() => {
-        setTime(60);
+        setTime(30);
         const intervalId = setInterval(() => {
             setTime((time) => {
                 if (time === 0) {
@@ -65,13 +65,6 @@ const OtpPopup = ({ email, onVerifySuccess, onClose, onResendOtp }) => {
                         {/* <button type="submit" className="otp-button">Xác nhận</button> */}
                         <ButtonCustom title="Xác nhận" className="primary" type="submit" />
                         <ButtonCustom type="reset" onClick={onClose} title="Huỷ" className="secondary" />
-                        {/* <button
-                            type="reset"
-                            className="otp-button danger"
-                            onClick={onClose}
-                        >
-                            Hủy
-                        </button> */}
 
                     </div>
                 </form>

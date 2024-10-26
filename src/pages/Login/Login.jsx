@@ -15,15 +15,16 @@ import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import getDataForm from '../../ultils/getDataForm/get_data_form';
 import ShowPopupLoginWithFacebook from '../../components/HandleLoginFacebook/HandleLoginFacebook';
 import { LoadingIcon } from '../../assets/icons/icons';
+import { useLoading } from '../../components/Loading/Loading';
 
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-
+    const { showLoading, hideLoading } = useLoading();
     const handleSubmit = async (e) => {
-        setLoading(true)
+        showLoading()
         e.preventDefault();
         if (!email || !password) {
             console.log('vào');
@@ -39,7 +40,7 @@ function Login() {
         if (respone?.status === true) {
             navigate('/');
         }
-        setLoading(false)
+        hideLoading()
     };
     useEffect(() => {
         const storedToken = getToken();
@@ -49,7 +50,7 @@ function Login() {
     }, []);
 
     const handleLoginSocial = async (payload) => {
-        setLoading(true);
+        showLoading()
         try {
             console.log(payload);
 
@@ -75,10 +76,10 @@ function Login() {
                     await handleLoginSocial(payload);
                 }
             }
-            setLoading(false);
         } catch (error) {
             console.log(error.message);
         }
+        hideLoading()
     };
     const handleLoginWithGoogle = async () => {
         const payload = await ShowPopupLoginWithGoogle();
@@ -192,13 +193,7 @@ function Login() {
                             Quên mật khẩu
                         </Link>
                     </div>
-                    {loading ? (
-                        <div className="send_mesage_action">
-                            <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary form-btn" />
-                        </div>
-                    ) : (
                         <ButtonCustom type="submit" title="Đăng nhập" className="primary form-btn" />
-                    )}
                 </form>
                 <Link to="/login/face-recognition/">
                     <LuScanFace className="icon-face" />

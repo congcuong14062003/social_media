@@ -87,9 +87,7 @@ function HomePage() {
                     </div>
                     {/* Danh sách bài viết */}
                     <div className="list_post">
-
                         {listPosts?.map((post) => (
-
                             <PostItem key={post.post_id} dataPost={post} />
                         ))}
                     </div>

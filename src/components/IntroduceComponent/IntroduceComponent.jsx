@@ -48,7 +48,7 @@ function IntroduceComponent() {
                         </p>
                     </div>
                 )}
-                {dataOwner?.user_work && (
+                {dataOwner?.created_at && (
                     <div className="list_infor_introduce">
                         <img src={images.thamgia} alt="" />
                         <p>

@@ -53,6 +53,7 @@ const API_DECODE_MESSAGE = `${API_HOST}/messages/decode-message`;
 const API_CREATE_POST = API_HOST + '/posts/create-post';
 const API_DELETE_POST = (id) =>  `${API_HOST}/posts/delete-post/${id}`;
 const API_UPDATE_POST = (id) =>  `${API_HOST}/posts/edit-post/${id}`;
+const API_POST_DETAIL = (id) =>  `${API_HOST}/posts/post-detail/${id}`;
 const API_GET_POSTS = API_HOST + '/posts/list-post';
 const API_GET_POSTS_BY_ID = (id) => `${API_HOST}/posts/list-post-by-user/${id}`;
 
@@ -143,6 +144,7 @@ export {
     API_CREATE_POST,
     API_DELETE_POST,
     API_UPDATE_POST,
+    API_POST_DETAIL,
     API_CREATE_SUB_COMMENT,
     API_GET_POSTS,
     API_GET_POSTS_BY_ID,

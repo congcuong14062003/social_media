@@ -15,6 +15,8 @@ import { postData } from '../../../ultils/fetchAPI/fetch_API';
 import { API_CREATE_POST, API_UPDATE_POST } from '../../../API/api_server';
 import { LoadingIcon } from '../../../assets/icons/icons';
 import ModalIcon from '../ModalIcon/ModalIcon';
+import { useLoading } from '../../Loading/Loading';
+import { toast } from 'react-toastify';
 
 const style = {
     position: 'absolute',
@@ -38,7 +40,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     const [selectedIcon, setSelectedIcon] = useState(null);
     const [showBtnSubmit, setShowBtnSubmit] = useState(false);
     const [isMediaChanged, setIsMediaChanged] = useState(false);
-    console.log(isEdit, dataEdit, dataOwner);
+    const { showLoading, hideLoading } = useLoading();
     useEffect(() => {
         if (openModel) {
             if (isEdit && dataEdit) {
@@ -106,7 +108,10 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
         const files = Array.from(e.target.files);
         const imageUrls = [];
         const validFiles = [];
-
+        if (files.length + selectedFiles.length > 10) {
+            toast.error('Vui lòng chọn tối đa 10 ảnh hoặc video'); // Hiển thị thông báo lỗi
+            return; // Dừng lại nếu có lỗi
+        }
         files.forEach((file) => {
             const mediaType = file.type.startsWith('image/')
                 ? 'image'
@@ -151,36 +156,44 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     }, [dataOwner]);
 
     const handlePost = async () => {
-        setLoadingSendPost(true);
-        const formData = new FormData();
-        formData.append('is_media_changed', isMediaChanged);
-        formData.append('user_id', dataOwner?.user_id);
-        formData.append('post_privacy', accessLabel === 'Công khai' ? 1 : 0);
-        formData.append('post_text', valueInput);
-        // Kiểm tra nếu có icon được chọn, chuyển thành chuỗi JSON trước khi gửi
-        if (selectedIcon) {
-            const emojiData = JSON.stringify({
-                label: selectedIcon.label,
-                icon: selectedIcon.icon,
+        showLoading(); // Hiển thị loading
+
+        try {
+            setLoadingSendPost(true);
+            const formData = new FormData();
+            formData.append('is_media_changed', isMediaChanged);
+            formData.append('user_id', dataOwner?.user_id);
+            formData.append('post_privacy', accessLabel === 'Công khai' ? 1 : 0);
+            formData.append('post_text', valueInput);
+            // Kiểm tra nếu có icon được chọn, chuyển thành chuỗi JSON trước khi gửi
+            if (selectedIcon) {
+                const emojiData = JSON.stringify({
+                    label: selectedIcon.label,
+                    icon: selectedIcon.icon,
+                });
+                formData.append('react_emoji', emojiData);
+            } else {
+                formData.append('react_emoji', '');
+            }
+
+            selectedFiles.forEach(({ file, mediaType }) => {
+                formData.append('file', file);
+                formData.append('media_type', mediaType);
             });
-            formData.append('react_emoji', emojiData);
-        } else {
-            formData.append('react_emoji', '');
-        }
 
-        selectedFiles.forEach(({ file, mediaType }) => {
-            formData.append('file', file);
-            formData.append('media_type', mediaType);
-        });
+            const apiUrl = isEdit ? API_UPDATE_POST(dataEdit?.post_id) : API_CREATE_POST; // Xác định API phù hợp
+            if (isEdit) formData.append('post_id', dataEdit.post_id); // Thêm post_id khi cập nhật
 
-        const apiUrl = isEdit ? API_UPDATE_POST(dataEdit?.post_id) : API_CREATE_POST; // Xác định API phù hợp
-        if (isEdit) formData.append('post_id', dataEdit.post_id); // Thêm post_id khi cập nhật
-
-        const response = await postData(apiUrl, formData);
-        if (response.status) {
-            setLoadingSendPost(false);
-            closeModel();
-            setTimeout(() => window.location.reload(), 1000);
+            const response = await postData(apiUrl, formData);
+            if (response.status) {
+                setLoadingSendPost(false);
+                closeModel();
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        } catch (error) {
+            console.error('Lỗi:', error);
+        } finally {
+            hideLoading(); // Ẩn loading
         }
     };
 
@@ -197,8 +210,6 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
         setSelectedIcon(icon);
         setOpenIconModal(false); // Đóng modal sau khi chọn
     };
-    console.log('selected file: ', selectedFiles);
-
     return (
         <div className="modal_container">
             <Modal
@@ -273,11 +284,16 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                                                     })}
                                                 </div>
                                             ) : (
-                                                ''
+                                                <>
+                                                    <div className="photo_icon">
+                                                        <MdAddPhotoAlternate className="icon-add" />
+                                                    </div>
+                                                    <div className="text-heading">Add photos</div>
+                                                    <span className="text-subheading">or drag and drop</span>
+                                                </>
                                             )}
                                         </div>
                                     </div>
-
                                     <input
                                         type="file"
                                         accept="image/*,video/*"
@@ -311,23 +327,16 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                             </div>
                         </div>
                         <div className="btn_dang">
-                            {loadingSendPost ? (
-                                <div className="send_mesage_action">
-                                    <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary" />
-                                    {/* <Loading /> */}
-                                </div>
-                            ) : (
-                                <>
-                                    {showBtnSubmit && (
-                                        <ButtonCustom
-                                            type="submit"
-                                            onClick={handlePost}
-                                            title={isEdit ? 'Cập nhật' : 'Đăng bài'}
-                                            className="primary"
-                                        />
-                                    )}
-                                </>
-                            )}
+                            <>
+                                {showBtnSubmit && (
+                                    <ButtonCustom
+                                        type="submit"
+                                        onClick={handlePost}
+                                        title={isEdit ? 'Cập nhật' : 'Đăng bài'}
+                                        className="primary"
+                                    />
+                                )}
+                            </>
                         </div>
                     </div>
 
@@ -343,6 +352,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                         onAccessChange={handleAccessChange}
                     />
                     <ModalIcon
+                        dataIconEdit={selectedIcon}
                         onSelectIcon={handleSelectIcon} // Pass the function here
                         title="Bạn đang cảm thấy thế nào?"
                         openIconModal={openIconModal}

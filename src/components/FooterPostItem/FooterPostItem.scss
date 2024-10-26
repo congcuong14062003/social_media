@@ -1,0 +1,245 @@
+.footer_post_container {
+    font-size: var(--fourteen-px);
+    padding: 0 20px;
+    padding-bottom: 10px;
+
+    .action_count_post {
+        color: var(--secondary-text);
+        padding: 10px 0;
+        justify-content: space-between;
+        display: flex;
+
+        .count_icon {
+            display: flex;
+            margin-left: 10px;
+            align-items: center;
+            .reaction_icon {
+                margin-left: -10px;
+                font-size: var(--twenty-px);
+            }
+            svg {
+                margin-right: 2px;
+                margin-bottom: 2px;
+
+                path {
+                    fill: var(--primary-color);
+                }
+            }
+        }
+
+        .count_comment_shared {
+            display: flex;
+
+            .count_comment {
+                margin-right: 20px;
+
+                &:hover {
+                    cursor: pointer;
+                    text-decoration: underline;
+                }
+            }
+
+            .count_shared {
+                &:hover {
+                    cursor: pointer;
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    .action_user_post_footer {
+        font-size: var(--fourteen-px);
+        padding: 5px 0;
+        margin-bottom: 10px;
+        border-top: 1px solid var(--comment-backgroud);
+        border-bottom: 1px solid var(--comment-backgroud);
+        .action_detail {
+            margin: 0 -5px;
+            display: flex;
+            justify-content: space-between;
+
+            .action_item {
+                border-radius: 5px;
+                padding: 6px 0;
+                margin: 0 5px;
+                flex: 1;
+                justify-content: center;
+                display: flex;
+                align-items: center;
+                color: var(--secondary-text);
+                .react_post {
+                    position: relative;
+                    display: inline-block;
+                    .icon_react_post {
+                        font-size: var(--twenty-px);
+                    }
+                    .reactions-popup {
+                        position: absolute;
+                        top: -50px;
+                        left: -75px;
+                        display: none;
+                        gap: 10px;
+                        background-color: #fff;
+                        border-radius: 25px;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                        padding: 5px 10px;
+                        transition: opacity 0.3s ease;
+                    }
+
+                    .reaction-icon {
+                        cursor: pointer;
+                        font-size: 24px;
+                        transition: transform 0.2s ease;
+                    }
+
+                    .reaction-icon:hover {
+                        transform: scale(1.2);
+                    }
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        top: -10px;
+                        left: 56px;
+                        width: 250px;
+                        height: 4px;
+                        background-color: transparent;
+                        /* border-radius: 50%; */
+                        transform: translateX(-50%) translateY(-50%);
+                        transition: transform 0.2s ease;
+                    }
+                    &:hover {
+                        .reactions-popup {
+                            display: flex;
+                        }
+                    }
+                }
+                .icon_action {
+                    margin-right: 5px;
+                    margin-top: 1px;
+                }
+
+                &:hover {
+                    cursor: pointer;
+                    background-color: var(--comment-backgroud);
+                }
+            }
+        }
+    }
+
+    .comment_post_container {
+        .user_comment_container {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+
+            // Main comment styling
+            .main_comment {
+                flex: 1;
+                .container_comment {
+                    width: max-content;
+                    padding: 10px;
+                    border-radius: 20px;
+                    background-color: var(--comment-backgroud);
+                    margin-left: 5px;
+
+                    .username_comment {
+                        color: var(--primary-text);
+                        font-weight: var(--main-font-weight);
+                        font-size: var(--twelve-px);
+                    }
+
+                    .content_comment {
+                        margin-top: 5px;
+                        color: var(--primary-text);
+                        font-weight: var(--secon-font-weight);
+                        font-size: var(--fourteen-px);
+                    }
+                }
+
+                .img_comment {
+                    border-radius: 20px;
+                    margin-left: 5px;
+                    margin-top: 5px;
+                    width: max-content;
+
+                    img {
+                        border-radius: 20px;
+                        width: 260px;
+                    }
+                }
+
+                .status_post_comment {
+                    display: flex;
+                    align-items: center;
+                    padding: 10px;
+
+                    .item_status {
+                        color: var(--secondary-text);
+                        margin: 0 10px;
+                        font-size: var(--twelve-px);
+
+                        &:hover {
+                            text-decoration: underline;
+                            cursor: pointer;
+                        }
+                    }
+
+                    .like_comment,
+                    .responsive_comment {
+                        font-weight: var(--main-font-weight);
+                    }
+                }
+                .count_subs_comment {
+                    color: var(--primary-text);
+                    font-size: var(--fourteen-px);
+                    text-decoration: underline;
+                    cursor: pointer;
+                    margin-bottom: 10px;
+                }
+                .comment_sub_input {
+                    display: flex;
+                    width: 100%;
+                    align-items: center;
+                    margin: 10px 0;
+                    .search_container {
+                        flex: 1;
+                    }
+                }
+            }
+
+            // Sub-comment container with connector line
+            .sub_comment_container {
+                margin-left: 50px;
+                margin-top: 10px;
+                border-left: 2px solid var(--comment-backgroud);
+                padding-left: 10px;
+                position: relative;
+
+                // "Râu nối" từ comment cha đến con
+                &::before {
+                    content: '';
+                    position: absolute;
+                    left: -40px;
+                    top: 15px; /* Điều chỉnh khoảng cách từ đầu */
+                    width: 40px;
+                    height: 2px;
+                    background-color: var(--comment-backgroud);
+                }
+
+                .user_comment_container {
+                    margin-top: 10px;
+                }
+            }
+        }
+    }
+
+    .my_comment_footer {
+        display: flex;
+        align-items: center;
+
+        .search_container {
+            flex: 1;
+        }
+    }
+}

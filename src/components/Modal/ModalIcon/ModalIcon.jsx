@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import './ModalIcon.scss'; // Thêm CSS nếu cần
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
@@ -22,7 +22,7 @@ const emotionIcons = [
     { label: 'Vui vẻ', icon: '😊' },
 ];
 
-function ModalIcon({ title, openIconModal, handleClose, onSelectIcon }) {
+function ModalIcon({ title, openIconModal, handleClose, onSelectIcon, dataIconEdit }) {
     const style = {
         position: 'absolute',
         top: '50%',
@@ -33,14 +33,19 @@ function ModalIcon({ title, openIconModal, handleClose, onSelectIcon }) {
         padding: '16px',
         borderRadius: '8px',
     };
+    console.log(dataIconEdit);
 
     const [selectedIcon, setSelectedIcon] = useState(null);
+    useEffect(() => {
+        if (dataIconEdit) setSelectedIcon(dataIconEdit); // Lấy icon đã chọn từ dữ liệu đã sửa
+    }, [dataIconEdit]);
 
     const handleIconClick = (icon) => {
         setSelectedIcon(icon);
         onSelectIcon(icon); // Gửi icon đã chọn ra ngoài
         handleClose(); // Đóng modal sau khi chọn
     };
+    console.log('selected icon: ', selectedIcon);
 
     return (
         <Fragment>
@@ -50,18 +55,21 @@ function ModalIcon({ title, openIconModal, handleClose, onSelectIcon }) {
                         <h2 id="parent-modal-title">{title}</h2>
                     </div>
                     <div className="icon-list">
-                        {emotionIcons.map((item, index) => (
-                            <div
-                                key={index}
-                                className={`icon-item ${selectedIcon === item ? 'selected' : ''}`}
-                                onClick={() => handleIconClick(item)}
-                            >
-                                <span className="icon">{item.icon}</span>
-                                <span className="label">{item.label}</span>
-                            </div>
-                        ))}
+                        {emotionIcons.map((item, index) => {
+                            return (
+                                <div
+                                    key={index}
+                                    className={`icon-item ${selectedIcon?.label === item?.label ? 'selected' : ''}`}
+                                    onClick={() => handleIconClick(item)}
+                                >
+                                    <span className="icon">{item.icon}</span>
+                                    <span className="label">{item.label}</span>
+                                </div>
+                            );
+                        })}
                     </div>
-                    <div className="close_modal_detail" onClick={()=> handleClose()}>
+
+                    <div className="close_modal_detail" onClick={() => handleClose()}>
                         <FontAwesomeIcon icon={faArrowLeft} />
                     </div>
                 </Box>

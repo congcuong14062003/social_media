@@ -12,6 +12,7 @@ import { API_UPDATE_USER } from '../../../API/api_server';
 import { useNavigate } from 'react-router-dom';
 import config from '../../../configs';
 import { LoadingIcon } from '../../../assets/icons/icons';
+import { useLoading } from '../../Loading/Loading';
 
 function ModalProfile({ openModel, closeModel, dataUser }) {
     const [avatar, setAvatar] = useState(null);
@@ -30,7 +31,7 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
     const [showCoverCropper, setShowCoverCropper] = useState(false); // Hiển thị cropper cho ảnh bìa
     const [dataUsers, setDataUsers] = useState('');
     const [loading, setLoading] = useState(false);
-
+    const { showLoading, hideLoading } = useLoading();
     const navigate = useNavigate();
     const style = {
         position: 'absolute',
@@ -89,6 +90,7 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
     };
     const handleSubmit = async () => {
         setLoading(true);
+        showLoading()
         try {
             const formData = new FormData();
             // Thêm ảnh đại diện nếu có
@@ -114,11 +116,12 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
             if (response?.status === true) {
                 window.location.reload();
             }
-            setLoading(false);
         } catch (error) {
             console.error('Error updating profile:', error);
             alert('Có lỗi xảy ra!');
         }
+        setLoading(false);   
+        hideLoading();
     };
 
     return (
@@ -251,11 +254,8 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
                         </div>
 
                         {/* Submit Button */}
-                        {loading ? (
-                            <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary" />
-                        ) : (
+
                             <ButtonCustom title="Cập nhật" className="primary" onClick={handleSubmit} />
-                        )}
                     </div>
 
                     <span className="close_btn_model">

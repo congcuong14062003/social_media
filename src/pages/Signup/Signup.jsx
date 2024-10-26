@@ -10,6 +10,7 @@ import { API_CREATE_OTP_SIGNUP, API_SIGNUP_POST } from '../../API/api_server';
 import getDataForm from '../../ultils/getDataForm/get_data_form';
 import OtpPopup from '../../components/PopupOTP/OtpPopup';
 import { LoadingIcon } from '../../assets/icons/icons';
+import { useLoading } from '../../components/Loading/Loading';
 
 function Signup() {
     const [email, setEmail] = useState('');
@@ -20,7 +21,7 @@ function Signup() {
     const [payloadSignup, setPayloadSignup] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
+    const { showLoading, hideLoading } = useLoading();
     const handleOtpVerifySuccess = async () => {
         setShowOtpPopup(false);
         console.log(payloadSignup);
@@ -37,6 +38,7 @@ function Signup() {
         await handleSignup(e);
     };
     const handleSignup = async (e) => {
+        showLoading(); // Hiển thị loading
         setLoading(true);
         e.preventDefault();
         // Kiểm tra xem có trường nào bị bỏ trống không
@@ -63,6 +65,7 @@ function Signup() {
         } catch (error) {
             toast.error('Có lỗi xảy ra, vui lòng thử lại!');
         }
+        hideLoading(); // Ẩn loading
     };
 
     return (
@@ -112,13 +115,7 @@ function Signup() {
                             className="form-input"
                         />
                     </div>
-                    {loading ? (
-                        <div className="send_mesage_action">
-                            <ButtonCustom title="" startIcon={<LoadingIcon />} className="primary form-btn" />
-                        </div>
-                    ) : (
-                        <ButtonCustom type="submit" title="Đăng ký" className="primary form-btn" />
-                    )}
+                    <ButtonCustom type="submit" title="Đăng ký" className="primary form-btn" />
                 </form>
                 <div className="form-option">
                     Bạn đã có tài khoản

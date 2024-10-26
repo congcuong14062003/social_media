@@ -15,6 +15,7 @@ import GroupPage from '../pages/GroupPage/GroupPage';
 import HomePage from '../pages/HomePage/HomePage';
 import Login from '../pages/Login/Login';
 import MessagesPage from '../pages/Messages/Messages';
+import PostDetail from '../pages/PostDetail/PostDetail';
 import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import SettingPage from '../pages/SettingPage/SettingPage';
 import Signup from '../pages/Signup/Signup';
@@ -91,6 +92,11 @@ const publicRouter = [
     {
         path: `${config.routes.story}/:id_story`,
         component: StoryPage,
+        requireAuth: true,
+    },
+    {
+        path: `${config.routes.post}/:id_post`,
+        component: PostDetail,
         requireAuth: true,
     },
     {

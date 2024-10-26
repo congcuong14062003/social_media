@@ -1,0 +1,84 @@
+.header_post_container {
+    padding: 10px 15px;
+
+    .user_post {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .user_post_detai {
+            align-items: center;
+            display: flex;
+
+            .infor_user_post {
+                margin-left: 10px;
+
+                .user_name_post {
+                    font-size: var(--fourteen-px);
+                    color: var(--primary-text);
+                    font-weight: var(--secon-font-weight);
+                }
+
+                .time_post {
+                    display: flex;
+                    align-items: center;
+                    color: var(--secondary-text);
+                    font-size: var(--twelve-px);
+                    margin-top: 5px;
+
+                    img {
+                        margin-left: 5px;
+                        width: 12px;
+                        filter: invert(var(--invert));
+                    }
+                }
+            }
+        }
+
+        .action_user_post {
+            width: 30px;
+            height: 30px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: var(--card-background);
+            color: var(--secondary-icon);
+            font-size: 20px;
+
+            &:hover {
+                background-color: var(--comment-backgroud);
+                cursor: pointer;
+            }
+            .action_user_post_detail {
+                display: none;
+                position: absolute;
+                top: 100%;
+                width: max-content;
+                z-index: 1;
+                left: -200%;
+                transform: translateX(-50%);
+                background-color: var(--comment-backgroud);
+                padding: 5px 10px;
+                border-radius: 5px;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+                button {
+                    margin: 5px;
+                }
+            }
+            &:hover {
+                .action_user_post_detail {
+                    display: flex;
+                }
+            }
+        }
+    }
+
+    .title_post {
+        margin: 10px 0 0 0;
+        font-size: var(--fourteen-px);
+        color: var(--primary-text);
+        font-weight: var(--secon-font-weight);
+    }
+}
