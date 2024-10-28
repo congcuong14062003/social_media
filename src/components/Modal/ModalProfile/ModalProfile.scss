@@ -27,7 +27,7 @@
             flex-direction: column;
             label {
                 color: var(--primary-text);
-                size: var(--sixteen-px);
+                font-size: var(--sixteen-px);
                 font-weight: var(--main-font-weight);
             }
             .avatar_image {
@@ -46,7 +46,7 @@
                 justify-content: space-between;
                 .heading {
                     color: var(--primary-text);
-                    size: var(--sixteen-px);
+                    font-size: var(--sixteen-px);
                     font-weight: var(--main-font-weight);
                 }
             }
@@ -63,16 +63,39 @@
                     height: 100%;
                     object-fit: cover;
                 }
-             .cover_image_placeholder {
-                width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
+                .cover_image_placeholder {
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--primary-text);
+                    font-size: var(--sixteen-px);
+                    font-weight: var(--main-font-weight);
+                }
+            }
+            .custom_textfield .MuiOutlinedInput-root {
+                &.Mui-focused fieldset {
+                    border-color: var(--hover-item); /* Màu outline khi hover */
+                }
+
+                &:hover fieldset {
+                    border-color: var(--primary-text); /* Màu outline khi focus */
+                }
+
+                fieldset {
+                    border-color: var(--hover-item); /* Màu outline khi hover */
+                }
+            }
+
+            .custom_textfield .MuiInputBase-input {
                 color: var(--primary-text);
-                size: var(--sixteen-px);
+                font-size: var(--sixteen-px);
                 font-weight: var(--main-font-weight);
-             }
+            }
+
+            .custom_textfield label.Mui-focused {
+                color: var(--secondary-text);
             }
         }
         .cropper_container {

@@ -35,6 +35,8 @@ function ChatItem({ avatar, name, lastMessage, time, link, sender_id, isActive, 
                             {type === 'image' ? 'đã gửi một ảnh' : ''}
                             {type === 'audio' ? 'đã gửi một tin nhắn thoại' : ''}
                             {type === 'video' ? 'đã gửi một video' : ''}
+                            {type === 'call:accepted' ? 'Cuộc gọi đã kết thúc' : ''}
+                            {type === 'call:missed' ? `Cuộc gọi đã bị bỏ lỡ` : ''}
                         </div>
                         {/* Hiển thị thời gian đã format */}
                         <div className="time">

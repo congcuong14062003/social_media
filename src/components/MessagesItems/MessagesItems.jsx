@@ -4,7 +4,10 @@ import Waveform from '../WaveSurfer/wave_surfer';
 import { ImReply } from 'react-icons/im';
 import './MessagesItems.scss';
 import { useState } from 'react';
-
+import { MdPhoneCallback, MdPhoneMissed } from 'react-icons/md';
+import { formatSecondsToTime } from '../../ultils/formatDate/format_date';
+import PrimaryIcon from '../PrimaryIcon/PrimaryIcon';
+import ButtonCustom from '../ButtonCustom/ButtonCustom';
 function MessagesItems({
     className,
     message,
@@ -16,6 +19,7 @@ function MessagesItems({
     reply_text,
     inputRef,
     reply_type,
+    handleClickCall,
 }) {
     const classes = `receiver_user_container ${className}`;
     const [hoverItem, setHoverItem] = useState(false);
@@ -28,6 +32,8 @@ function MessagesItems({
                         <span>
                             {reply_type === 'image' && <img src={reply_text} alt="content" />}
                             {reply_type === 'text' && reply_text}
+                            {reply_type === 'call:accepted' && <p>{reply_text}</p>}
+                            {reply_type === 'call:missed' && <p>{reply_text}</p>}
                             {reply_type === 'audio' && <Waveform audioUrl={reply_text} />}
                             {reply_type === 'link' && <p dangerouslySetInnerHTML={{ __html: reply_text }}></p>}
                             {reply_type === 'other' && (
@@ -68,9 +74,33 @@ function MessagesItems({
                         </a>
                     )}
                     {type === 'link' && <p dangerouslySetInnerHTML={{ __html: message }}></p>}
-                    {type === 'call:accepted' && (
+                    {/* {type === 'call:accepted' && (
                         <div className="content_receiver">
                             <span>Cuộc gọi thoại: {message} giây</span>
+                        </div>
+                    )} */}
+                    {type?.includes('call') && (
+                        <div className="content_receiver call_content">
+                            <div className="call-container">
+                                {type?.includes('missed') && (
+                                    <>
+                                        <div className="missed-container">
+                                            <PrimaryIcon className="secondary" icon={<MdPhoneMissed className="missed" />} />
+                                            <p>Cuộc gọi nhỡ</p>
+                                        </div>
+                                    </>
+                                )}
+                                {type?.includes('accepted') && (
+                                    <>
+                                        <PrimaryIcon icon={<MdPhoneCallback className="accepted" />} />
+                                        <div className="infor_call">
+                                            <p>Cuộc gọi thoại</p>
+                                            <b>{formatSecondsToTime(message)}</b>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                            <ButtonCustom className="secondary" title="Gọi lại" onClick={handleClickCall} />
                         </div>
                     )}
                     {type === 'other' && (
@@ -119,20 +149,22 @@ function MessagesItems({
                                         break;
                                     case 'link':
                                         replyContent.reply_type = 'link';
-                                        // replyContent.content = (
-                                        //     <span
-                                        //         dangerouslySetInnerHTML={{
-                                        //             __html: message,
-                                        //         }}
-                                        //     ></span>
-                                        // );
                                         replyContent.content = message;
+                                        break;
+                                    case 'call:accepted':
+                                        replyContent.reply_type = 'call:accepted';
+                                        replyContent.content = 'Cuộc gọi thoại';
+                                        break;
+                                    case 'call:missed':
+                                        replyContent.reply_type = 'call:missed';
+                                        replyContent.content = 'Cuộc gọi nhỡ';
                                         break;
                                     case 'other':
                                         replyContent.name = nameFile;
                                         replyContent.content = message;
                                         replyContent.reply_type = 'other';
                                         break;
+
                                     default:
                                         replyContent.content = 'Nội dung không xác định';
                                 }

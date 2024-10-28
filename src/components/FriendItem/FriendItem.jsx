@@ -32,7 +32,7 @@ function FriendItem({ data }) {
                 </div>
                 <div className="description_invite">
                     <div className="name_invite">{data.user_name}</div>
-                    <div className="count_mutual_friend">100 bạn chung</div>
+                    {/* <div className="count_mutual_friend">100 bạn chung</div> */}
                 </div>
             </Link>
             <div className="button_action_invite">

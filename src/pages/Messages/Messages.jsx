@@ -103,6 +103,7 @@ function MessagesPage() {
         checkIfFriend();
     }, [id_receiver]);
 
+
     //Check xem người dùng đã có cặp key chưa
     const checkExistKeyPair = async () => {
         try {
@@ -358,7 +359,6 @@ function MessagesPage() {
     // Gửi tin nhắn khi click vào icon gửi tin nhắn
     const handleSendMessage = async () => {
         if (isSending) return; // Prevent sending if already sending
-
         setIsSending(true); // Set to true when starting to send
         setLoadingSend(true); // Show loading icon
         const urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -592,6 +592,7 @@ function MessagesPage() {
                                     {/* Render danh sách tin nhắn */}
                                     {messages.map((msg, index) => (
                                         <MessagesItems
+                                            handleClickCall={()=> handleClickCall('video-call')}
                                             reply_text={msg.reply_text}
                                             reply_type={msg.reply_type}
                                             setShowReply={setShowReply}
@@ -633,6 +634,8 @@ function MessagesPage() {
                                         {contentReply.reply_type === 'audio' && <p>{contentReply?.title}</p>}
                                         {contentReply.reply_type === 'video' && <p>{contentReply?.title}</p>}
                                         {contentReply.reply_type === 'other' && <p>{contentReply?.name}</p>}
+                                        {contentReply.reply_type === 'call:accepted' && <p>{contentReply?.content}</p>}
+                                        {contentReply.reply_type === 'call:missed' && <p>{contentReply?.content}</p>}
                                         {/* {contentReply.reply_type ==='link' && <p>{contentReply?.content}</p>} */}
                                         {contentReply.reply_type === 'link' && (
                                             <p dangerouslySetInnerHTML={{ __html: contentReply?.content }}></p>

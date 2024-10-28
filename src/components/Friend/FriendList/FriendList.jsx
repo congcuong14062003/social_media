@@ -17,7 +17,7 @@ function FriendList({ ListUser }) {
         <div className="friend_container">
             {ListUser && ListUser.map((user) => (
                 loaded ? (
-                    <FriendItem key={user.friend_id || user.user_id} data={user} />
+                    <FriendItem className="no-hover" key={user.friend_id || user.user_id} data={user} />
                 ) : (
                     <div key={user.friend_id || user.user_id} className="loading-skeleton">
                         <AvatarWithText />

@@ -14,27 +14,44 @@ import PopoverMe from '../../../components/Popover/PopoverMe/PopoverMe';
 import { OwnDataContext } from '../../../provider/own_data';
 import { useDispatch } from 'react-redux';
 import { darkHandle, lightHandle } from '../../../redux/Reducer/reducer';
+import { useSocket } from '../../../provider/socket_context';
+import ToggleButton from 'react-toggle-button';
 
 function Header() {
     const dataUser = useContext(OwnDataContext);
-    const dispatch = useDispatch();
     const privateKey = localStorage.getItem('private-key');
     const [anchorEl, setAnchorEl] = useState(null);
     const [popoverContent, setPopoverContent] = useState(null);
     const [activeMessage, setActiveMessage] = useState(false);
     const [activeNotice, setActiveNotice] = useState(false);
     const [activeMe, setActiveMe] = useState(false);
-
-    // Áp dụng dark mode ngay khi trang được tải dựa trên dữ liệu người dùng
+    const dataOwner = useContext(OwnDataContext);
+    const [darkOn, setDarkOn] = useState(dataOwner?.dark_theme === 1);
+    const socket = useSocket();
+    const dispatch = useDispatch();
+    // Cập nhật dark theme trên server mỗi khi darkOn thay đổi
     useEffect(() => {
-        if (dataUser?.dark_theme === 1) {
+        if (socket && dataOwner) {
+            socket.emit('dark_theme', {
+                user_id: dataOwner?.user_id,
+                dark_theme: darkOn ? 1 : 0,
+            });
+        }
+    }, [darkOn, socket, dataOwner]);
+
+    // Đồng bộ trạng thái darkOn với dữ liệu từ context
+    useEffect(() => {
+        setDarkOn(dataOwner?.dark_theme === 1);
+    }, [dataOwner]);
+
+    // Cập nhật Redux store mỗi khi darkOn thay đổi
+    useEffect(() => {
+        if (darkOn) {
             dispatch(darkHandle());
-            document.documentElement.setAttribute('data-theme', 'dark');
         } else {
             dispatch(lightHandle());
-            document.documentElement.removeAttribute('data-theme');
         }
-    }, [dataUser, dispatch]);
+    }, [darkOn, dispatch]);
 
     const handleClickPopover = (event, content) => {
         setAnchorEl(event.currentTarget);
@@ -115,7 +132,7 @@ function Header() {
                                 <PopoverChat privateKey={privateKey} handleClosePopover={handleClosePopover} />
                             )
                         ) : (
-                            <PopoverMe handleClosePopover={handleClosePopover} />
+                            <PopoverMe darkOn={darkOn} setDarkOn={setDarkOn} handleClosePopover={handleClosePopover} />
                         )}
                     </Typography>
                 </Popover>

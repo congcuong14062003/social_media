@@ -21,7 +21,7 @@ function StoryPageItem({ active, data }) {
                 <li className={`user-story--item ${active ? "active" : ""}`}>
                     <Link to={`${config.routes.story}/${data?.story_id}`}>
                         <div className="img">
-                            <PopupInfoShort />
+                            {/* <PopupInfoShort /> */}
                             <img src={data?.user_avatar} alt="" />
                         </div>
                         <div className="info">

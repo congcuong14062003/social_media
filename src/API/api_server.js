@@ -5,6 +5,10 @@ const API_SIGNUP_POST = API_HOST + '/users/signup';
 const API_LOGIN_POST = API_HOST + '/users/login';
 const API_GET_ALL_USERS = API_HOST + '/users/all-user';
 const API_LOGOUT = API_HOST + '/users/logout';
+
+const API_GET_ALL_MEDIA = (id) => `${API_HOST}/users/all-media/${id}`;
+
+
 const API_SIGNUP_SOCIALNETWORK_POST = API_HOST + '/users/social-network/signup';
 const API_GET_USER_BY_ID = (id) => `${API_HOST}/users/info/${id}`;
 const API_UPDATE_USER = `${API_HOST}/users/update-profile`;
@@ -103,7 +107,9 @@ export {
     // setting user
     API_UPDATE_SETTING_USER,
     API_GET_USER_SETTING,
-    //
+    API_GET_ALL_MEDIA,
+
+    
     API_CHECK_EXIST_USER,
     API_ADD_FRIEND,
     API_ACCEPT_INVITE,

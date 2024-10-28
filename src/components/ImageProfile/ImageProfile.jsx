@@ -3,7 +3,7 @@ import './ImageProfile.scss';
 function ImageProfile() {
     return (
         <div className="image_profile_container">
-            <ImageComponent />
+            <ImageComponent noAll />
         </div>
     );
 }

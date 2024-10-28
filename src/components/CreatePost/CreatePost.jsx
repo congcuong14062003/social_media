@@ -29,7 +29,7 @@ const CreatePost = () => {
     };
     const handleOpenIcon = () => {
         setOpen(true);
-        setOpenIconModal(true)
+        setOpenIconModal(true);
     };
     return (
         <>
@@ -39,7 +39,11 @@ const CreatePost = () => {
                         <Link to={`${config.routes.profile}/${dataOwner?.user_id}`}>
                             <AvatarUser />
                         </Link>
-                        <Search onClick={handleOpen} placeholder={`${dataOwner?.user_name} ơi bạn đang nghĩ gì thế`} />
+
+                        <Search
+                            onClick={handleOpen}
+                            placeholder={dataOwner?.user_name ? `${dataOwner?.user_name} ơi bạn đang nghĩ gì thế` : ''}
+                        />
                     </div>
                     <div className="footer_post">
                         <div className="image_and_video" onClick={handleOpenCreatePost}>

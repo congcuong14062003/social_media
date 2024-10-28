@@ -4,13 +4,39 @@
     padding: 10px;
     width: 100%;
     border-radius: 8px;
-    .name_friend {
+    .infor_friend {
+        display: flex;
+        flex-direction: column;
         margin-left: 10px;
-        font-size: var(--fourteen-px);
-        font-weight: var(--secon-font-weight);
-        color: var(--primary-text)
+        .name_friend {
+            font-size: var(--fourteen-px);
+            font-weight: var(--secon-font-weight);
+            color: var(--primary-text);
+        }
+        .status_friend {
+            font-size: var(--thirteen-px);
+            color: var(--secondary-text);
+            margin-top: 5px;
+        }
     }
-    &:hover {
-        background-color: var(--secondary-button);
+    .avatar_user {
+        position: relative;
+        &::before {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: red;
+        }
+    }
+}
+.online {
+    .avatar_user {
+        &::before {
+            background-color: green;
+        }
     }
 }

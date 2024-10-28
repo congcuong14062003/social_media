@@ -106,7 +106,7 @@ const publicRouter = [
     },
     {
         path: `${config.routes.messages}/video-call`,
-        component: VideoCall,
+        component: () => <VideoCall isVideoCall={true} />,
         requireAuth: true,
         layout: VideoCall,
     },

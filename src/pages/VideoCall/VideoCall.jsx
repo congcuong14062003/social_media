@@ -10,17 +10,14 @@ import Peer from 'peerjs';
 import { toast } from 'react-toastify';
 import { formatSecondsToTime } from '../../ultils/formatDate/format_date';
 
-const VideoCall = ({ isVideoCall, titlePage, userId }) => {
-    useEffect(() => {
-        document.title = titlePage;
-    }, [titlePage]);
-
+const VideoCall = ({ isVideoCall, userId }) => {
     const initialState = {
         isCallAccepted: true,
         isVideoMuted: false,
         isAudioMuted: false,
     };
-
+    console.log(initialState);
+    
     const callReducer = (state, action) => {
         switch (action.type) {
             case 'ACCEPT_CALL':
@@ -223,9 +220,7 @@ const VideoCall = ({ isVideoCall, titlePage, userId }) => {
         }
     }, [state]);
 
-    socket?.on('statusCallToUser', (data) => {
-        console.log(data);
-    });
+
 
     // End call and navigate back
     const handleEndCall = async () => {
@@ -349,7 +344,7 @@ const VideoCall = ({ isVideoCall, titlePage, userId }) => {
                         <img src={dataReceiver?.avatar} alt="Avatar" className="partner-avatar" />
                     </div>
                 </div>
-                <div className="time">{formatSecondsToTime(time)}</div>
+                <div className="time"><p>{formatSecondsToTime(time)}</p></div>
                 <div className="controls">
                     {/* <ToolTipCustom content={"Bật/Tắt video"}> */}
                     <button className="control-button" onClick={handleVideoToggle}>

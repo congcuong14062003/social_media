@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import config from '../../../configs';
 import { LoadingIcon } from '../../../assets/icons/icons';
 import { useLoading } from '../../Loading/Loading';
+import { TextField } from '@mui/material';
 
 function ModalProfile({ openModel, closeModel, dataUser }) {
     const [avatar, setAvatar] = useState(null);
@@ -90,7 +91,7 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
     };
     const handleSubmit = async () => {
         setLoading(true);
-        showLoading()
+        showLoading();
         try {
             const formData = new FormData();
             // Thêm ảnh đại diện nếu có
@@ -120,7 +121,7 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
             console.error('Error updating profile:', error);
             alert('Có lỗi xảy ra!');
         }
-        setLoading(false);   
+        setLoading(false);
         hideLoading();
     };
 
@@ -226,9 +227,21 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
                         {/* Username Input */}
                         <div className="form_group">
                             <label>Username</label>
-                            <input type="text" value={user_name} onChange={(e) => setUsername(e.target.value)} />
+                            <TextField
+                                value={user_name}
+                                onChange={(e) => setUsername(e.target.value)}
+                                id="outlined-basic"
+                                variant="outlined"
+                                className="custom_textfield"
+                            />
                         </div>
-
+                        {/* <TextField
+                            className="form_group"
+                            value={user_name}
+                            onChange={(e) => setUsername(e.target.value)}
+                            id="outlined-basic"
+                            variant="outlined"
+                        /> */}
                         {/* Date of Birth Input */}
                         <div className="form_group">
                             <label>Ngày sinh</label>
@@ -255,7 +268,7 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
 
                         {/* Submit Button */}
 
-                            <ButtonCustom title="Cập nhật" className="primary" onClick={handleSubmit} />
+                        <ButtonCustom title="Cập nhật" className="primary" onClick={handleSubmit} />
                     </div>
 
                     <span className="close_btn_model">

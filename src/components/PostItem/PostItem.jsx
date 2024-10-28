@@ -12,8 +12,10 @@ function PostItem({ dataPost }) {
     const [loaded, setLoaded] = useState(false);
     const [showEditPost, setShowEditPost] = useState(false);
     useEffect(() => {
-        setTimeout(() => setLoaded(true), 1000);
-    }, []);
+       if(dataPost) {
+        setLoaded(true)
+       }
+    }, [dataPost]);
     const handleClose = () => {
         setShowEditPost(false);
     };

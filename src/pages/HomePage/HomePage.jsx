@@ -48,8 +48,6 @@ function HomePage() {
                 console.error('Lỗi khi gọi API:', error);
             }
         };
-
-
         listPosts();
     }, []);
     return (

@@ -11,8 +11,8 @@
         transform: translate(-50%, -50%);
        
     }
-    svg path {
-        fill: var(--icon-color);
+    svg {
+        color: var(--icon-color)
     }
     &:hover {
         cursor: pointer;

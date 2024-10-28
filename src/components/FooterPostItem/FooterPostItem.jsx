@@ -17,6 +17,10 @@ import AvatarUser from '../AvatarUser/AvatarUser';
 import { timeAgo } from '../../ultils/formatDate/format_date';
 import Search from '../Search/Search';
 import { useSocket } from '../../provider/socket_context';
+import { FilePond } from 'react-filepond';
+import 'filepond/dist/filepond.min.css';
+import { useLoading } from '../Loading/Loading';
+import { toast } from 'react-toastify';
 function FooterPostItem({ dataPost }) {
     const reactionIcons = [
         { id: 'like', icon: '👍' },
@@ -34,13 +38,20 @@ function FooterPostItem({ dataPost }) {
     const [loaded, setLoaded] = useState(false);
     const [subComment, setSubComment] = useState(''); // State cho bình luận cấp 2
     const [comments, setComments] = useState([]);
+    const [showFilePond, setShowFilePond] = useState(false);
+    const [showFilePondSub, setShowFilePondSub] = useState(false);
+    const [files, setFiles] = useState();
+    const [filesSub, setFilesSub] = useState();
     const [showSubCommentInput, setShowSubCommentInput] = useState({}); // State để kiểm soát hiển thị input bình luận cấp 2
     const socket = useSocket();
+    const { showLoading, hideLoading } = useLoading();
+
     const [selectedReaction, setSelectedReaction] = useState(() => {
         const userReaction = dataPost?.reacts?.find((item) => item?.user_id === dataOwner?.user_id);
         return reactionIcons.find((i) => i.id === userReaction?.react);
     });
     const inputRef = useRef(null); // Tạo ref cho input
+    const inputSubRef = useRef(null); // Tạo ref cho sub input
     useEffect(() => {
         setTimeout(() => setLoaded(true), 1000);
         fetchComments();
@@ -105,54 +116,141 @@ function FooterPostItem({ dataPost }) {
             ...prev,
             [commentId]: !prev[commentId], // Toggle hiển thị input bình luận phụ
         }));
+        if (!showSubCommentInput[commentId]) {
+            setTimeout(() => {
+                inputSubRef.current?.focus(); // Focus nếu input được mở
+            }, 0);
+        }
     };
     const handleComment = async () => {
-        if (!comment) return;
+        showLoading(); // Hiển thị loading
+        if (!comment && (!files || files.length === 0)) {
+            toast.error('Vui lòng nhập comment');
+            hideLoading(); // Ẩn loading
+            return;
+        }
+
+        const formData = new FormData();
+        let media_type = null;
+
+        // Nếu có file, thêm file vào FormData
+        if (files && files.length > 0) {
+            const file = files[0]; // Lấy file đầu tiên
+            const fileType = file.file.type;
+
+            // Xác định loại media
+            if (fileType.startsWith('image/')) {
+                media_type = 'image';
+            } else if (fileType.startsWith('video/')) {
+                media_type = 'video';
+            }
+
+            // Thêm file vào FormData
+            formData.append('file', file.file, file.file.name);
+        }
+
+        // Tạo payload chung
         const payload = {
+            media_type: media_type, // Sẽ là `null` nếu không có file
             comment_text: comment,
-            medialink: '',
             commenting_user_id: dataOwner?.user_id,
         };
 
+        // Duyệt qua từng key và thêm vào FormData
+        Object.entries(payload).forEach(([key, value]) => {
+            if (value !== null) formData.append(key, value);
+        });
+
         try {
-            const response = await postData(API_CREATE_COMMENT_POST(dataPost?.post_id), payload);
+            // Gọi API với FormData
+            const response = await postData(API_CREATE_COMMENT_POST(dataPost?.post_id), formData);
+
             if (response.status === true) {
                 // Gửi bình luận qua WebSocket
                 socket.emit('sendComment', {
                     comment_text: comment,
-                    user_id: dataOwner.user_id, // ID của người dùng đang bình luận
+                    user_id: dataOwner.user_id,
                     created_at: new Date().toISOString(),
                 });
-                setComment('');
-                fetchComments(); // Refresh the comment list
+
+                setComment(''); // Reset input comment
+                fetchComments(); // Cập nhật danh sách bình luận
             }
         } catch (error) {
             console.error('Error posting comment:', error);
         }
+
+        setShowFilePond(false); // Ẩn file input nếu cần
+        hideLoading(); // Ẩn loading
+        setFiles(''); // Reset files
+        setShowCommentPost(true);
+        inputRef.current.focus(); // Đặt focus vào input
     };
+
     const handleSendSubComment = async (commentId) => {
-        if (!subComment) return;
+        showLoading(); // Hiển thị loading
+
+        if (!subComment && (!filesSub || filesSub.length === 0)) {
+            toast.error('Vui lòng nhập comment');
+            hideLoading(); // Ẩn loading
+            return;
+        }
+
+        const formData = new FormData();
+        let media_type = null;
+
+        // Nếu có file, thêm file vào FormData
+        if (filesSub && filesSub.length > 0) {
+            const file = filesSub[0]; // Lấy file đầu tiên
+            const fileType = file.file.type;
+
+            // Xác định loại media
+            if (fileType.startsWith('image/')) {
+                media_type = 'image';
+            } else if (fileType.startsWith('video/')) {
+                media_type = 'video';
+            }
+
+            formData.append('file', file.file, file.file.name); // Thêm file vào FormData
+        }
+
+        // Tạo payload
         const payload = {
             comment_text: subComment,
-            medialink: '',
+            media_type: media_type, // Có thể là `null` nếu không có file
             replying_user_id: dataOwner?.user_id,
         };
 
+        // Duyệt qua từng key trong payload và thêm vào FormData
+        Object.entries(payload).forEach(([key, value]) => {
+            if (value !== null) formData.append(key, value);
+        });
+
         try {
-            const response = await postData(API_CREATE_SUB_COMMENT(commentId), payload);
+            // Gọi API với FormData
+            const response = await postData(API_CREATE_SUB_COMMENT(commentId), formData);
+
             if (response.status === true) {
+                // Gửi sub-comment qua WebSocket
                 socket.emit('sendComment', {
-                    comment_text: comment,
-                    user_id: dataOwner.user_id, // ID của người dùng đang bình luận
+                    comment_text: subComment,
+                    user_id: dataOwner.user_id,
                     created_at: new Date().toISOString(),
                 });
-                setSubComment(''); // Reset subComment input
-                fetchComments(); // Refresh the comment list
+
+                setSubComment(''); // Reset input
+                fetchComments(); // Cập nhật bình luận
             }
         } catch (error) {
             console.error('Error posting sub-comment:', error);
         }
+        handleShowSubComment(commentId)
+        hideLoading(); // Ẩn loading
+        setFilesSub(''); // Reset files
+        setShowFilePondSub(false); // Ẩn file input nếu cần
+        inputSubRef.current.focus(); // Đặt lại focus vào input sub-comment
     };
+
     const handleReactionSelect = async (reaction, event) => {
         event.stopPropagation(); // Chặn sự kiện lan truyền
 
@@ -196,6 +294,19 @@ function FooterPostItem({ dataPost }) {
     const totalCommentsCount = comments.reduce((total, commentData) => {
         return total + 1 + commentData?.sub_comments?.length; // 1 cho comment chính và thêm số lượng subcomments
     }, 0);
+
+    const handleFilesChange = (newFiles) => {
+        setFiles(newFiles); // Update the files state
+        if (newFiles.length > 0 && inputRef.current) {
+            inputRef.current.focus(); // Automatically focus the input if there are files
+        }
+    };
+    const handleFilesSubChange = (newFiles) => {
+        setFilesSub(newFiles); // Update the files state
+        if (newFiles.length > 0 && inputSubRef.current) {
+            inputSubRef.current.focus(); // Automatically focus the input if there are files
+        }
+    };
     return (
         <div className="footer_post_container">
             <div className="action_count_post">
@@ -271,6 +382,12 @@ function FooterPostItem({ dataPost }) {
                                         <p>{commentData?.comment_text}</p>
                                     </div>
                                 </div>
+                                <div className="media_content">
+                                    {commentData?.media_type === 'image' && <img src={commentData?.media_link} />}
+                                    {commentData?.media_type === 'video' && (
+                                        <video controls src={commentData?.media_link} alt="content" />
+                                    )}
+                                </div>
                                 <div className="status_post_comment">
                                     <div className="item_status time_comment">{timeAgo(commentData?.created_at)}</div>
                                     <div className="item_status like_comment">Thích</div>
@@ -324,6 +441,18 @@ function FooterPostItem({ dataPost }) {
                                                                 <p>{subCommentData?.comment_text}</p>
                                                             </div>
                                                         </div>
+                                                        <div className="media_content">
+                                                            {subCommentData?.media_type === 'image' && (
+                                                                <img src={subCommentData?.media_link} />
+                                                            )}
+                                                            {subCommentData?.media_type === 'video' && (
+                                                                <video
+                                                                    controls
+                                                                    src={subCommentData?.media_link}
+                                                                    alt="content"
+                                                                />
+                                                            )}
+                                                        </div>
                                                         <div className="status_post_comment">
                                                             <div className="item_status time_comment">
                                                                 {timeAgo(subCommentData?.created_at)}
@@ -341,28 +470,54 @@ function FooterPostItem({ dataPost }) {
                                 )}
 
                                 {showSubCommentInput[commentData?.comment_id] && (
-                                    <div className="comment_sub_input">
-                                        <AvatarUser />
-                                        <Search
-                                            value={subComment} // Thêm dòng này để truyền giá trị subComment
-                                            handleSendMessage={() => handleSendSubComment(commentData?.comment_id)}
-                                            onChange={(e) => setSubComment(e.target.value)}
-                                            placeholder={`Bình luận với vai trò ${dataOwner.user_name}`}
-                                            icon
-                                        />
-                                    </div>
+                                    <>
+                                        {showFilePondSub && (
+                                            <FilePond
+                                                files={filesSub}
+                                                acceptedFileTypes={['image/*', 'video/*']} // Chỉ chấp nhận ảnh và video
+                                                allowMultiple={false}
+                                                onupdatefiles={handleFilesSubChange}
+                                                labelIdle='Kéo và Thả tệp phương tiện or <span className="filepond--label-action">Duyệt</span>'
+                                            />
+                                        )}
+                                        <div className="comment_sub_input">
+                                            <AvatarUser />
+                                            <Search
+                                                handleOpenFile={() => setShowFilePondSub((pre) => !pre)}
+                                                inputRef={inputSubRef}
+                                                onkeydown={(e) =>
+                                                    e.key === 'Enter' && handleSendSubComment(commentData?.comment_id)
+                                                }
+                                                value={subComment} // Thêm dòng này để truyền giá trị subComment
+                                                handleSendMessage={() => handleSendSubComment(commentData?.comment_id)}
+                                                onChange={(e) => setSubComment(e.target.value)}
+                                                placeholder={`Bình luận với vai trò ${dataOwner.user_name}`}
+                                                icon
+                                            />
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         </div>
                     ))}
                 </div>
             )}
-
+            {showFilePond && (
+                <FilePond
+                    files={files}
+                    acceptedFileTypes={['image/*', 'video/*']} // Chỉ chấp nhận ảnh và video
+                    allowMultiple={false}
+                    onupdatefiles={handleFilesChange}
+                    labelIdle='Kéo và Thả tệp phương tiện or <span className="filepond--label-action">Duyệt</span>'
+                />
+            )}
             <div className="my_comment_footer">
                 <AvatarUser />
                 <Search
+                    handleOpenFile={() => setShowFilePond((pre) => !pre)}
                     value={comment}
                     inputRef={inputRef}
+                    onkeydown={(e) => e.key === 'Enter' && handleComment()}
                     handleSendMessage={handleComment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder={`Bình luận với vai trò ${dataOwner?.user_name}`}

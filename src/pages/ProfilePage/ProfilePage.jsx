@@ -21,6 +21,7 @@ import {
     API_CHECK_IF_FRIEND,
     API_GET_INFO_OWNER_PROFILE_BY_ID,
     API_GET_INFO_USER_PROFILE_BY_ID,
+    API_LIST_FRIEND_BY_ID,
 } from '../../API/api_server';
 import ModalProfile from '../../components/Modal/ModalProfile/ModalProfile';
 
@@ -50,6 +51,7 @@ function ProfilePage() {
     const [isFriend, setIsFriend] = useState(false);
     const myData = useContext(OwnDataContext);
     const [openEditProfile, setOpenEditProfile] = useState(false);
+    const [totalFriends, setTotalFriends] = useState();
     useEffect(() => {
         switch (location.pathname) {
             case `/profile/${id_user}/anh`:
@@ -85,6 +87,22 @@ function ProfilePage() {
         fetchData();
     }, [id_user]);
 
+    useEffect(() => {
+        const fetchFriends = async () => {
+            try {
+                const response = await getData(API_LIST_FRIEND_BY_ID(id_user));
+                if (response && response.users) {
+                    setTotalFriends(response.users.length);
+                } else {
+                    setTotalFriends(''); // Nếu không có dữ liệu, đặt thành mảng rỗng
+                }
+            } catch (error) {
+                console.error('Error fetching friends:', error);
+                setTotalFriends([]); // Xử lý lỗi bằng cách đặt mảng rỗng
+            }
+        };
+        fetchFriends();
+    }, [id_user]);
     // check xem đã là bạn bè chưa
     const checkIfFriend = async () => {
         try {
@@ -114,7 +132,7 @@ function ProfilePage() {
                 <div className="content_profile_header">
                     <div className="cover_image">
                         {dataUser?.cover ? (
-                            <Link to={dataUser?.cover} target='blank'>
+                            <Link to={dataUser?.cover} target="blank">
                                 <img src={dataUser?.cover} alt="" />
                             </Link>
                         ) : (
@@ -132,13 +150,13 @@ function ProfilePage() {
                 <div className="infor_user_container">
                     <div className="infor_user_content">
                         <div className="avatar_user">
-                            <Link to={dataUser?.avatar} target='blank'>
+                            <Link to={dataUser?.avatar} target="blank">
                                 <img src={dataUser?.avatar} alt="" />
                             </Link>
                         </div>
                         <div className="infor_header_user">
                             <div className="user_name_header">{dataUser && dataUser?.user_name}</div>
-                            <div className="count_friend">385 bạn bè</div>
+                            <div className="count_friend">{totalFriends} bạn bè</div>
                             <div className="action_user_container">
                                 {dataUser?.user_id === myData?.user_id ? (
                                     <>

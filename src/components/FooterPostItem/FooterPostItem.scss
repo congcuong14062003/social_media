@@ -156,7 +156,14 @@
                         font-size: var(--fourteen-px);
                     }
                 }
-
+                .media_content {
+                    img,
+                    video {
+                        margin-top: 10px;
+                        max-width: 300px;
+                        border-radius: 20px;
+                    }
+                }
                 .img_comment {
                     border-radius: 20px;
                     margin-left: 5px;
