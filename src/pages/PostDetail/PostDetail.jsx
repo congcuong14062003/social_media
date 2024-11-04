@@ -52,7 +52,7 @@ function PostDetail() {
                     <span className="close_btn_model close">
                         <CloseBtn onClick={() => navigate(-1)} />
                     </span>
-                    
+
                     {/* Chỉ hiện nút Prev nếu có nhiều hơn 1 ảnh */}
                     {mediaLength > 1 && (
                         <div className="btn btn-prev" onClick={handlePrev}>
@@ -61,10 +61,12 @@ function PostDetail() {
                     )}
 
                     <div className="content-media--main">
-                        <img
-                            src={postDetail.media[activeIndex]?.media_link}
-                            alt={`media-${activeIndex}`}
-                        />
+                        {postDetail.media[activeIndex]?.media_type === 'image' && (
+                            <img src={postDetail.media[activeIndex]?.media_link} alt={`media-${activeIndex}`} />
+                        )}
+                        {postDetail.media[activeIndex]?.media_type === 'video' && (
+                            <video src={postDetail.media[activeIndex]?.media_link} controls />
+                        )}
                     </div>
 
                     {/* Chỉ hiện nút Next nếu có nhiều hơn 1 ảnh */}

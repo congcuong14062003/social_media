@@ -90,6 +90,14 @@
                         color: var(--secondary-text);
                         font-size: var(--fourteen-px);
                     }
+                    .list_friend_mutual {
+                        margin: 10px;
+                        img {
+                            width: 30px;
+                            height: 30px;
+                            border-radius: 50%;
+                        }
+                    }
                     .action_user_container {
                         display: flex;
                         justify-content: end;

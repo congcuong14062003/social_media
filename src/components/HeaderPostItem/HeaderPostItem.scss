@@ -51,27 +51,6 @@
                 background-color: var(--comment-backgroud);
                 cursor: pointer;
             }
-            .action_user_post_detail {
-                display: none;
-                position: absolute;
-                top: 100%;
-                width: max-content;
-                z-index: 1;
-                left: -200%;
-                transform: translateX(-50%);
-                background-color: var(--comment-backgroud);
-                padding: 5px 10px;
-                border-radius: 5px;
-                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-                button {
-                    margin: 5px;
-                }
-            }
-            &:hover {
-                .action_user_post_detail {
-                    display: flex;
-                }
-            }
         }
     }
 

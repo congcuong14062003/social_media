@@ -326,7 +326,7 @@ const VideoCall = ({ isVideoCall, userId }) => {
             <div className="video-call-container">
                 <div className="video-wrapper">
                     <video ref={localVideoRef} playsInline autoPlay muted className="user-video" />
-
+                    
                     {dataOwner?.user_id === sender_id ? (
                         statusCall ? (
                             <video ref={remoteVideoRef} autoPlay playsInline className="partner-video" />

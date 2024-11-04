@@ -74,27 +74,35 @@
                     font-weight: var(--main-font-weight);
                 }
             }
-            .custom_textfield .MuiOutlinedInput-root {
+            .custom_textfield .MuiOutlinedInput-root,
+            .datepicker_textfield .MuiOutlinedInput-root {
+                margin-top: 10px;
+
                 &.Mui-focused fieldset {
-                    border-color: var(--hover-item); /* Màu outline khi hover */
+                    border-color: var(--secondary-text); /* Màu outline khi focus */
                 }
 
                 &:hover fieldset {
-                    border-color: var(--primary-text); /* Màu outline khi focus */
+                    border-color: var(--primary-text); /* Màu outline khi hover */
                 }
 
                 fieldset {
-                    border-color: var(--hover-item); /* Màu outline khi hover */
+                    border-color: var(--primary-text);
+                }
+                svg {
+                    color: var(--primary-text)
                 }
             }
 
-            .custom_textfield .MuiInputBase-input {
-                color: var(--primary-text);
-                font-size: var(--sixteen-px);
+            .custom_textfield .MuiInputBase-input,
+            .datepicker_textfield .MuiInputBase-input {
+                color: var(--secondary-text);
+                font-size: var(--fourteen-px);
                 font-weight: var(--main-font-weight);
             }
 
-            .custom_textfield label.Mui-focused {
+            .custom_textfield label.Mui-focused,
+            .datepicker_textfield label.Mui-focused {
                 color: var(--secondary-text);
             }
         }

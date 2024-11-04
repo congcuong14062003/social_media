@@ -3,16 +3,18 @@ import { Button } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import './ToolTip.scss';
-function ToolTip({ children, title, onClick }) {
+function ToolTip({ children, title, onClick, className }) {
+    const classes = `main_tooltip ${className}`;
     return (
         <Tooltip
             onClick={onClick}
-            className="main_tooltip"
+            className={classes}
             title={<span className="tooltip_title">{title}</span>}
             arrow
             componentsProps={{
                 tooltip: {
                     sx: {
+                        // marginTop: '0px',
                         // bgcolor: 'rgba(0, 0, 0, 0.8)', // Màu nền đen với độ trong suốt 80%
                         // color: 'white', // Màu chữ
                         // border: '1px solid #dadde9',

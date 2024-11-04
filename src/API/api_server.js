@@ -74,6 +74,7 @@ const API_DELETE_REACT_POST = (id) => `${API_HOST}/posts/delete-react-post/${id}
 ////// STORY
 const API_CREATE_STORY = API_HOST + '/stories/create-story';
 const API_LIST_STORY = API_HOST + '/stories/list-story';
+const API_DELETE_STORY_BY_ID = (id) => `${API_HOST}/stories/delete/${id}`;
 const API_STORY_BY_ID = (id) => `${API_HOST}/stories/story-by-id/${id}`;
 const API_CREATE_HEART_STORY = (id) => `${API_HOST}/stories/create-heart-story/${id}`;
 
@@ -162,5 +163,6 @@ export {
     API_CREATE_STORY,
     API_LIST_STORY,
     API_STORY_BY_ID,
-    API_CREATE_HEART_STORY
+    API_CREATE_HEART_STORY,
+    API_DELETE_STORY_BY_ID
 };

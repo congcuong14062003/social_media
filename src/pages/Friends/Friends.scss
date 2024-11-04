@@ -1,3 +1,4 @@
+@import '../../assets/styles/mixin.scss';
 .friend_home_container {
     display: flex;
     width: 100vw;
@@ -5,7 +6,7 @@
     .left_container {
         height: 100%;
         box-shadow: 10px 0 5px -2px #888;
-        width: 360px;
+        flex: 1;
         background-color: var(--navbar-background-color);
         border-right: 1px solid var(--comment-backgroud);
         .content {
@@ -20,15 +21,15 @@
     .right_container {
         height: 100%;
         overflow: auto;
-        flex: 1;
+        flex: 3;
         display: flex;
         background-color: var(--right-background-story);
         padding: 20px;
         .friend_invitation {
             width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-            gap: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            margin: -20px -10px;
         }
         .blank_content {
             display: flex;
@@ -40,6 +41,13 @@
                 font-size: 30px;
                 font-weight: bold;
             }
+        }
+    }
+}
+@include Responsive(mobile) {
+    .friend_home_container {
+        .left_container {
+            flex: 2;
         }
     }
 }

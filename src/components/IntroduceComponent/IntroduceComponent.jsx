@@ -11,48 +11,48 @@ const formatJoinDate = (isoDate) => {
 
     return `tháng ${month} năm ${year}`;
 };
-function IntroduceComponent() {
-    const dataOwner = useContext(OwnDataContext);
+function IntroduceComponent({dataUser}) {
+    // const dataOwner = useContext(OwnDataContext);
     return (
         <ComponentProfile title="Giới thiệu">
             <div className="content_introduce">
-                {dataOwner?.date_of_birth && (
+                {dataUser?.date_of_birth && (
                     <div className="list_infor_introduce">
                         <img src={images.lamviec} alt="" />
                         <p>
-                            Ngày sinh <span>{dataOwner?.date_of_birth}</span>
+                            Ngày sinh <span>{dataUser?.date_of_birth}</span>
                         </p>
                     </div>
                 )}
-                {dataOwner?.user_work  && (
+                {dataUser?.user_work  && (
                     <div className="list_infor_introduce">
                         <img src={images.lamviec} alt="" />
                         <p>
-                            Làm việc tại <span>{dataOwner?.user_work}</span>
+                            Làm việc tại <span>{dataUser?.user_work}</span>
                         </p>
                     </div>
                 )}
-                {dataOwner?.user_address && (
+                {dataUser?.user_address && (
                     <div className="list_infor_introduce">
                         <img src={images.livefrom} alt="" />
                         <p>
-                            Địa chỉ <span>{dataOwner?.user_address}</span>
+                            Địa chỉ <span>{dataUser?.user_address}</span>
                         </p>
                     </div>
                 )}
-                {dataOwner?.user_school && (
+                {dataUser?.user_school && (
                     <div className="list_infor_introduce">
                         <img src={images.dentu} alt="" />
                         <p>
-                            Học tại <span>{dataOwner?.user_school}</span>
+                            Học tại <span>{dataUser?.user_school}</span>
                         </p>
                     </div>
                 )}
-                {dataOwner?.created_at && (
+                {dataUser?.created_at && (
                     <div className="list_infor_introduce">
                         <img src={images.thamgia} alt="" />
                         <p>
-                            Tham gia vào <span>{formatJoinDate(dataOwner?.created_at)}</span>
+                            Tham gia vào <span>{formatJoinDate(dataUser?.created_at)}</span>
                         </p>
                     </div>
                 )}

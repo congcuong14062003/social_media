@@ -1,0 +1,27 @@
+/* CSS cho từng item trong sidebar */
+.sidebar-container {
+    background-color: var(--survey-backgroud); /* Xám đậm */
+    color: white; /* Màu chữ sáng */
+    height: 100%; /* Chiếm toàn bộ chiều cao của drawer */
+    a {
+        &.active {
+            font-weight: bold;
+            color: var(--primary-color);
+            svg path {
+                fill: var(--primary-color);
+            }
+            .container_item {
+                .title_item {
+                    color: var(--primary-color);
+                }
+            }
+        }
+    }
+    .container_item {
+        padding: 16px;
+        margin-right: 5px;
+        svg {
+            color: var(--icon-color);
+        }
+    }
+}

@@ -24,6 +24,7 @@ import {
     API_LIST_FRIEND_BY_ID,
 } from '../../API/api_server';
 import ModalProfile from '../../components/Modal/ModalProfile/ModalProfile';
+import { getMutualFriends } from '../../services/fetch_api';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -49,9 +50,15 @@ function ProfilePage() {
     const [value, setValue] = useState(0);
     const { id_user } = useParams();
     const [isFriend, setIsFriend] = useState(false);
-    const myData = useContext(OwnDataContext);
+    const dataOwner = useContext(OwnDataContext);
     const [openEditProfile, setOpenEditProfile] = useState(false);
     const [totalFriends, setTotalFriends] = useState();
+    const [countMutual, setCountMutual] = useState();
+    const [listFriendMutuals, setListFriendMutuals] = useState([]);
+    // Cuộn lên đầu trang khi vào trang hoặc khi đường dẫn thay đổi
+    useEffect(() => {
+        window.scrollTo(0, 0); // Cuộn lên đầu trang
+    }, [id_user]); // Theo dõi sự thay đổi của đường dẫn
     useEffect(() => {
         switch (location.pathname) {
             case `/profile/${id_user}/anh`:
@@ -71,7 +78,22 @@ function ProfilePage() {
     };
 
     const [dataUser, setDataUser] = useState(null);
+    useEffect(() => {
+        if (!id_user) return;
 
+        const fetchFriends = async () => {
+            if (dataOwner && dataOwner.user_id !== id_user) {
+                try {
+                    const response = await getMutualFriends(dataOwner?.user_id, id_user);
+                    setListFriendMutuals(response);
+                    setCountMutual(response?.length);
+                } catch (error) {
+                    console.error('Failed to fetch friends:', error);
+                }
+            }
+        };
+        fetchFriends();
+    }, [dataOwner, id_user]);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -137,7 +159,7 @@ function ProfilePage() {
                             </Link>
                         ) : (
                             <div className="footer_cover">
-                                {dataUser?.user_id === myData?.user_id && (
+                                {dataUser?.user_id === dataOwner?.user_id && (
                                     <div onClick={() => setOpenEditProfile(true)} className="add_cover_image">
                                         <IoCamera />
                                         <span>Thêm ảnh bìa</span>
@@ -156,9 +178,19 @@ function ProfilePage() {
                         </div>
                         <div className="infor_header_user">
                             <div className="user_name_header">{dataUser && dataUser?.user_name}</div>
-                            <div className="count_friend">{totalFriends} bạn bè</div>
+                            <div className="count_friend">
+                                {totalFriends} người bạn{' '}
+                                {dataOwner?.user_id !== id_user && <span>({countMutual} bạn chung)</span>}
+                            </div>
+                            <div className="list_friend_mutual">
+                                {listFriendMutuals.map((item, index) => (
+                                    <Link key={index} to={`${config.routes.profile}/${item?.friend_id}`}>
+                                        <img src={item?.avatar_link} />
+                                    </Link>
+                                ))}
+                            </div>
                             <div className="action_user_container">
-                                {dataUser?.user_id === myData?.user_id ? (
+                                {dataUser?.user_id === dataOwner?.user_id ? (
                                     <>
                                         <ButtonCustom
                                             onClick={handleOpenModelProfile}

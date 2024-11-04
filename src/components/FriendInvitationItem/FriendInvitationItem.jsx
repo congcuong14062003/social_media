@@ -6,10 +6,12 @@ import './FriendInvitationItem.scss';
 import config from '../../configs';
 import { toast } from 'react-toastify';
 function FriendInvitationItem({ data }) {
+    console.log(data);
+    
     const navigate = useNavigate();
     const handleAcceptInvite = async (event) => {
         event.stopPropagation();
-        const response = await postData(API_ACCEPT_INVITE(data.user_id));
+        const response = await postData(API_ACCEPT_INVITE(data?.user_id));
         if (response.status === true) {
             navigate(`${config.routes.friends}/list-friend`);
         }
@@ -17,7 +19,7 @@ function FriendInvitationItem({ data }) {
     };
     const handleCancelRequest = async (event) => {
         event.stopPropagation();
-        const response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id));
+        const response = await postData(API_CANCEL_FRIEND_REQUEST(data?.user_id));
         if (response.status === true) {
             navigate(`${config.routes.friends}/suggestion`);
             toast.success("Huỷ lời mời kết bạn thành công");

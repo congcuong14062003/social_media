@@ -16,6 +16,7 @@ import { useDispatch } from 'react-redux';
 import { darkHandle, lightHandle } from '../../../redux/Reducer/reducer';
 import { useSocket } from '../../../provider/socket_context';
 import ToggleButton from 'react-toggle-button';
+import SideBarMobile from '../../SideBarMobile/SideBarMobile';
 
 function Header() {
     const dataUser = useContext(OwnDataContext);
@@ -93,6 +94,9 @@ function Header() {
                 </NavLink>
             </div>
             <div className="right_header">
+                <div className="navbar_mobile">
+                    <SideBarMobile />
+                </div>
                 {privateKey && (
                     <PrimaryIcon
                         className={activeMessage ? 'active_popover' : ''}

@@ -65,6 +65,7 @@
         }
         .center__container {
             flex: 3;
+            padding: 0;
 
         }
         .right__container {
@@ -79,6 +80,22 @@
         }
         .center__container {
             flex: 1;
+            padding: 0 50px;
+
+        }
+        .right__container {
+            display: none;
+        }
+    }
+}
+@include Responsive(mobile) {
+    .home__container {
+        .left__container {
+            display: none;
+        }
+        .center__container {
+            flex: 1;
+            padding: 0px;
 
         }
         .right__container {

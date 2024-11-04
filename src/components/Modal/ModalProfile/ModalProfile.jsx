@@ -14,7 +14,9 @@ import config from '../../../configs';
 import { LoadingIcon } from '../../../assets/icons/icons';
 import { useLoading } from '../../Loading/Loading';
 import { TextField } from '@mui/material';
-
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { vi } from 'date-fns/locale';
 function ModalProfile({ openModel, closeModel, dataUser }) {
     const [avatar, setAvatar] = useState(null);
     const [coverPhoto, setCoverPhoto] = useState(null);
@@ -49,7 +51,7 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
             setAvatar(dataUser.avatar);
             setCoverPhoto(dataUser.cover);
             setUsername(dataUser.user_name);
-            setDob(dataUser.date_of_birth);
+            setDob(dataUser.date_of_birth ? new Date(dataUser.date_of_birth) : null);
             setWorkplace(dataUser.user_work);
             setSchoolPlace(dataUser.user_school);
             setAddress(dataUser.user_address);
@@ -108,7 +110,10 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
 
             // Chỉ thêm thông tin nếu có giá trị hợp lệ
             if (user_name) formData.append('user_name', user_name);
-            if (date_of_birth) formData.append('date_of_birth', date_of_birth);
+            if (date_of_birth) {
+                const formattedDate = date_of_birth.toISOString().split('T')[0]; // YYYY-MM-DD
+                formData.append('date_of_birth', formattedDate);
+            }
             if (user_work) formData.append('user_work', user_work);
             if (user_school) formData.append('user_school', user_school);
             if (user_address) formData.append('user_address', user_address);
@@ -235,35 +240,56 @@ function ModalProfile({ openModel, closeModel, dataUser }) {
                                 className="custom_textfield"
                             />
                         </div>
-                        {/* <TextField
-                            className="form_group"
-                            value={user_name}
-                            onChange={(e) => setUsername(e.target.value)}
-                            id="outlined-basic"
-                            variant="outlined"
-                        /> */}
                         {/* Date of Birth Input */}
                         <div className="form_group">
                             <label>Ngày sinh</label>
-                            <input type="date" value={date_of_birth} onChange={(e) => setDob(e.target.value)} />
+                            <LocalizationProvider dateAdapter={AdapterDateFns} locale={vi}>
+                                <DatePicker
+                                    className="custom_textfield"
+                                    value={date_of_birth}
+                                    onChange={(newValue) => setDob(newValue)}
+                                    renderInput={(params) => <TextField className="custom_textfield" {...params} />}
+                                />
+                            </LocalizationProvider>
                         </div>
 
                         {/* Workplace Input */}
                         <div className="form_group">
                             <label>Nơi làm việc</label>
-                            <input type="text" value={user_work} onChange={(e) => setWorkplace(e.target.value)} />
+                            {/* <input type="text" value={user_work} onChange={(e) => setWorkplace(e.target.value)} /> */}
+                            <TextField
+                                value={user_work}
+                                onChange={(e) => setWorkplace(e.target.value)}
+                                id="outlined-basic"
+                                variant="outlined"
+                                className="custom_textfield"
+                            />
                         </div>
 
                         {/* Nickname Input */}
                         <div className="form_group">
                             <label>Học tại</label>
-                            <input type="text" value={user_school} onChange={(e) => setSchoolPlace(e.target.value)} />
+                            {/* <input type="text" value={user_school} onChange={(e) => setSchoolPlace(e.target.value)} /> */}
+                            <TextField
+                                value={user_school}
+                                onChange={(e) => setSchoolPlace(e.target.value)}
+                                id="outlined-basic"
+                                variant="outlined"
+                                className="custom_textfield"
+                            />
                         </div>
 
                         {/* Address Input */}
                         <div className="form_group">
                             <label>Địa chỉ</label>
-                            <input type="text" value={user_address} onChange={(e) => setAddress(e.target.value)} />
+                            {/* <input type="text" value={user_address} onChange={(e) => setAddress(e.target.value)} /> */}
+                            <TextField
+                                value={user_address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                id="outlined-basic"
+                                variant="outlined"
+                                className="custom_textfield"
+                            />
                         </div>
 
                         {/* Submit Button */}

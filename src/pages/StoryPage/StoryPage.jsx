@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef, useContext } from 'react';
 import './StoryPage.scss';
 import { FaPlus, FaHandHoldingHeart } from 'react-icons/fa6';
 import { Link, useParams, useNavigate } from 'react-router-dom';
@@ -6,15 +6,17 @@ import { MdDelete } from 'react-icons/md';
 import soundClickHeart from '../../assets/audio/mp3/comedy_pop_finger_in_mouth_001.mp3';
 import ClassicPostLoader from '../../skeleton/classic_post_loader';
 import StoryPageItem from './StoryPageItem/StoryPageItem';
-import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
-import { API_CREATE_HEART_STORY, API_LIST_STORY, API_STORY_BY_ID } from '../../API/api_server';
+import { deleteData, getData, postData } from '../../ultils/fetchAPI/fetch_API';
+import { API_CREATE_HEART_STORY, API_DELETE_STORY_BY_ID, API_LIST_STORY, API_STORY_BY_ID } from '../../API/api_server';
 import config from '../../configs';
 import { timeAgo } from '../../ultils/formatDate/format_date';
 import images from '../../assets/imgs';
+import PrimaryIcon from '../../components/PrimaryIcon/PrimaryIcon';
+import { OwnDataContext } from '../../provider/own_data';
 
 function StoryPage() {
+    const dataOwner = useContext(OwnDataContext);
     const [isVisible, setIsVisible] = useState(false);
-
     const [heartQuantity, setHeartQuantity] = useState(1000);
     const [contentLoaded, setContentLoaded] = useState(false);
     const [dataStory, setDataStory] = useState();
@@ -98,7 +100,22 @@ function StoryPage() {
     //     const nextIndex = (currentIndex + 1) % listStory.length; // Quay vòng khi đến tin cuối.
     //     navigate(`/story/${listStory[nextIndex]?.story_id}`);
     // };
-
+    // xoá story
+    const handleDeleteStory = async () => {
+        try {
+            const response = await deleteData(API_DELETE_STORY_BY_ID(id_story));
+            if (response?.status === true) {
+                // Xóa tin khỏi danh sách tin.
+                setTimeout(() => {
+                    window.location.href = config.routes.home;
+                }, 1000);
+            } else {
+                console.error('Lỗi: Không thể xóa tin.');
+            }
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+        }
+    };
     return (
         <div className="story_container_main">
             <div className="story-main">
@@ -151,7 +168,15 @@ function StoryPage() {
                                                     <p className="name">
                                                         {dataStory?.user_name} <b>{timeAgo(dataStory?.created_at)}</b>
                                                     </p>
-                                                    <MdDelete />
+                                                    {dataOwner?.user_id === dataStory?.user_id ? (
+                                                        <PrimaryIcon
+                                                            onClick={handleDeleteStory}
+                                                            className="delete_story"
+                                                            icon={<MdDelete />}
+                                                        />
+                                                    ) : (
+                                                        ''
+                                                    )}
                                                 </div>
                                                 <p className="quantity-heart">
                                                     <FaHandHoldingHeart /> <p>{heartQuantity} lượt thích</p>

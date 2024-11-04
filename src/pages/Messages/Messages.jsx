@@ -69,7 +69,7 @@ function MessagesPage() {
     const [codeMessage, setCodeMessage] = useState(false);
     const [hasPrivateKey, setHasPrivateKey] = useState(false);
     const [showReply, setShowReply] = useState(false);
-    const [contentReply, setContentReply] = useState(null);
+    const [idReply, setIDReply] = useState(null);
     const [isTyping, setIsTyping] = useState(false);
     const [receiverIsTyping, setReceiverIsTyping] = useState(false);
     const socket = useSocket();
@@ -79,6 +79,15 @@ function MessagesPage() {
     const [loading, setLoading] = useState(false);
     const [isSending, setIsSending] = useState(false); // State to track if a message is being sent
     const [loadingSend, setLoadingSend] = useState(false);
+    const [contentReply, setContentReply] = useState(null);
+    const handleSetReply = (reply_messenger_id) => {
+        if (reply_messenger_id) {
+            const replyElement = document.querySelector(`.message-${reply_messenger_id}`);
+            if (replyElement) {
+                setContentReply(replyElement.outerHTML);
+            }
+        }
+    };
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
     const privateKey = localStorage.getItem('private-key');
@@ -102,7 +111,6 @@ function MessagesPage() {
     useEffect(() => {
         checkIfFriend();
     }, [id_receiver]);
-
 
     //Check xem người dùng đã có cặp key chưa
     const checkExistKeyPair = async () => {
@@ -166,8 +174,8 @@ function MessagesPage() {
                 setMessages((prevMessages) => [
                     ...prevMessages,
                     {
-                        reply_text: data?.reply_text,
-                        reply_type: data?.reply_type,
+                        messenger_id: data?.messenger_id,
+                        reply_id: data?.reply_id,
                         sender_id: data?.sender_id,
                         receiver_id: id_receiver,
                         content_text: data?.content_text,
@@ -376,8 +384,7 @@ function MessagesPage() {
                     content_text: formattedMessage,
                     sender_id: dataOwner?.user_id,
                     receiver_id: id_receiver,
-                    reply_text: contentReply?.content,
-                    reply_type: contentReply?.reply_type,
+                    reply_id: idReply,
                 };
             } else {
                 newMessage = {
@@ -385,8 +392,7 @@ function MessagesPage() {
                     content_text: message,
                     sender_id: dataOwner?.user_id,
                     receiver_id: id_receiver,
-                    reply_text: contentReply?.content,
-                    reply_type: contentReply?.reply_type,
+                    reply_id: idReply,
                 };
             }
 
@@ -397,8 +403,7 @@ function MessagesPage() {
                     content_text: newMessage.content_text,
                     sender_id: newMessage.sender_id,
                     receiver_id: newMessage.receiver_id,
-                    reply_text: newMessage.reply_text,
-                    reply_type: newMessage.reply_type,
+                    reply_id: newMessage.reply_id,
                 });
             } catch (error) {
                 console.log('Error sending text message: ', error);
@@ -437,8 +442,7 @@ function MessagesPage() {
                 formData.append('sender_id', dataOwner?.user_id);
                 formData.append('receiver_id', id_receiver);
                 if (showReply) {
-                    formData.append('reply_text', contentReply?.content);
-                    formData.append('reply_type', contentReply?.reply_type);
+                    formData.append('reply_id', idReply);
                 }
                 // Gửi từng file qua API
                 try {
@@ -455,11 +459,8 @@ function MessagesPage() {
                         sender_id: dataOwner?.user_id,
                         receiver_id: id_receiver,
                         name_file: file.file.name ?? 'Không xác định',
-                        reply_text: contentReply?.content,
-                        reply_type: contentReply?.reply_type,
+                        reply_id: idReply,
                     };
-
-                    setMessages((prevMessages) => [...prevMessages, fileMessage]);
                 } catch (error) {
                     console.log('Error sending file: ', error);
                 }
@@ -467,14 +468,13 @@ function MessagesPage() {
         }
 
         // Cập nhật tin nhắn vào state với tin nhắn văn bản
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
         // Reset lại input và tệp tin
         setMessage(''); // Reset input
         setFiles([]);
         setShowFilePond(false);
         setShowAudio(false);
         setShowReply(false);
-        setContentReply({});
+        setIDReply();
         setLoadingSend(false);
         setIsSending(false); // Set back to false when done
     };
@@ -491,7 +491,7 @@ function MessagesPage() {
             sender_id: dataOwner?.user_id,
             receiver_id: id_receiver,
             name_file: audioFile.name ?? 'Unknown', // Default to 'Unknown' if no name
-            reply_text: contentReply?.content,
+            reply_id: idReply,
         };
         formData.append('file', audioFile, audioFile.name); // Assuming audioFile contains the file object
         formData.append('content_type', 'audio');
@@ -500,8 +500,7 @@ function MessagesPage() {
         formData.append('sender_id', dataOwner?.user_id);
         formData.append('receiver_id', id_receiver);
         if (showReply) {
-            formData.append('reply_text', contentReply?.content);
-            formData.append('reply_type', contentReply?.reply_type);
+            formData.append('reply_id', idReply);
         }
         // Try sending the audio file via API
         try {
@@ -511,7 +510,6 @@ function MessagesPage() {
                 },
             });
             // Update the UI with the new message
-            setMessages((prevMessages) => [...prevMessages, newMessage]);
         } catch (error) {
             console.log('Error sending audio message: ', error);
         }
@@ -521,12 +519,13 @@ function MessagesPage() {
         setShowFilePond(false);
         setShowAudio(false);
         setShowReply(false);
-        setContentReply({});
+        setIDReply();
     };
     // click nút gọi
     // Đăng ký và gửi thông báo đến người nghe
+
     const handleClickCall = (type_call) => {
-        if (socket && id_receiver && dataOwner?.user_id && isOnline) {
+        if (socket && id_receiver && dataOwner?.user_id) {
             socket.emit('registerUser', { user_id: dataOwner?.user_id });
             const receiver_id = id_receiver;
             const sender_id = dataOwner?.user_id;
@@ -592,11 +591,11 @@ function MessagesPage() {
                                     {/* Render danh sách tin nhắn */}
                                     {messages.map((msg, index) => (
                                         <MessagesItems
-                                            handleClickCall={()=> handleClickCall('video-call')}
-                                            reply_text={msg.reply_text}
-                                            reply_type={msg.reply_type}
+                                            messenger_id={msg?.messenger_id}
+                                            handleClickCall={() => handleClickCall('video-call')}
+                                            reply_id={msg.reply_id}
                                             setShowReply={setShowReply}
-                                            setContentReply={setContentReply}
+                                            setIDReply={setIDReply}
                                             key={index}
                                             inputRef={inputRef} // Truyền ref vào MessagesItems
                                             index={index}
@@ -625,21 +624,16 @@ function MessagesPage() {
                                     <div className="left_reply">
                                         <div className="title_reply">
                                             Trả lời tin nhắn{' '}
-                                            {contentReply?.senderId === id_receiver
-                                                ? dataFriend?.user_name
-                                                : 'chính mình'}
+                                            {idReply && (
+                                                <div
+                                                    dangerouslySetInnerHTML={{
+                                                        __html:
+                                                            document.querySelector(`.messenger-id-${idReply}`)
+                                                                ?.outerHTML ?? null,
+                                                    }}
+                                                />
+                                            )}
                                         </div>
-                                        {contentReply.reply_type === 'image' && <img src={contentReply.content} />}
-                                        {contentReply.reply_type === 'text' && <p>{contentReply?.content}</p>}
-                                        {contentReply.reply_type === 'audio' && <p>{contentReply?.title}</p>}
-                                        {contentReply.reply_type === 'video' && <p>{contentReply?.title}</p>}
-                                        {contentReply.reply_type === 'other' && <p>{contentReply?.name}</p>}
-                                        {contentReply.reply_type === 'call:accepted' && <p>{contentReply?.content}</p>}
-                                        {contentReply.reply_type === 'call:missed' && <p>{contentReply?.content}</p>}
-                                        {/* {contentReply.reply_type ==='link' && <p>{contentReply?.content}</p>} */}
-                                        {contentReply.reply_type === 'link' && (
-                                            <p dangerouslySetInnerHTML={{ __html: contentReply?.content }}></p>
-                                        )}
                                     </div>
                                     <div className="right_reply">
                                         <IoMdCloseCircle

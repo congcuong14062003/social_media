@@ -67,8 +67,28 @@ function HeaderPostItem({ dataPost, setShowEditPost }) {
 
                 {dataOwner?.user_id === dataPost?.user_id && (
                     <div className="action_user_post">
-                        <FontAwesomeIcon icon={faEllipsis} />
-                        <div className="action_user_post_detail">
+                        <ToolTip
+                            className="post_tooltip"
+                            title={
+                                <div className="action_user_post_detail">
+                                    <ButtonCustom
+                                        startIcon={<MdModeEditOutline />}
+                                        title="Chỉnh sửa"
+                                        className="primary"
+                                        onClick={handlEditPost}
+                                    />
+                                    <ButtonCustom
+                                        onClick={handleDeletePost}
+                                        startIcon={<MdDelete />}
+                                        title="Xoá"
+                                        className="secondary"
+                                    />
+                                </div>
+                            }
+                        >
+                            <FontAwesomeIcon icon={faEllipsis} />
+                        </ToolTip>
+                        {/* <div className="action_user_post_detail">
                             <ButtonCustom
                                 startIcon={<MdModeEditOutline />}
                                 title="Chỉnh sửa"
@@ -81,7 +101,7 @@ function HeaderPostItem({ dataPost, setShowEditPost }) {
                                 title="Xoá"
                                 className="secondary"
                             />
-                        </div>
+                        </div> */}
                     </div>
                 )}
             </div>

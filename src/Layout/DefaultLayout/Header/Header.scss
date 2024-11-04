@@ -1,3 +1,4 @@
+@import '../.././../assets/styles/mixin.scss';
 .header_container {
     height: var(--header-height);
     background-color: var(--header-color);
@@ -81,6 +82,7 @@
             }
             svg {
                 // color: #ccc;
+                color: var(--secondary-icon)
             }
         }
     }
@@ -100,4 +102,23 @@
 }
 .popover_custom {
     background-color: var(--card-background) !important;
+}
+
+
+@include Responsive(tabletandmobile) {
+    .header_container {
+        .center_header {
+            display: none;
+        }
+    }
+}
+
+@include Responsive(desktop) {
+    .header_container {
+        .right_header {
+           .navbar_mobile {
+            display: none;
+           }
+        }
+    }
 }
