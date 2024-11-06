@@ -48,15 +48,30 @@ function ListStory() {
             btnNext.style.display = indexItemStart >= listStory.length - 4 ? 'none' : 'block';
         }
     }, [indexItemStart, listStory]);
+    const groupStoriesByUser = (stories) => {
+        const groupedStories = {};
 
+        stories.forEach((story) => {
+            const { user_id } = story;
+            if (!groupedStories[user_id]) {
+                groupedStories[user_id] = {
+                    user_id: story.user_id,
+                    user_name: story.user_name,
+                    user_avatar: story.user_avatar,
+                    stories: [],
+                };
+            }
+            groupedStories[user_id].stories.push(story);
+        });
+
+        return Object.values(groupedStories);
+    };
+    const groupedStories = groupStoriesByUser(listStory);
     return (
         <React.Fragment>
             <div className="list_stories_container">
-                {listStory.length > 4 && (
-                    <FaCircleChevronLeft
-                        className="btn btn-prev"
-                        onClick={() => handleTransition('prev')}
-                    />
+                {groupedStories.length > 4 && (
+                    <FaCircleChevronLeft className="btn btn-prev" onClick={() => handleTransition('prev')} />
                 )}
 
                 <ul
@@ -81,22 +96,17 @@ function ListStory() {
                         </div>
                     )}
 
-                    {listStory.slice(indexItemStart, indexItemStart + 4).map((data, index) => (
+                    {groupedStories.slice(indexItemStart, indexItemStart + 4).map((data, index) => (
                         <StoryItem key={index} data={data} />
                     ))}
                 </ul>
 
-                {listStory.length > 4 && (
-                    <FaCircleChevronRight
-                        className="btn btn-next"
-                        onClick={() => handleTransition('next')}
-                    />
+                {groupedStories.length > 4 && (
+                    <FaCircleChevronRight className="btn btn-next" onClick={() => handleTransition('next')} />
                 )}
             </div>
         </React.Fragment>
     );
 }
-
-
 
 export default ListStory;

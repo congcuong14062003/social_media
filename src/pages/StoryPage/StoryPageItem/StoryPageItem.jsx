@@ -6,7 +6,7 @@ import PopupInfoShort from "../../../components/PopupInfoShort/PopupInfoShort";
 import { timeAgo } from "../../../ultils/formatDate/format_date";
 import config from "../../../configs";
 
-function StoryPageItem({ active, data }) {
+function StoryPageItem({ active, data, onClick}) {
     const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
@@ -18,15 +18,17 @@ function StoryPageItem({ active, data }) {
     return (
         <React.Fragment>
             {loaded ? (
-                <li className={`user-story--item ${active ? "active" : ""}`}>
-                    <Link to={`${config.routes.story}/${data?.story_id}`}>
+                <li onClick={onClick} className={`user-story--item ${active ? "active" : ""}`}>
+                    <Link to={`${config.routes.story}/user_id=${data?.user_id}`}>
                         <div className="img">
                             {/* <PopupInfoShort /> */}
                             <img src={data?.user_avatar} alt="" />
                         </div>
                         <div className="info">
                             <p className="name">{data?.user_name}</p>
-                            <p className="time">{timeAgo(data?.created_at)}</p>
+
+                            {/* <p className="time">{timeAgo(data?.created_at)}</p> */}
+                            <p className="time">{data?.stories.length} tin mới</p>
                         </div>
                     </Link>
                 </li>

@@ -23,3 +23,9 @@
         fill: var(--primary-color);
     }
 }
+.hover_icon {
+    background-color: transparent;
+    &:hover {
+        background-color: var(--secondary-button);
+    }
+}

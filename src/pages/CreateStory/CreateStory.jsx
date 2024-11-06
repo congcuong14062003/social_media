@@ -188,7 +188,7 @@ function CreateStory() {
             } else if (valueInput) {
                 const contentTextInput = document.querySelector('.preview');
                 // Sử dụng `dom-to-image-more` để chuyển đổi DOM thành PNG
-                const dataUrl = await domtoimage.toPng(contentTextInput, { quality: 0.95 });
+                const dataUrl = await domtoimage.toPng(contentTextInput, { quality: 1 });
                 const response = await fetch(dataUrl);
                 blob = await response.blob();
             }

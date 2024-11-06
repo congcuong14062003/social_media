@@ -3,11 +3,13 @@ import { BlockIcon, SearchIcon, SendFileIcon, UserIcon } from '../../assets/icon
 import AvatarUser from '../AvatarUser/AvatarUser';
 import PrimaryIcon from '../PrimaryIcon/PrimaryIcon';
 import './SettingMessages.scss';
-import { Search } from '@mui/icons-material';
 import ToolTip from '../ToolTip/ToolTip';
 import config from '../../configs';
 import { useState } from 'react';
-
+import { MdDelete } from "react-icons/md";
+import { API_DELETE_ALL_MESSAGE } from '../../API/api_server';
+import { deleteData } from '../../ultils/fetchAPI/fetch_API';
+import { toast } from 'react-toastify';
 function SettingMessages({ dataFriend, messages }) {
     const [openFile, setOpenFile] = useState(false);
     const [openFileOther, setOpenFileOther] = useState(false);
@@ -23,6 +25,18 @@ function SettingMessages({ dataFriend, messages }) {
             return !pre;
         });
     };
+      //Xoá all đoạn chat
+  const handleDeleteAllMessage = async () => {
+    try {
+      const response = await deleteData(API_DELETE_ALL_MESSAGE(dataFriend?.user_id));
+      if (response.status) {
+        toast.success("Xóa đoạn chat thành công!");
+        window.location.href = "/messages/" + dataFriend?.user_id;
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
     return (
         <div className="setting_message_container">
             <div className="receiver_infor">
@@ -53,7 +67,10 @@ function SettingMessages({ dataFriend, messages }) {
                     <BlockIcon />
                     <span>Chặn</span>
                 </div>
-                
+                <div className="item_action" onClick={handleDeleteAllMessage}>
+                <MdDelete />
+                    <span>Xoá đoạn chat</span>
+                </div>
                 <div className="item_action" onClick={handleOpenFile}>
                     <SendFileIcon />
                     <span>File phương tiện</span>
@@ -92,7 +109,6 @@ function SettingMessages({ dataFriend, messages }) {
                             if (message.content_type !== 'other') {
                                 return null;
                             }
-
                             return (
                                 <div
                                     key={index}

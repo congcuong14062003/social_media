@@ -16,13 +16,22 @@ function StoryItem({ data }) {
         <Fragment>
             <li className="story_item">
                 {loaded ? (
-                    <Link to={`${config.routes.story}/${data?.story_id}`}>
-                        <img className="media_story" src={data?.media_link} alt="" />
+                    // <Link to={`${config.routes.story}/${data?.stories[0]?.story_id}`}>
+                    //     <img className="media_story" src={data?.stories[0].media_link} alt="" />
+                    //     <div className="info_container">
+                    //         <span>
+                    //             <img src={data?.user_avatar} alt="" />
+                    //         </span>
+
+                    //         <div className="name">{data?.user_name}</div>
+                    //     </div>
+                    // </Link>
+                    <Link to={`${config.routes.story}/user_id=${data.user_id}`}>
+                        <img className="media_story" src={data?.stories[0].media_link} alt="" />
                         <div className="info_container">
                             <span>
                                 <img src={data?.user_avatar} alt="" />
                             </span>
-
                             <div className="name">{data?.user_name}</div>
                         </div>
                     </Link>

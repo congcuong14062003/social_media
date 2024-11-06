@@ -30,10 +30,7 @@
         max-width: 300px;
     }
     p {
-        height: 20px;
         a {
-            // height: 20px;
-            // display: block;
             color: var(--primary-color);
             text-decoration: underline;
             font-weight: var(--main-font-weight);
@@ -56,7 +53,7 @@
             }
         }
         .file-container {
-            height: 20px;
+            padding: 10px;
         }
     }
     .message_reply {
@@ -176,4 +173,17 @@
         font-size: var(--fourteen-px);
         font-weight: var(--secon-font-weight);
     }
+}
+.file-container {
+    padding: 10px;
+}
+.link_mesages {
+    padding: 10px;
+}
+.action_messages {
+    display: flex;
+    align-items: center;
+    height: 20px;
+    justify-content: space-around;
+    margin-left: 10px;
 }

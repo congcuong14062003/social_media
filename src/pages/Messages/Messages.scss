@@ -152,6 +152,9 @@
                         fill: var(--primary-color);
                     }
                 }
+                video {
+                    max-width: 50px !important;
+                }
             }
             .writting {
                 margin: 20px;

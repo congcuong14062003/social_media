@@ -59,21 +59,24 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover }) {
                         <Search iconSearch placeholder="Tìm kiếm trên messenger" />
                     </div>
                     <div className="chat_container">
-                        {conversations.map((conversation, index) => (
-                            <ChatItem
-                                key={index}
-                                nameFile={conversation.name_file}
-                                type={conversation.content_type}
-                                onClick={() => handleClickItem(conversation.messenger_id)}
-                                avatar={conversation.friend_avatar} // Avatar của bạn bè
-                                name={conversation.friend_name} // Tên bạn bè
-                                lastMessage={conversation.last_message} // Tin nhắn cuối
-                                time={conversation.last_message_time} // Thời gian tin nhắn cuối
-                                link={`/messages/${conversation.friend_id}`} // Đường dẫn đến cuộc trò chuyện
-                                sender_id={conversation.sender_id} // ID người gửi
-                                isActive={currentChatId === conversation.friend_id} // Kiểm tra nếu đây là cuộc trò chuyện hiện tại
-                            />
-                        ))}
+                        {conversations.map(
+                            (conversation, index) =>
+                                conversation.last_message !== null && (
+                                    <ChatItem
+                                        key={index}
+                                        nameFile={conversation.name_file}
+                                        type={conversation.content_type}
+                                        onClick={() => handleClickItem(conversation.messenger_id)}
+                                        avatar={conversation.friend_avatar} // Avatar của bạn bè
+                                        name={conversation.friend_name} // Tên bạn bè
+                                        lastMessage={conversation.last_message} // Tin nhắn cuối
+                                        time={conversation.last_message_time} // Thời gian tin nhắn cuối
+                                        link={`/messages/${conversation.friend_id}`} // Đường dẫn đến cuộc trò chuyện
+                                        sender_id={conversation.sender_id} // ID người gửi
+                                        isActive={currentChatId === conversation.friend_id} // Kiểm tra nếu đây là cuộc trò chuyện hiện tại
+                                    />
+                                ),
+                        )}
                     </div>
                 </>
             ) : (

@@ -44,6 +44,13 @@ const API_CANCEL_FRIEND_REQUEST = (id) => `${API_HOST}/friends/cancel-request/${
 const API_SEND_MESSAGE = (id) => API_HOST + '/messages/send-message/' + id;
 const API_GET_MESSAGES = (id) => `${API_HOST}/messages/all-messages/${id}`;
 const API_UPDATE_IS_READ = (id) => `${API_HOST}/messages/update-isseen/${id}`;
+const API_DELETE_ALL_MESSAGE = (id) =>
+    API_HOST + "/messages/delete-all-messenger/" + id;
+  const API_DELETE_MESSAGE = (id) =>
+    API_HOST + "/messages/delete-messenger/" + id;
+  const API_DELETE_MESSAGE_OWNER_SIDE = (id) =>
+    API_HOST + "/messages/delete-messenger-by-owner-side/" + id;
+
 
 const API_GET_CONVERSATIONS = `${API_HOST}/messages/conversations`;
 const API_CHECK_EXIST_KEY_PAIR = `${API_HOST}/messages/check-exists-keypair`;
@@ -147,6 +154,9 @@ export {
     API_UPDATE_IS_READ,
     API_DELETE_KEY_PAIR,
     API_CHECK_KEY_FRIEND,
+    API_DELETE_MESSAGE_OWNER_SIDE,
+    API_DELETE_MESSAGE,
+    API_DELETE_ALL_MESSAGE,
     // api post
     API_CREATE_POST,
     API_DELETE_POST,

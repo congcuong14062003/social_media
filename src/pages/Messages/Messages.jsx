@@ -24,6 +24,8 @@ import {
     API_CHECK_IF_FRIEND,
     API_CHECK_KEY_FRIEND,
     API_DELETE_KEY_PAIR,
+    API_DELETE_MESSAGE,
+    API_DELETE_MESSAGE_OWNER_SIDE,
     API_GET_INFO_USER_PROFILE_BY_ID,
     API_GET_MESSAGES,
     API_POST_DECODE_PRIVATE_KEY_PAIR,
@@ -87,6 +89,18 @@ function MessagesPage() {
                 setContentReply(replyElement.outerHTML);
             }
         }
+    };
+    //Biến lưu trạng thái icon xoá hiện hay không
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    // Mở menu khi bấm vào nút
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    // Đóng menu
+    const handleClose = () => {
+        setAnchorEl(null);
     };
     // Ref để cuộn đến tin nhắn mới nhất
     const messagesEndRef = useRef(null);
@@ -252,6 +266,11 @@ function MessagesPage() {
             //Lắng nghe sự kiện đối phương nhắn tin
             socket.on('receiverNotifiWritting', (data) => {
                 setReceiverIsTyping(data?.status);
+            });
+
+            // Lắng nghe sự kiện xoá tin nhắn từ phía người gửi
+            socket.on('message_deleted', ({ messageId }) => {
+                setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
             });
         } catch (error) {
             // console.log("error", error);
@@ -547,6 +566,30 @@ function MessagesPage() {
             toast.info('Người dùng này không trực tuyến!');
         }
     };
+
+    //Xoá tin nhắn
+    const handleDeleteMessage = async (messageId) => {
+        try {
+            const response = await deleteData(API_DELETE_MESSAGE(messageId));
+            if (response.status) {
+                setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
+                socket.emit('message_deleted', { messageId });
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    //Xoá tin nhắn bên mình
+    const handleDeleteMessageOwnSide = async (messageId) => {
+        try {
+            const response = await deleteData(API_DELETE_MESSAGE_OWNER_SIDE(messageId));
+            if (response.status) {
+                setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
@@ -591,6 +634,11 @@ function MessagesPage() {
                                     {/* Render danh sách tin nhắn */}
                                     {messages.map((msg, index) => (
                                         <MessagesItems
+                                            handleDeleteMessageOwnSide={handleDeleteMessageOwnSide}
+                                            handleDeleteMessage={handleDeleteMessage}
+                                            anchorEl={anchorEl}
+                                            handleClose={handleClose}
+                                            handleClick={handleClick}
                                             messenger_id={msg?.messenger_id}
                                             handleClickCall={() => handleClickCall('video-call')}
                                             reply_id={msg.reply_id}

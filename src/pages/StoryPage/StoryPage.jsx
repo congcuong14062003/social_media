@@ -1,191 +1,192 @@
-import React, { useCallback, useEffect, useState, useRef, useContext } from 'react';
-import './StoryPage.scss';
-import { FaPlus, FaHandHoldingHeart } from 'react-icons/fa6';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { FaPlus, FaHandHoldingHeart, FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 import { MdDelete } from 'react-icons/md';
 import soundClickHeart from '../../assets/audio/mp3/comedy_pop_finger_in_mouth_001.mp3';
 import ClassicPostLoader from '../../skeleton/classic_post_loader';
 import StoryPageItem from './StoryPageItem/StoryPageItem';
 import { deleteData, getData, postData } from '../../ultils/fetchAPI/fetch_API';
-import { API_CREATE_HEART_STORY, API_DELETE_STORY_BY_ID, API_LIST_STORY, API_STORY_BY_ID } from '../../API/api_server';
+import { API_CREATE_HEART_STORY, API_DELETE_STORY_BY_ID, API_LIST_STORY } from '../../API/api_server';
 import config from '../../configs';
 import { timeAgo } from '../../ultils/formatDate/format_date';
 import images from '../../assets/imgs';
 import PrimaryIcon from '../../components/PrimaryIcon/PrimaryIcon';
 import { OwnDataContext } from '../../provider/own_data';
+import './StoryPage.scss';
 
 function StoryPage() {
+    const { pathname } = useLocation();
+    const userId = pathname.split('user_id=')[1];
     const dataOwner = useContext(OwnDataContext);
     const [isVisible, setIsVisible] = useState(false);
-    const [heartQuantity, setHeartQuantity] = useState(1000);
     const [contentLoaded, setContentLoaded] = useState(false);
-    const [dataStory, setDataStory] = useState();
+    const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
     const [listStory, setListStory] = useState([]);
-    const { id_story } = useParams();
-    // console.log(">>>:", id_story);
+    const [selectedUserStories, setSelectedUserStories] = useState([]);
 
-    const navigate = useNavigate();
-    const [progress, setProgress] = useState(0); // Quản lý tiến trình.
-    const progressInterval = useRef(null); // Lưu interval để reset khi cần.
-
-    const handleClickHeart = useCallback(async () => {
-        try {
-            const soundClick = document.querySelector('.sound-click--heart');
-            soundClick.play(); // Phát âm thanh khi nhấn tim.
-            setIsVisible(true); // Hiển thị icon
-            setTimeout(() => setIsVisible(false), 1000); // Ẩn sau 1 giây
-            const response = await postData(API_CREATE_HEART_STORY(id_story));
-            if (response?.status === true) {
-                setHeartQuantity((prev) => prev + 1);
-            } else {
-                console.error('Lỗi: Không thể cập nhật tim.');
-            }
-        } catch (error) {
-            console.error('Lỗi khi gọi API:', error);
-        }
-    }, [id_story]);
-
-    // Tự động tải dữ liệu tin theo ID.
-    useEffect(() => {
-        const fetchStory = async () => {
-            const response = await getData(API_STORY_BY_ID(id_story));
-            if (response?.status === true) {
-                setDataStory(response?.story);
-                setHeartQuantity(response?.story.heart_quantity); // Lấy số lượng tim từ API.
-                setContentLoaded(true);
-            }
-        };
-        fetchStory();
-    }, [id_story]);
-
-    // Lấy danh sách tất cả tin.
+    // Fetch all stories and set selected user stories based on userId
     useEffect(() => {
         const fetchStories = async () => {
             const response = await getData(API_LIST_STORY);
             if (response?.status === true) {
                 setListStory(response?.stories);
+                const userStories = response?.stories.filter((story) => story.user_id === userId);
+                if (userStories.length) {
+                    setSelectedUserStories(userStories);
+                    setCurrentStoryIndex(0);
+                }
                 setContentLoaded(true);
             }
         };
         fetchStories();
-    }, []);
+    }, [userId]);
 
-    // Quản lý thanh tiến trình và tự động chuyển tin.
-    // useEffect(() => {
-    //     setProgress(0); // Reset progress khi đổi tin.
+    const handleNextStory = () => {
+        setCurrentStoryIndex((prevIndex) => (prevIndex < selectedUserStories.length - 1 ? prevIndex + 1 : 0));
+    };
 
-    //     progressInterval.current = setInterval(() => {
-    //         setProgress((prev) => {
-    //             if (prev >= 100) {
-    //                 // Nếu tiến trình đạt 100%, chuyển sang tin kế tiếp.
-    //                 nextStory();
-    //                 return 0;
-    //             }
-    //             return prev + 2; // Cập nhật progress mỗi 100ms (100ms * 50 lần = 5 giây).
-    //         });
-    //     }, 100);
+    const handlePrevStory = () => {
+        setCurrentStoryIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : selectedUserStories.length - 1));
+    };
 
-    //     return () => clearInterval(progressInterval.current); // Clear interval khi component unmount hoặc đổi tin.
-    // }, [id_story]);
+    const currentStory = selectedUserStories[currentStoryIndex];
 
-    // const nextStory = () => {
-    //     if (listStory.length <= 0 && !id_story) return;
-    //     const currentIndex = listStory.findIndex((story) => {
-    //         console.log(story.story_id, id_story);
+    const handleClickHeart = useCallback(async () => {
+        try {
+            const soundClick = document.querySelector('.sound-click--heart');
+            soundClick.play();
+            setIsVisible(true);
+            setTimeout(() => setIsVisible(false), 1000);
+            const response = await postData(API_CREATE_HEART_STORY(currentStory?.story_id));
+            if (response?.status === true) {
+                setSelectedUserStories((prevStories) =>
+                    prevStories.map((story) =>
+                        story.story_id === currentStory.story_id
+                            ? { ...story, heart_quantity: story.heart_quantity + 1 }
+                            : story
+                    )
+                );
+            } else {
+                console.error('Error: Could not update heart count.');
+            }
+        } catch (error) {
+            console.error('API call error:', error);
+        }
+    }, [currentStory]);
 
-    //         return story.story_id === id_story;
-    //     });
-    //     console.log(':::::::::', currentIndex);
-
-    //     const nextIndex = (currentIndex + 1) % listStory.length; // Quay vòng khi đến tin cuối.
-    //     navigate(`/story/${listStory[nextIndex]?.story_id}`);
-    // };
-    // xoá story
     const handleDeleteStory = async () => {
         try {
-            const response = await deleteData(API_DELETE_STORY_BY_ID(id_story));
+            const response = await deleteData(API_DELETE_STORY_BY_ID(currentStory?.story_id));
             if (response?.status === true) {
-                // Xóa tin khỏi danh sách tin.
                 setTimeout(() => {
                     window.location.href = config.routes.home;
                 }, 1000);
             } else {
-                console.error('Lỗi: Không thể xóa tin.');
+                console.error('Error: Could not delete story.');
             }
         } catch (error) {
-            console.error('Lỗi khi gọi API:', error);
+            console.error('API call error:', error);
         }
     };
+
+    const groupStoriesByUser = (stories) => {
+        const groupedStories = {};
+        stories.forEach((story) => {
+            const { user_id } = story;
+            if (!groupedStories[user_id]) {
+                groupedStories[user_id] = {
+                    user_id: story.user_id,
+                    user_name: story.user_name,
+                    user_avatar: story.user_avatar,
+                    stories: [],
+                };
+            }
+            groupedStories[user_id].stories.push(story);
+        });
+        return Object.values(groupedStories);
+    };
+
+    const groupedStories = groupStoriesByUser(listStory);
+
     return (
         <div className="story_container_main">
             <div className="story-main">
                 <div className="container">
                     <div className="story-container">
                         <div className="stories-present">
-                            <h2>Tin</h2>
-                            <h4>Tin của bạn</h4>
+                            <h2>Stories</h2>
+                            <h4>Your Story</h4>
                             <p className="description">
-                                Bạn có thể tạo tin bằng ảnh hoặc văn bản để chia sẻ với bạn bè.
+                                You can create a story with images or text to share with friends.
                             </p>
                             <Link to={config.routes.createStory}>
                                 <div className="ur-story">
                                     <FaPlus />
-                                    <h5>Tạo tin của bạn</h5>
+                                    <h5>Create Your Story</h5>
                                 </div>
                             </Link>
-                            <h4>Tất cả tin</h4>
+                            <h4>All Stories</h4>
                             <ul className="list-user--stories">
-                                {listStory.map((data) => (
+                                {groupedStories.map((data) => (
                                     <StoryPageItem
-                                        key={data.story_id}
+                                        key={data.user_id}
                                         data={data}
-                                        active={data.story_id === id_story}
+                                        active={data.user_id === userId}
+                                        onClick={() => setSelectedUserStories(data.stories)}
                                     />
                                 ))}
                             </ul>
                         </div>
 
                         <div className="content-story--main">
-                            {contentLoaded ? (
+                            {contentLoaded && currentStory ? (
                                 <div
                                     className="content-story--container"
-                                    style={{
-                                        '--background-url': `url(${dataStory?.media_link})`,
-                                    }}
+                                    style={{ '--background-url': `url(${currentStory?.media_link})` }}
                                 >
-                                    {/* Thanh tiến trình */}
-                                    {/* <div className="progress-bar">
-                                        <div className="progress" style={{ width: `${progress}%` }}></div>
-                                    </div> */}
-
+                                    <div className="pre_story" onClick={handlePrevStory}>
+                                        <PrimaryIcon icon={<FaChevronLeft />} />
+                                    </div>
                                     <div className="img-content--wrapper">
                                         <div className="content-info">
+                                            <div className="white-bar">
+                                                {groupedStories?.map((data) => {
+                                                    if (data?.user_id === userId) {
+                                                        return data?.stories?.map((story, storyIndex) => (
+                                                            <div
+                                                                key={story.story_id} // Use story_id as key
+                                                                className={`white-bar-segment ${currentStoryIndex === storyIndex ? 'active' : ''}`}
+                                                            ></div>
+                                                        ));
+                                                    }
+                                                })}
+                                            </div>
+
                                             <div className="content-img--avt">
-                                                <img src={dataStory?.user_avatar} alt="" />
+                                                <img src={currentStory?.user_avatar} alt="" />
                                             </div>
                                             <div className="content-info--detail">
                                                 <div className="info">
                                                     <p className="name">
-                                                        {dataStory?.user_name} <b>{timeAgo(dataStory?.created_at)}</b>
+                                                        {currentStory?.user_name}{' '}
+                                                        <b>{timeAgo(currentStory?.created_at)}</b>
                                                     </p>
-                                                    {dataOwner?.user_id === dataStory?.user_id ? (
+                                                    {dataOwner?.user_id === currentStory?.user_id && (
                                                         <PrimaryIcon
                                                             onClick={handleDeleteStory}
                                                             className="delete_story"
                                                             icon={<MdDelete />}
                                                         />
-                                                    ) : (
-                                                        ''
                                                     )}
                                                 </div>
                                                 <p className="quantity-heart">
-                                                    <FaHandHoldingHeart /> <p>{heartQuantity} lượt thích</p>
+                                                    <FaHandHoldingHeart /> <span>{currentStory.heart_quantity} lượt thích</span>
                                                 </p>
                                             </div>
                                         </div>
-                                        <img src={dataStory?.media_link} alt="" className="content" />
+                                        <img src={currentStory?.media_link} alt="" className="content" />
                                         <div className="icon-heart" onClick={handleClickHeart}>
-                                            {isVisible && <img src={images.heartStory} alt="Heart Icon" />}{' '}
+                                            {isVisible && <img src={images.heartStory} alt="Heart Icon" />}
                                             <lord-icon
                                                 src="https://cdn.lordicon.com/ohfmmfhn.json"
                                                 trigger="click"
@@ -193,8 +194,11 @@ function StoryPage() {
                                                 state="hover-heartbeat-alt"
                                                 colors="red"
                                             />
-                                            <p>Tặng {dataStory?.user_name} một lượt yêu thích ngay nào</p>
+                                            <p>gửi cho {currentStory?.user_name} lượt thích nào!</p>
                                         </div>
+                                    </div>
+                                    <div className="next_story" onClick={handleNextStory}>
+                                        <PrimaryIcon icon={<FaChevronRight />} />
                                     </div>
                                 </div>
                             ) : (

@@ -36,6 +36,8 @@
             align-items: center;
             svg {
                 color: var(--icon-color);
+                width: 20px;
+                height: 20px;
             }
             // svg path {
             //     fill: var(--icon-color);
@@ -59,7 +61,7 @@
             grid-template-columns: repeat(3, 1fr); /* 3 cột đều nhau */
             gap: 2px; /* Khoảng cách giữa các phần tử */
             padding-top: 20px;
-            border-top: 1px solid var(--border-color);;
+            border-top: 1px solid var(--border-color);
         }
 
         .media_item {
@@ -80,6 +82,7 @@
             }
         }
         .media_container_chat_file {
+            border-top: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             .media_item_other {
