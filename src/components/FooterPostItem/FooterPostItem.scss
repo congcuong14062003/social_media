@@ -250,3 +250,9 @@
         }
     }
 }
+.detail_post {
+    .comment_post_container {
+        max-height: 450px !important;
+        overflow: auto !important;
+    }
+}

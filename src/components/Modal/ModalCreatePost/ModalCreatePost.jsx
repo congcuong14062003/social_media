@@ -17,6 +17,7 @@ import { LoadingIcon } from '../../../assets/icons/icons';
 import ModalIcon from '../ModalIcon/ModalIcon';
 import { useLoading } from '../../Loading/Loading';
 import { toast } from 'react-toastify';
+import { useSocket } from '../../../provider/socket_context';
 
 const style = {
     position: 'absolute',
@@ -41,6 +42,7 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     const [showBtnSubmit, setShowBtnSubmit] = useState(false);
     const [isMediaChanged, setIsMediaChanged] = useState(false);
     const { showLoading, hideLoading } = useLoading();
+    const socket = useSocket();
     useEffect(() => {
         if (openModel) {
             if (isEdit && dataEdit) {
@@ -189,11 +191,21 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                 setLoadingSendPost(false);
                 closeModel();
                 setTimeout(() => window.location.reload(), 1000);
+                if (!isEdit && accessLabel === 'Công khai') {
+                    socket.emit('new_post', {
+                        user_create_post: dataOwner?.user_id,
+                        post_id: response?.post_id,
+                        userName: dataOwner?.user_name,
+                        postText: valueInput,
+                        created_at: new Date().toISOString(),
+                    });
+                }
             }
         } catch (error) {
             console.error('Lỗi:', error);
         } finally {
             hideLoading(); // Ẩn loading
+            // Gửi thông báo qua socket tới bạn bè khi tạo bài viết thành công
         }
     };
 
@@ -239,7 +251,6 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                                 </div>
                             </div>
                         </div>
-
                         <div className="input_post">
                             <textarea
                                 onChange={hanleChangeInput}
@@ -249,7 +260,6 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                                 placeholder={`${dataOwner?.user_name} ơi bạn đang nghĩ gì thế`}
                             />
                         </div>
-
                         {openSelectFile && (
                             <div className="file_and_others">
                                 <div className="select_file_post">

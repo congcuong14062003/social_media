@@ -1,17 +1,20 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
-import { getData } from '../ultils/fetchAPI/fetch_API';
+import { getData, postData } from '../ultils/fetchAPI/fetch_API';
 import { FaPhoneAlt, FaPhoneSlash } from 'react-icons/fa';
 import { OwnDataContext } from './own_data';
 import { toast } from 'react-toastify';
-import { API_GET_INFO_USER_PROFILE_BY_ID } from '../API/api_server';
+import { API_CREATE_NOTIFICATION, API_GET_INFO_USER_PROFILE_BY_ID } from '../API/api_server';
+import config from '../configs';
+
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const dataOwner = useContext(OwnDataContext);
     const navigate = useNavigate();
+
     useEffect(() => {
         const newSocket = io('http://localhost:8900', { transports: ['websocket'] });
         setSocket(newSocket);
@@ -48,16 +51,84 @@ export const SocketProvider = ({ children }) => {
             return null;
         }
     };
-
+    const addNotification = async (user_create_notice, post_owner_id, post_id, message, created_at, type) => {
+        try {
+            const response = await postData(API_CREATE_NOTIFICATION, {
+                user_create_notice,
+                user_id: post_owner_id,
+                content: message,
+                target_id: `${config.routes.post}/${post_id}`,
+                created_at,
+                type: type, // Bạn có thể thêm các loại thông báo nếu cần
+            });
+            if (response?.status) {
+                console.log('Thông báo đã được thêm thành công');
+            }
+        } catch (error) {
+            console.error('Lỗi khi thêm thông báo:', error);
+        }
+    };
     useEffect(() => {
         if (socket && dataOwner) {
             socket.emit('registerUser', { user_id: dataOwner?.user_id });
-            socket?.on('statusCallToUser', (data) => {
-                if(data.isCallRemoteAccepted === false) {
-                  toast.dismiss()
+
+            // Lắng nghe sự kiện thông báo bình luận
+            socket.on('newCommentNotification', async (data) => {
+                const { user_create_notice, post_owner_id, post_id, message, created_at } = data;
+                console.log('data: ', data);
+                // Kiểm tra xem người dùng hiện tại có phải là người đăng bài không
+                if (dataOwner?.user_id === post_owner_id) {
+                    // Hiển thị thông báo
+                    toast.info(message, {
+                        position: 'top-right',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: false,
+                        icon: false,
+                    });
+                    // Gọi API thêm thông báo
+                    await addNotification(user_create_notice, post_owner_id, post_id, message, created_at,"comment");
                 }
             });
-            // Nhận thông báo gọi từ người gọi
+            socket.on('newSubCommentNotification', async (data) => {
+                const { user_create_notice, post_owner_id, post_id, message, created_at } = data;
+                console.log('data: ', data);
+                if (dataOwner?.user_id === post_owner_id) {
+                    // Kiểm tra xem người dùng hiện tại có phải là người đăng bài không
+                    // Hiển thị thông báo
+                    toast.info(message, {
+                        position: 'top-right',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: false,
+                        icon: false,
+                    });
+                    // Gọi API thêm thông báo
+                    await addNotification(user_create_notice, post_owner_id, post_id, message, created_at,"subcomment");
+                }
+            });
+            // lắng nghe sự kiện đăng bài
+
+            socket.on('newPostNotification', async (data) => {
+                console.log('data: ', data);
+                const {user_create_post, friend_id, post_id, message, created_at } = data
+                if (dataOwner?.user_id !== data.user_create_post) {
+                    toast.info(message, {
+                        position: 'top-right',
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: false,
+                        icon: false,
+                    });
+                    // Gọi API thêm thông báo
+                    await addNotification(user_create_post , friend_id,  post_id, message, created_at, "createPost");
+                }
+               
+            });
+            // Nhận cuộc gọi
             socket.on('user-calling', async (data) => {
                 if (data && dataOwner && data?.receiver_id === dataOwner?.user_id) {
                     const callerInfo = await getInfoCaller(data?.sender_id);
@@ -80,10 +151,10 @@ export const SocketProvider = ({ children }) => {
                                             style={{
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                backgroundColor: '#4CAF50', // Màu xanh cho nút nghe
+                                                backgroundColor: '#4CAF50',
                                                 color: 'white',
                                                 padding: '6px 10px',
-                                                fontSize: '12px', // Làm nhỏ chữ
+                                                fontSize: '12px',
                                                 border: 'none',
                                                 borderRadius: '4px',
                                                 cursor: 'pointer',
@@ -93,7 +164,7 @@ export const SocketProvider = ({ children }) => {
                                                 handleAccept(data);
                                                 closeToast();
                                             }}
-                                            onMouseOver={(e) => (e.target.style.backgroundColor = '#45A049')} // Thay đổi màu khi hover
+                                            onMouseOver={(e) => (e.target.style.backgroundColor = '#45A049')}
                                             onMouseOut={(e) => (e.target.style.backgroundColor = '#4CAF50')}
                                         >
                                             <FaPhoneAlt style={{ marginRight: '5px' }} />
@@ -103,7 +174,7 @@ export const SocketProvider = ({ children }) => {
                                             style={{
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                backgroundColor: '#F44336', // Màu đỏ cho nút từ chối
+                                                backgroundColor: '#F44336',
                                                 color: 'white',
                                                 padding: '6px 10px',
                                                 fontSize: '12px',
@@ -127,11 +198,11 @@ export const SocketProvider = ({ children }) => {
                             ),
                             {
                                 position: 'top-right',
-                                autoClose: 5000, // Tự động đóng sau 60 giây
+                                autoClose: 5000,
                                 closeOnClick: true,
                                 pauseOnHover: false,
-                                hideProgressBar: false, // Hiển thị thanh tiến trình
-                                icon: false, // Ẩn icon mặc định của toast
+                                hideProgressBar: false,
+                                icon: false,
                             },
                         );
                     }
@@ -141,10 +212,13 @@ export const SocketProvider = ({ children }) => {
 
         return () => {
             if (socket) {
-                socket.off('user-calling'); // Cleanup listener khi socket thay đổi hoặc component unmount
+                socket.off('newCommentNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
+                socket.off('newSubCommentNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
+                socket.off('newPostNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
+                socket.off('user-calling'); // Dọn dẹp khi component unmount
             }
         };
-    }, [dataOwner, socket, handleAccept, handleDecline]);
+    }, [dataOwner, socket]);
 
     return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 };

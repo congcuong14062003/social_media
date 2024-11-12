@@ -8,7 +8,7 @@ import { postData } from '../../../ultils/fetchAPI/fetch_API';
 import { useSocket } from '../../../provider/socket_context';
 import AvatarWithText from '../../../skeleton/avatarwithtext';
 
-function PopoverChat({ privateKey, currentChatId, handleClosePopover }) {
+function PopoverChat({ privateKey, currentChatId, handleClosePopover, setReceiverId }) {
     const [conversations, setConversations] = useState([]);
     const [loading, setLoading] = useState(false);
     const socket = useSocket();
@@ -19,7 +19,9 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover }) {
             });
         }
     }, [socket]);
-
+    useEffect(() => {
+        setReceiverId(conversations[0]?.friend_id)
+    }, [conversations]);
     const fetchConversations = async () => {
         try {
             const response = await postData(API_GET_CONVERSATIONS, {

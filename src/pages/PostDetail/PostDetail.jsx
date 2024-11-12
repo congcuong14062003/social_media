@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './PostDetail.scss';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa6';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
@@ -7,6 +7,8 @@ import FooterPostItem from '../../components/FooterPostItem/FooterPostItem';
 import CloseBtn from '../../components/CloseBtn/CloseBtn';
 import { getData } from '../../ultils/fetchAPI/fetch_API';
 import { API_POST_DETAIL } from '../../API/api_server';
+import { toast } from 'react-toastify';
+import { OwnDataContext } from '../../provider/own_data';
 
 function PostDetail() {
     const navigate = useNavigate();
@@ -14,7 +16,7 @@ function PostDetail() {
     const location = useLocation();
     const [postDetail, setPostDetail] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0); // Ảnh đang active
-
+    const dataOwner = useContext(OwnDataContext);
     // Lấy `mediaIndex` từ query string
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -28,11 +30,20 @@ function PostDetail() {
             const response = await getData(API_POST_DETAIL(id_post));
             if (response.status === true) {
                 setPostDetail(response.data);
+            } else {
+                navigate(-1)
             }
         };
         getPostById();
+   
     }, [id_post]);
-
+    useEffect(() => {
+        if(postDetail?.post_privacy === 0 && dataOwner?.user_id !== postDetail?.user_id) {
+            navigate(-1)
+            toast.error("Bài viết đã được người dùng để chế đô riêng tư")
+        }
+    }, [postDetail, dataOwner]);
+    
     const handlePrev = () => {
         setActiveIndex((prev) => (prev > 0 ? prev - 1 : postDetail.media.length - 1));
     };
@@ -79,7 +90,7 @@ function PostDetail() {
 
                 <div className="post-detail--comment">
                     <HeaderPostItem dataPost={postDetail} />
-                    <FooterPostItem dataPost={postDetail} />
+                    <FooterPostItem className="detail_post" dataPost={postDetail} />
                 </div>
             </div>
         </div>

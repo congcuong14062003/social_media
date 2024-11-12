@@ -1,16 +1,18 @@
 import { Link } from 'react-router-dom';
 import AvatarUser from '../AvatarUser/AvatarUser';
 import './NoticeItem.scss';
-function NoticeItem() {
+import { timeAgo } from '../../ultils/formatDate/format_date';
+function NoticeItem({notification}) {
+    console.log(notification);
     return (
-        <Link to="/">
+        <Link to={notification?.target_id}>
             <div className="notice_item_container">
                 <div className="avatar_notice">
-                    <AvatarUser />
+                    <AvatarUser avatar={notification?.avatar}/>
                 </div>
                 <div className="content_notice">
-                    <div className="title_notice">Dương Mạnh đã bình luận về bài viết của bạn</div>
-                    <div className="time_notice">9 giờ</div>
+                    <div className="title_notice">{notification?.content}</div>
+                    <div className="time_notice">{timeAgo(notification?.created_at)}</div>
                 </div>
             </div>
         </Link>

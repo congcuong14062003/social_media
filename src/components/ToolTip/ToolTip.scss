@@ -1,5 +1,13 @@
 .tooltip_title {
     font-size: var(--twelve-px);
+    .action_messages_detail {
+        width: max-content;
+        display: flex;
+        flex-direction: column;
+        button {
+            margin: 5px 0;
+        }
+    }
 }
 .action_user_post_detail .secondary {
  margin-left: 10px;

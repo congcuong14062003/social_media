@@ -4,16 +4,23 @@ import ButtonCustom from '../ButtonCustom/ButtonCustom';
 import './FriendSuggestItem.scss';
 import config from '../../configs';
 import { postData, getData } from '../../ultils/fetchAPI/fetch_API';
-import { API_ADD_FRIEND, API_CHECK_FRIEND_REQUEST, API_CANCEL_FRIEND_REQUEST, API_CHECK_IF_FRIEND } from '../../API/api_server';
+import {
+    API_ADD_FRIEND,
+    API_CHECK_FRIEND_REQUEST,
+    API_CANCEL_FRIEND_REQUEST,
+    API_CHECK_IF_FRIEND,
+} from '../../API/api_server';
 import { useContext, useEffect, useState } from 'react';
 import { OwnDataContext } from '../../provider/own_data';
+import { getMutualFriends } from '../../services/fetch_api';
 
 function FriendSuggestItem({ data }) {
     const navigate = useNavigate();
     const [hasRequest, setHasRequest] = useState(false);
     const [isFriend, setIsFriend] = useState(false); // Trạng thái bạn bè
-    const dataUser = useContext(OwnDataContext);
-
+    const dataOwner = useContext(OwnDataContext);
+    const [countMutual, setCountMutual] = useState();
+    const [listFriendMutuals, setListFriendMutuals] = useState([]);
     // Kiểm tra trạng thái yêu cầu bạn bè khi component được mount
     useEffect(() => {
         const checkRequestStatus = async () => {
@@ -23,7 +30,7 @@ function FriendSuggestItem({ data }) {
             } catch (error) {
                 console.error('Error checking friend request status:', error);
             }
-        };;
+        };
         checkRequestStatus();
     }, [data.friend_id]);
 
@@ -50,21 +57,22 @@ function FriendSuggestItem({ data }) {
             console.error('Error handling friend request:', error);
         }
     };
+    useEffect(() => {
+        if (!data?.friend_id) return;
 
-    // Handle removing friend
-    // const handleRemoveFriend = async (event) => {
-    //     event.stopPropagation(); // Ngăn không cho sự kiện lan ra ngoài
-    //     try {
-    //         const response = await postData(API_CANCEL_FRIEND_REQUEST(data.friend_id)); // Giả sử bạn có API này
-    //         if (response.status === true) {
-    //             setIsFriend(false);
-    //             window.location.reload(); // Làm mới danh sách bạn bè
-    //         }
-    //     } catch (error) {
-    //         console.error('Error removing friend:', error);
-    //     }
-    // };
-
+        const fetchFriends = async () => {
+            if (dataOwner && dataOwner.user_id !== data?.friend_id) {
+                try {
+                    const response = await getMutualFriends(dataOwner?.user_id, data?.friend_id);
+                    setListFriendMutuals(response);
+                    setCountMutual(response?.length);
+                } catch (error) {
+                    console.error('Failed to fetch friends:', error);
+                }
+            }
+        };
+        fetchFriends();
+    }, [dataOwner, data?.friend_id]);
     return (
         <div className="invite_item_container">
             <Link to={`${config.routes.profile}/${data.friend_id}`}>
@@ -73,7 +81,17 @@ function FriendSuggestItem({ data }) {
                 </div>
                 <div className="description_invite">
                     <div className="name_invite">{data.user_name}</div>
-                    <div className="count_mutual_friend">100 bạn chung</div>
+                    <div className="count_mutual_friend">
+                        {' '}
+                        <div className="list_friend_mutual">
+                            {listFriendMutuals.map((item, index) => (
+                                <Link key={index} to={`${config.routes.profile}/${item?.friend_id}`}>
+                                    <img src={item?.avatar_link} />
+                                </Link>
+                            ))}
+                        </div>
+                        {countMutual} bạn chung
+                    </div>
                 </div>
             </Link>
             <div className="button_action_invite">
@@ -94,11 +112,11 @@ function FriendSuggestItem({ data }) {
                         />
                     </>
                 ) : ( */}
-                    <ButtonCustom
-                        onClick={handleAddFriend}
-                        title={hasRequest ? "Huỷ yêu cầu" : "Thêm bạn bè"}
-                        className={hasRequest ? "secondary" : "primary"}
-                    />
+                <ButtonCustom
+                    onClick={handleAddFriend}
+                    title={hasRequest ? 'Huỷ yêu cầu' : 'Thêm bạn bè'}
+                    className={hasRequest ? 'secondary' : 'primary'}
+                />
                 {/* )} */}
             </div>
         </div>

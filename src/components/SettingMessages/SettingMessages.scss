@@ -91,4 +91,35 @@
             }
         }
     }
+    .search_container_chat {
+        margin-top: 10px;
+        width: 100%;
+        .search_container {
+            width: 100%;
+        }
+    }
+    .message_list {
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        .message-item {
+            padding:10px;
+            border-radius: 5px;
+            margin: 2px 0;
+            color: var(--primary-text);
+            font-size: var(--fourteen-px);
+            &:hover {
+                background-color: var(--hover-item);
+            }
+            p {
+                overflow: auto;
+                a {
+                    width: 100%;
+                    color: var(--primary-text);
+                }
+                padding: 0 !important;
+            }
+        }
+        
+    }
 }

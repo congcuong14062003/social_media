@@ -12,4 +12,10 @@
     }
 }
 .list_notice {
+    p {
+        text-align: center;
+        font-size: 16px;
+        color: var(--primary-text);
+        font-weight: var(--main-font-weight);
+    }
 }

@@ -67,6 +67,10 @@
                     color: var(--primary-text);
                 }
             }
+            textarea {
+                max-height: 400px;
+                min-height: 100px;
+            }
         }
         .file_and_others {
             border: 1px solid #ccc;

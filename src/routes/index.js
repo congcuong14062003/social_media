@@ -100,7 +100,12 @@ const publicRouter = [
         requireAuth: true,
     },
     {
-        path: `${config.routes.messages}/:id_receiver`,
+        path: `${config.routes.messages}/:idReceiver`,
+        component: MessagesPage,
+        requireAuth: true,
+    },
+    {
+        path: config.routes.messages,
         component: MessagesPage,
         requireAuth: true,
     },

@@ -9,6 +9,7 @@
         }
     }
     .description_invite {
+        height: 60px;
         padding: 15px;
         .name_invite {
             font-weight: var(--main-font-weight);
@@ -24,8 +25,20 @@
             font-weight: var(--secon-font-weight);
             font-size: var(--thirteen-px);
             color: var(--secondary-text);
+            display: flex;
+            align-items: center;
+            .list_friend_mutual {
+                margin-right: 5px;
+                img {
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+            }
         }
     }
+
     .button_action_invite {
         padding: 10px 15px;
         display: flex;

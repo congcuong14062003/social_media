@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRouter } from './routes';
 import { DefaultLayout } from './Layout';
@@ -11,29 +10,61 @@ import { SocketProvider } from './provider/socket_context';
 import { useSelector } from 'react-redux';
 
 function App() {
+    const [isOffline, setIsOffline] = useState(!navigator.onLine); // Khởi tạo trạng thái offline
     const theme = useSelector((state) => state.themeUI.theme);
-    const root = document.querySelector(":root");
+    const root = document.querySelector(':root');
 
-    console.log(theme);
-    
     useEffect(() => {
-        if (theme === "dark") {
-          root.setAttribute("data-theme", "dark");
+        if (theme === 'dark') {
+            root.setAttribute('data-theme', 'dark');
         } else {
-          root.setAttribute("data-theme", "light");
+            root.setAttribute('data-theme', 'light');
         }
-        root.style.transition = "all .5s ease";
-      }, [theme, root]);
+        root.style.transition = 'all .5s ease';
+    }, [theme, root]);
+
+    // Lắng nghe sự kiện online/offline
+    useEffect(() => {
+        const handleOffline = () => setIsOffline(true);
+        const handleOnline = () => setIsOffline(false);
+
+        window.addEventListener('offline', handleOffline);
+        window.addEventListener('online', handleOnline);
+
+        return () => {
+            window.removeEventListener('offline', handleOffline);
+            window.removeEventListener('online', handleOnline);
+        };
+    }, []);
+
+    // Nếu offline, hiển thị trang thông báo offline
+    if (isOffline) {
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    padding: '20px',
+                    height: '100vh',
+                }}
+            >
+                <h1>Bạn đang ngoại tuyến</h1>
+                <p>Vui lòng kiểm tra kết nối internet của bạn.</p>
+            </div>
+        );
+    }
+
     return (
         <Router>
-            <ToastContainer
-                autoClose={2000} // Thời gian tự động đóng (miligiây)
-            />{' '}
-            {/* Add ToastContainer here */}
+            <ToastContainer autoClose={2000} />
             <Routes>
                 {publicRouter.map((route, index) => {
                     const Layout = route.layout || DefaultLayout;
                     const Page = route.component;
+
                     if (route.requireAuth) {
                         return (
                             <Route key={index} element={<PrivateRoute />}>

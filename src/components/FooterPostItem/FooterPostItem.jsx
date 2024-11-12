@@ -21,7 +21,8 @@ import { FilePond } from 'react-filepond';
 import 'filepond/dist/filepond.min.css';
 import { useLoading } from '../Loading/Loading';
 import { toast } from 'react-toastify';
-function FooterPostItem({ dataPost }) {
+import config from '../../configs';
+function FooterPostItem({ dataPost, className }) {
     const reactionIcons = [
         { id: 'like', icon: '👍' },
         { id: 'heart', icon: '❤️' },
@@ -45,6 +46,7 @@ function FooterPostItem({ dataPost }) {
     const [showSubCommentInput, setShowSubCommentInput] = useState({}); // State để kiểm soát hiển thị input bình luận cấp 2
     const socket = useSocket();
     const { showLoading, hideLoading } = useLoading();
+    const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
 
     const [selectedReaction, setSelectedReaction] = useState(() => {
         const userReaction = dataPost?.reacts?.find((item) => item?.user_id === dataOwner?.user_id);
@@ -168,11 +170,13 @@ function FooterPostItem({ dataPost }) {
             if (response.status === true) {
                 // Gửi bình luận qua WebSocket
                 socket.emit('sendComment', {
-                    comment_text: comment,
-                    user_id: dataOwner.user_id,
+                    user_create_notice: dataOwner?.user_id,
+                    avatar_user_create_notice: dataOwner?.avatar,
+                    user_name_comment: dataOwner?.user_name,
+                    post_owner_id: dataPost?.user_id, // ID của người đăng bài
+                    post_id: dataPost?.post_id,
                     created_at: new Date().toISOString(),
                 });
-
                 setComment(''); // Reset input comment
                 fetchComments(); // Cập nhật danh sách bình luận
             }
@@ -187,7 +191,7 @@ function FooterPostItem({ dataPost }) {
         inputRef.current.focus(); // Đặt focus vào input
     };
 
-    const handleSendSubComment = async (commentId) => {
+    const handleSendSubComment = async (commentId, user_comment) => {
         showLoading(); // Hiển thị loading
 
         if (!subComment && (!filesSub || filesSub.length === 0)) {
@@ -225,6 +229,7 @@ function FooterPostItem({ dataPost }) {
         Object.entries(payload).forEach(([key, value]) => {
             if (value !== null) formData.append(key, value);
         });
+        console.log('user_comment: ', user_comment);
 
         try {
             // Gọi API với FormData
@@ -232,9 +237,12 @@ function FooterPostItem({ dataPost }) {
 
             if (response.status === true) {
                 // Gửi sub-comment qua WebSocket
-                socket.emit('sendComment', {
-                    comment_text: subComment,
-                    user_id: dataOwner.user_id,
+                socket.emit('sendSubComment', {
+                    user_create_notice: dataOwner?.user_id,
+                    avatar_user_create_notice: dataOwner?.avatar,
+                    user_name_comment: dataOwner?.user_name,
+                    post_owner_id: user_comment, // ID của người bình luận
+                    post_id: dataPost?.post_id,
                     created_at: new Date().toISOString(),
                 });
 
@@ -244,7 +252,7 @@ function FooterPostItem({ dataPost }) {
         } catch (error) {
             console.error('Error posting sub-comment:', error);
         }
-        handleShowSubComment(commentId)
+        handleShowSubComment(commentId);
         hideLoading(); // Ẩn loading
         setFilesSub(''); // Reset files
         setShowFilePondSub(false); // Ẩn file input nếu cần
@@ -307,8 +315,28 @@ function FooterPostItem({ dataPost }) {
             inputSubRef.current.focus(); // Automatically focus the input if there are files
         }
     };
+
+    // share bài viết
+
+    const handleShare = () => {
+        // Get the URL of the post, assuming `dataPost` has a `post_url` field
+        const postUrl = `http://localhost:3001${config.routes.post}/${dataPost?.post_id}`;
+
+        // Copy the URL to clipboard
+        navigator.clipboard
+            .writeText(postUrl)
+            .then(() => {
+                // Show confirmation (optional)
+                setShowCopyConfirmation(true);
+                setTimeout(() => setShowCopyConfirmation(false), 2000); // Hide after 2 seconds
+            })
+            .catch((err) => {
+                console.error('Failed to copy the link: ', err);
+            });
+    };
+    const classes = `${className} footer_post_container`;
     return (
-        <div className="footer_post_container">
+        <div className={classes}>
             <div className="action_count_post">
                 <div className="count_icon">
                     {topReactions.map((reaction, index) => (
@@ -324,7 +352,7 @@ function FooterPostItem({ dataPost }) {
                     <div className="count_comment" onClick={handleShowCommentPost}>
                         {totalCommentsCount} bình luận
                     </div>
-                    <div className="count_shared">17 lượt chia sẻ</div>
+                    {/* <div className="count_shared">17 lượt chia sẻ</div> */}
                 </div>
             </div>
             <div className="action_user_post_footer">
@@ -364,7 +392,13 @@ function FooterPostItem({ dataPost }) {
                         <div className="icon_action">
                             <PiShareFatLight />
                         </div>
-                        <div className="name_action">Chia sẻ</div>
+                        {showCopyConfirmation || (
+                            <div className="name_action" onClick={handleShare}>
+                                Chia sẻ
+                            </div>
+                        )}
+
+                        {showCopyConfirmation && <div className="copy-confirmation">Đã sao chép liên kết!</div>}
                     </div>
                 </div>
             </div>
@@ -486,10 +520,19 @@ function FooterPostItem({ dataPost }) {
                                                 handleOpenFile={() => setShowFilePondSub((pre) => !pre)}
                                                 inputRef={inputSubRef}
                                                 onkeydown={(e) =>
-                                                    e.key === 'Enter' && handleSendSubComment(commentData?.comment_id)
+                                                    e.key === 'Enter' &&
+                                                    handleSendSubComment(
+                                                        commentData?.comment_id,
+                                                        commentData?.commenting_user_id,
+                                                    )
                                                 }
                                                 value={subComment} // Thêm dòng này để truyền giá trị subComment
-                                                handleSendMessage={() => handleSendSubComment(commentData?.comment_id)}
+                                                handleSendMessage={() =>
+                                                    handleSendSubComment(
+                                                        commentData?.comment_id,
+                                                        commentData?.commenting_user_id,
+                                                    )
+                                                }
                                                 onChange={(e) => setSubComment(e.target.value)}
                                                 placeholder={`Bình luận với vai trò ${dataOwner.user_name}`}
                                                 icon

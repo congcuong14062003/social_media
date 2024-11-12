@@ -71,7 +71,9 @@ function Header() {
 
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
-
+    const getReceiverId = (receiverId) => {
+        
+    };
     return (
         <div className="header_container">
             <div className="left_header">
@@ -89,8 +91,8 @@ function Header() {
                 <NavLink to={config.routes.friends} className={({ isActive }) => (isActive ? 'active' : '')}>
                     <FriendIcon />
                 </NavLink>
-                <NavLink to={config.routes.video} className={({ isActive }) => (isActive ? 'active' : '')}>
-                    <VideoIcon />
+                <NavLink to={config.routes.messages} className={({ isActive }) => (isActive ? 'active' : '')}>
+                    <MessageIcon />
                 </NavLink>
             </div>
             <div className="right_header">
@@ -133,7 +135,7 @@ function Header() {
                             <PopoverNotice />
                         ) : popoverContent === 'chat' ? (
                             privateKey && (
-                                <PopoverChat privateKey={privateKey} handleClosePopover={handleClosePopover} />
+                                <PopoverChat  setReceiverId={getReceiverId} privateKey={privateKey} handleClosePopover={handleClosePopover} />
                             )
                         ) : (
                             <PopoverMe darkOn={darkOn} setDarkOn={setDarkOn} handleClosePopover={handleClosePopover} />

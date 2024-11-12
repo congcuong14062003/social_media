@@ -117,12 +117,12 @@ function StoryPage() {
                             <h2>Stories</h2>
                             <h4>Your Story</h4>
                             <p className="description">
-                                You can create a story with images or text to share with friends.
+                                Bạn có thể chia sẻ ảnh hoặc viết gì đó
                             </p>
                             <Link to={config.routes.createStory}>
                                 <div className="ur-story">
                                     <FaPlus />
-                                    <h5>Create Your Story</h5>
+                                    <h5>Tạo tin</h5>
                                 </div>
                             </Link>
                             <h4>All Stories</h4>

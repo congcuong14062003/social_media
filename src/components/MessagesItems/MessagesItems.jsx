@@ -15,6 +15,7 @@ import ReplayCircleFilledIcon from '@mui/icons-material/ReplayCircleFilled';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { OwnDataContext } from '../../provider/own_data';
 import HorizontalItem from '../HorizontalItem/HorizontalItem';
+import ToolTip from '../ToolTip/ToolTip';
 function MessagesItems({
     handleDeleteMessage,
     handleDeleteMessageOwnSide,
@@ -136,51 +137,29 @@ function MessagesItems({
                     {hoverItem && (
                         <div className="action_messages">
                             <div className="delete_icon">
-                                <div>
+                                <ToolTip
+                                    className="messages_tooltip"
+                                    title={
+                                        <div className="action_messages_detail">
+                                            <ButtonCustom
+                                                startIcon={<ReplayCircleFilledIcon />}
+                                                title="Thu hồi ở phía bạn"
+                                                className="primary"
+                                                onClick={() => handleDeleteMessageOwnSide(messenger_id)}
+                                            />
+                                            {dataOwner?.user_id === sender_id && (
+                                                <ButtonCustom
+                                                    onClick={() => handleDeleteMessage(messenger_id)}
+                                                    startIcon={<ReplayIcon />}
+                                                    title="Thu hồi ở mọi người"
+                                                    className="secondary"
+                                                />
+                                            )}
+                                        </div>
+                                    }
+                                >
                                     <PrimaryIcon icon={<CiMenuKebab />} className="hover_icon" onClick={handleClick} />
-                                    {/* <IconButton >
-                                
-                            </IconButton> */}
-                                    <Menu
-                                        anchorEl={anchorEl}
-                                        open={Boolean(anchorEl)}
-                                        onClick={handleClose}
-                                        sx={{
-                                            '& .MuiPaper-root': {
-                                                // backgroundColor: '#333', // Màu nền menu
-                                                // color: '#fff', // Màu chữ
-                                            },
-                                        }}
-                                    >
-                                        <MenuItem
-                                            onClose={handleClose}
-                                            sx={{
-                                                '&:hover': {
-                                                    // backgroundColor: '#555',
-                                                }, // Màu khi hover
-                                                // color: '#fff', // Màu chữ
-                                            }}
-                                            onClick={() => handleDeleteMessageOwnSide(messenger_id)}
-                                        >
-                                            {/* <ReplayCircleFilledIcon /> Thu hồi ở phía bạn */}
-                                            <HorizontalItem icon={<ReplayCircleFilledIcon />} title="Thu hồi ở phía bạn" />
-                                        </MenuItem>
-                                        {(dataOwner?.user_id === sender_id) && (
-                                            <MenuItem
-                                                onClick={() => handleDeleteMessage(messenger_id)}
-                                                sx={{
-                                                    '&:hover': {
-                                                        // backgroundColor: '#555',
-                                                    },
-                                                    // color: '#fff',
-                                                }}
-                                            >
-                                                {/* <ReplayIcon /> Thu hồi ở mọi người */}
-                                                <HorizontalItem icon={<ReplayIcon />} title="Thu hồi ở mọi người" />
-                                            </MenuItem>
-                                        )}
-                                    </Menu>
-                                </div>
+                                </ToolTip>
                             </div>
                             <div
                                 className="reply_icon_message"

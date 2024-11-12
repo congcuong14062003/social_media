@@ -85,6 +85,12 @@ const API_DELETE_STORY_BY_ID = (id) => `${API_HOST}/stories/delete/${id}`;
 const API_STORY_BY_ID = (id) => `${API_HOST}/stories/story-by-id/${id}`;
 const API_CREATE_HEART_STORY = (id) => `${API_HOST}/stories/create-heart-story/${id}`;
 
+////// Thông báo
+const API_CREATE_NOTIFICATION = API_HOST + '/notices/create-notice';
+const API_LIST_NOTIFICATION = API_HOST + '/notices/list-notice';
+
+
+
 
 // User infomanation API endpoint
 const API_GET_INFO_USER_PROFILE_BY_ID = (id) => `${API_HOST}/users/info-profile/${id}`;
@@ -174,5 +180,8 @@ export {
     API_LIST_STORY,
     API_STORY_BY_ID,
     API_CREATE_HEART_STORY,
-    API_DELETE_STORY_BY_ID
+    API_DELETE_STORY_BY_ID,
+    // api notice,
+    API_LIST_NOTIFICATION,
+    API_CREATE_NOTIFICATION
 };

@@ -64,7 +64,7 @@ function MessagesPage() {
     const inputRef = useRef(null); // Tạo ref để tham chiếu đến input
     const [isRecording, setIsRecording] = useState(false);
     const [openSettingChat, setOpenSettingChat] = useState(false);
-    const { id_receiver } = useParams();
+    const { idReceiver } = useParams();
     const audioChunks = useRef([]);
     const [hasKeyPairFriend, setHasKeyPairFriend] = useState(true); // Bắt đầu bằng null
     const [dataFriend, setDataFriend] = useState();
@@ -82,6 +82,7 @@ function MessagesPage() {
     const [isSending, setIsSending] = useState(false); // State to track if a message is being sent
     const [loadingSend, setLoadingSend] = useState(false);
     const [contentReply, setContentReply] = useState(null);
+    const [id_receiver, setReceiverId] = useState(idReceiver);
     const handleSetReply = (reply_messenger_id) => {
         if (reply_messenger_id) {
             const replyElement = document.querySelector(`.message-${reply_messenger_id}`);
@@ -115,7 +116,7 @@ function MessagesPage() {
         try {
             const response = await getData(API_CHECK_IF_FRIEND(id_receiver));
             if (response.isFriend === false) {
-                navigate('/');
+                // navigate('/');
                 toast.error('Bạn với người này chưa phải bạn bè vui lòng kết bạn để nhắn tin');
             }
         } catch (error) {
@@ -123,9 +124,12 @@ function MessagesPage() {
         }
     };
     useEffect(() => {
-        checkIfFriend();
+        if (id_receiver) {
+            checkIfFriend();
+        }
     }, [id_receiver]);
-
+    console.log(id_receiver);
+    
     //Check xem người dùng đã có cặp key chưa
     const checkExistKeyPair = async () => {
         try {
@@ -590,12 +594,19 @@ function MessagesPage() {
             console.error(error);
         }
     };
+    const getReceiverId = (receiverId) => {
+        setReceiverId(receiverId);
+    };
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
                 <>
                     <div className="left_messenger">
-                        <PopoverChat privateKey={privateKey} currentChatId={id_receiver} />
+                        <PopoverChat
+                            setReceiverId={getReceiverId}
+                            privateKey={privateKey}
+                            currentChatId={id_receiver}
+                        />
                     </div>
                     <div className="center_messenger">
                         <div className="messages_container">
