@@ -19,9 +19,6 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover, setReceive
             });
         }
     }, [socket]);
-    useEffect(() => {
-        setReceiverId(conversations[0]?.friend_id)
-    }, [conversations]);
     const fetchConversations = async () => {
         try {
             const response = await postData(API_GET_CONVERSATIONS, {
@@ -38,6 +35,11 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover, setReceive
     useEffect(() => {
         fetchConversations();
     }, [privateKey]);
+    useEffect(() => {
+        if (conversations) {
+            setReceiverId(conversations[0]?.friend_id);
+        }
+    }, [conversations]);
     const handleChatClick = async (friend_id) => {
         try {
             // Gọi API cập nhật trạng thái is_read cho tin nhắn mới nhất của cuộc trò chuyện

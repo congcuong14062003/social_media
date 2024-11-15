@@ -1,0 +1,38 @@
+li.list-suggest--item {
+    display: block;
+    width: -webkit-fill-available;
+    a {
+      border-radius: 5px;
+      padding: 7px 10px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      .avt-suggest {
+        display: flex;
+        align-items: center;
+        position: relative;
+        margin-right: 7px;
+        img {
+          border-radius: 50%;
+          object-fit: cover;
+          width: 38px;
+          height: 38px;
+          aspect-ratio: 1;
+        }
+      }
+
+      .name-suggest {
+        b {
+          font-size: 14px;
+          font-weight: 500;
+        }
+        p {
+          font-size: 10px;
+          color: var(--text-blur-color);
+        }
+      }
+    }
+    a:hover {
+      background-color: var(--input-color);
+    }
+  }

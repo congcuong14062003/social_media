@@ -11,7 +11,10 @@ import FriendList from '../pages/Friends/FriendList';
 import Friends from '../pages/Friends/Friends';
 import FriendSuggestion from '../pages/Friends/FriendsSuggestion';
 import InvitedFriends from '../pages/Friends/InvitedFriends';
+import CreateGroupPage from '../pages/GroupPage/CreateGroup/CreateGroupPage';
+import GroupHomePage from '../pages/GroupPage/GroupHome/GroupHome';
 import GroupPage from '../pages/GroupPage/GroupPage';
+import ListPostGroup from '../pages/GroupPage/ListPostGroup/ListPostGroup';
 import HomePage from '../pages/HomePage/HomePage';
 import Login from '../pages/Login/Login';
 import MessagesPage from '../pages/Messages/Messages';
@@ -79,11 +82,25 @@ const publicRouter = [
             { path: 'invited', component: <InvitedFriends /> },
         ],
     },
+    // group
     {
         path: config.routes.group,
-        component: GroupPage,
+        component: ListPostGroup,
         requireAuth: true,
     },
+    {
+        path: `${config.routes.group}/:group_id`,
+        component: GroupHomePage,
+        requireAuth: true,
+    },
+    {
+        path: config.routes.creategroup,
+        component: CreateGroupPage,
+        requireAuth: true,
+    },
+
+
+    // story
     {
         path: config.routes.createStory,
         component: CreateStory,

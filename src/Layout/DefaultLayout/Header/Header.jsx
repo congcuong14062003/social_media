@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import './Header.scss';
 import images from '../../../assets/imgs';
-import { FriendIcon, HomeIcon, MessageIcon, NoticeIcon, VideoIcon } from '../../../assets/icons/icons';
+import { FriendIcon, GroupIcon, HomeIcon, MessageIcon, NoticeIcon, VideoIcon } from '../../../assets/icons/icons';
 import { Popover, Typography } from '@mui/material';
 import Search from '../../../components/Search/Search';
 import AvatarUser from '../../../components/AvatarUser/AvatarUser';
@@ -94,6 +94,9 @@ function Header() {
                 <NavLink to={config.routes.messages} className={({ isActive }) => (isActive ? 'active' : '')}>
                     <MessageIcon />
                 </NavLink>
+                <NavLink to={config.routes.group} className={({ isActive }) => (isActive ? 'active' : '')}>
+                    <GroupIcon />
+                </NavLink>
             </div>
             <div className="right_header">
                 <div className="navbar_mobile">
@@ -135,7 +138,7 @@ function Header() {
                             <PopoverNotice />
                         ) : popoverContent === 'chat' ? (
                             privateKey && (
-                                <PopoverChat  setReceiverId={getReceiverId} privateKey={privateKey} handleClosePopover={handleClosePopover} />
+                                <PopoverChat setReceiverId={getReceiverId} privateKey={privateKey} handleClosePopover={handleClosePopover} />
                             )
                         ) : (
                             <PopoverMe darkOn={darkOn} setDarkOn={setDarkOn} handleClosePopover={handleClosePopover} />

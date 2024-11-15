@@ -83,6 +83,14 @@ function MessagesPage() {
     const [loadingSend, setLoadingSend] = useState(false);
     const [contentReply, setContentReply] = useState(null);
     const [id_receiver, setReceiverId] = useState(idReceiver);
+    useEffect(() => {
+        if (idReceiver) {
+            setReceiverId(idReceiver);
+        }
+    }, [idReceiver]);
+
+    console.log(id_receiver);
+
     const handleSetReply = (reply_messenger_id) => {
         if (reply_messenger_id) {
             const replyElement = document.querySelector(`.message-${reply_messenger_id}`);
@@ -128,8 +136,7 @@ function MessagesPage() {
             checkIfFriend();
         }
     }, [id_receiver]);
-    console.log(id_receiver);
-    
+
     //Check xem người dùng đã có cặp key chưa
     const checkExistKeyPair = async () => {
         try {
@@ -192,6 +199,7 @@ function MessagesPage() {
                 setMessages((prevMessages) => [
                     ...prevMessages,
                     {
+                        created_at: data?.created_at,
                         messenger_id: data?.messenger_id,
                         reply_id: data?.reply_id,
                         sender_id: data?.sender_id,
@@ -240,7 +248,9 @@ function MessagesPage() {
                 console.error('Error fetching data: ', error);
             }
         };
-        fetchData();
+        if (id_receiver) {
+            fetchData();
+        }
     }, [id_receiver]);
     useLayoutEffect(() => {
         const checkKeyFriend = async () => {
@@ -255,29 +265,31 @@ function MessagesPage() {
                 console.error('Error fetching data: ', error);
             }
         };
-        checkKeyFriend();
+        if (id_receiver) {
+            checkKeyFriend();
+        }
     }, [id_receiver]);
     // xử lý khi ai đó đang nhắn:
     //Sự kiện có đang nhắn?
     useEffect(() => {
         try {
             //Gửi sự kiện mình đang nhắn
-            socket.emit('senderWritting', {
+            socket?.emit('senderWritting', {
                 sender_id: dataOwner?.user_id,
                 receiver_id: id_receiver,
                 status: isTyping,
             });
             //Lắng nghe sự kiện đối phương nhắn tin
-            socket.on('receiverNotifiWritting', (data) => {
+            socket?.on('receiverNotifiWritting', (data) => {
                 setReceiverIsTyping(data?.status);
             });
 
             // Lắng nghe sự kiện xoá tin nhắn từ phía người gửi
-            socket.on('message_deleted', ({ messageId }) => {
+            socket?.on('message_deleted', ({ messageId }) => {
                 setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
             });
         } catch (error) {
-            // console.log("error", error);
+            console.log('error', error);
         }
     }, [isTyping]);
 
@@ -367,7 +379,6 @@ function MessagesPage() {
     }, [mediaRecorder]);
     // bắt đầu ghi âm
     const startRecording = async () => {
-        console.log('aaaaaaaaaaa:', navigator);
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const recorder = new MediaRecorder(stream);
 
@@ -594,9 +605,13 @@ function MessagesPage() {
             console.error(error);
         }
     };
+
     const getReceiverId = (receiverId) => {
-        setReceiverId(receiverId);
+        if (!id_receiver) {
+            setReceiverId(receiverId);
+        }
     };
+
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
@@ -658,6 +673,7 @@ function MessagesPage() {
                                             key={index}
                                             inputRef={inputRef} // Truyền ref vào MessagesItems
                                             index={index}
+                                            time={msg.created_at}
                                             nameFile={msg.name_file}
                                             type={msg.content_type}
                                             message={msg.content_text ?? msg.text}

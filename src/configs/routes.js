@@ -11,6 +11,7 @@ const routes = {
     post: '/post', 
     video: '/video',
     group: '/group',
+    creategroup: '/group/create',
     friends: '/friends',
     messages: '/messages',
     setting: '/setting',

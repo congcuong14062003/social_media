@@ -39,12 +39,11 @@ function Signup() {
     };
     const handleSignup = async (e) => {
         showLoading(); // Hiển thị loading
-        setLoading(true);
         e.preventDefault();
         // Kiểm tra xem có trường nào bị bỏ trống không
         if (!email || !username || !password || !confirmPassword) {
             toast.error('Vui lòng nhập đầy đủ thông tin!');
-            setLoading(false);
+            hideLoading()
             return;
         }
         // Kiểm tra mật khẩu có khớp không
@@ -61,7 +60,6 @@ function Signup() {
             } else {
                 toast.error('Đăng ký thất bại, vui lòng thử lại!');
             }
-            setLoading(false);
         } catch (error) {
             toast.error('Có lỗi xảy ra, vui lòng thử lại!');
         }

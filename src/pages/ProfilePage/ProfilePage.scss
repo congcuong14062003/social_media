@@ -75,6 +75,7 @@
                     border: 5px solid var(--card-background);
                     img {
                         width: 100%;
+                        object-fit: cover;
                     }
                 }
                 .infor_header_user {

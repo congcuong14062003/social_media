@@ -1,0 +1,261 @@
+[data-theme="dark"] {
+  --bg-sidebar-left: url("https://i.pinimg.com/474x/3d/36/80/3d368095a93193859279a20cd306d59c.jpg");
+}
+[data-theme="light"] {
+  --bg-sidebar-left: #ffffff;
+}
+
+#sidebar-left--container {
+  background: var(--bg-sidebar-left);
+  flex: 8;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 25px;
+  /* Máy tính bảng loại to, hiển thị chiều ngang */
+  @media (max-width: 1024px) {
+    display: none;
+  }
+
+  &::-webkit-scrollbar {
+    display: none !important;
+  }
+  h5 {
+    font-size: 13px !important;
+  }
+  h3 {
+    font-size: 12px !important;
+  }
+
+  span.sidebar-left--span {
+    display: block;
+    width: 100%;
+    .template-container {
+      width: 100%;
+      height: 100%;
+      margin: 20px 0;
+      padding: 0 15px;
+      img {
+        filter: drop-shadow(0px 1px 1px black);
+      }
+      .template-wrap {
+        background: rgba(255, 255, 255, 0.06);
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: rgba(200, 200, 200, 0.3) 0px 1px 2px 0px,
+          rgba(200, 200, 200, 0.15) 0px 1px 3px 1px;
+
+        .info-address {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          margin-bottom: 20px;
+          h5 {
+            text-transform: uppercase;
+          }
+          img {
+            width: 100px;
+            padding: 10px 0;
+          }
+          p {
+            font-size: 12px;
+          }
+        }
+
+        h5 {
+          color: var(--text-blur-color);
+          text-align: center;
+          font-size: 15px;
+        }
+        h3 {
+          font-weight: 600;
+        }
+
+        .current-w {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          .address-w {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            h3.address {
+              font-size: 14px !important;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            }
+            p.date {
+              font-size: 10px !important;
+              color: var(--text-blur-color);
+            }
+          }
+          .temp-w {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            h3.temp {
+              font-size: 14px !important;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            }
+            p.status {
+              text-transform: uppercase;
+              font-size: 10px !important;
+              color: var(--text-blur-color);
+            }
+          }
+          .icon-w {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+
+        .air-condidate--w {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          height: 100px;
+
+          .air-condidate--item {
+            flex: 1;
+            flex-direction: column;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            p.icon-air {
+              color: var(--text-blur-color);
+              display: flex;
+              align-items: center;
+              font-size: 12px;
+              svg {
+                font-size: 14px;
+                margin-right: 4px;
+                path {
+                  color: var(--text-blur-color);
+                }
+              }
+            }
+            h3.value {
+              margin: 10px 0;
+              font-size: 14px;
+            }
+          }
+        }
+
+        .forecast-in--day {
+          text-align: center;
+          padding-bottom: 10px;
+          b {
+            padding: 12px 0 10px 0;
+            height: 29px;
+            display: block;
+            font-size: 10px;
+            color: var(--primary-color);
+          }
+          ul.list-forecast {
+            overflow-x: auto;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            &::-webkit-scrollbar {
+              display: none;
+            }
+            li.forecast-item {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              background: linear-gradient(
+                  0deg,
+                  rgba(255, 255, 255, 0.05) 0%,
+                  rgba(171, 203, 222, 0.05) 100%
+                )
+                0% 0%;
+              border-radius: 8px;
+              box-shadow: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px,
+                rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+              text-align: center;
+              padding: 8px 0px;
+              width: 100%;
+              margin: 0 0 4px 4px;
+              p.time {
+                color: var(--text-blur-color);
+                font-size: 11px;
+              }
+              .icon-w {
+                img {
+                  width: 42px;
+                  height: 42px;
+                }
+              }
+              h3.temp-w {
+                font-size: 13px;
+              }
+            }
+
+            li.forecast-item.active {
+              background: rgba(171, 203, 222, 0.3);
+            }
+          }
+        }
+
+        ul.list-forecast--weeks {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          li.forecast-week--item {
+            padding: 10px;
+            background: linear-gradient(
+                0deg,
+                rgba(255, 255, 255, 0.05) 0%,
+                rgba(171, 203, 222, 0.05) 100%
+              )
+              0% 0%;
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 10px 15px -3px,
+              rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
+            h3 {
+              font-size: 14px !important ;
+            }
+            b {
+              text-transform: uppercase;
+              font-size: 10px;
+              font-size: 400;
+            }
+            .row {
+              height: 31px;
+              display: flex;
+              align-items: center;
+              .analyst {
+                flex: 1;
+                font-size: 11px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                svg {
+                  margin-right: 4px;
+                  font-size: 15px;
+                }
+                img {
+                  width: 30px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

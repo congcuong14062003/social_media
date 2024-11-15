@@ -106,7 +106,30 @@ const API_CREATE_OTP = API_HOST + '/otp/create';
 const API_CREATE_LINK_OTP = API_HOST + '/otp/link/create';
 const API_CREATE_OTP_SIGNUP = API_HOST + '/otp/signup/create';
 const API_VERIFY_OTP = API_HOST + '/otp/verify';
-
+// GROUP API ENDPOINT
+const API_GROUP_CREATE = API_HOST + "/group/channel/create";
+const API_LIST_GROUP_BY_USERID = (id) =>
+  API_HOST + "/group/members/list-all-group/" + id;
+const API_GROUP_DETAIL = (id) => API_HOST + "/group/channel/details/" + id;
+const API_UPDATE_GROUP = (id) => API_HOST + "/group/channel/update/" + id;
+const API_DELETE_GROUP = (id) => API_HOST + "/group/channel/delete/" + id;
+const API_LIST_GROUP_BY_OWNER = API_HOST + "/group/members/list-all-group/";
+const API_LIST_MEMBERS_GROUP = (id) =>
+  API_HOST + "/group/members/list-members-group/" + id;
+const API_LIST_MEMBERS_OFFICAL_GROUP = (id) =>
+  API_HOST + "/group/members/list-members-offical-group/" + id;
+const API_LIST_MEMBERS_UNAPPROVED_GROUP = (id) =>
+  API_HOST + "/group/members/list-members-unapproved-group/" + id;
+const API_CHECK_ROLE_MEMBER_GROUP = (id) =>
+  API_HOST + "/group/members/check-role/" + id;
+const API_INVITE_MEMBER_GROUP = (id) =>
+  API_HOST + "/group/members/invited-group/" + id;
+const API_ACCEPT_INVITE_MEMBER_GROUP = (id) =>
+  API_HOST + "/group/members/accept-invited-group/" + id;
+const API_REFUSE_INVITE_MEMBER_GROUP = (id) =>
+  API_HOST + "/group/members/refuse-invited-group/" + id;
+const API_SET_ADMIN_MEMBER_GROUP = (id) =>
+  API_HOST + "/group/members/set-admin-group/" + id;
 export {
     API_SIGNUP_POST,
     API_LOGIN_POST,
@@ -183,5 +206,21 @@ export {
     API_DELETE_STORY_BY_ID,
     // api notice,
     API_LIST_NOTIFICATION,
-    API_CREATE_NOTIFICATION
+    API_CREATE_NOTIFICATION,
+
+    //api group
+    API_GROUP_CREATE,
+    API_LIST_GROUP_BY_USERID,
+    API_GROUP_DETAIL,
+    API_UPDATE_GROUP,
+    API_DELETE_GROUP,
+    API_LIST_GROUP_BY_OWNER,
+    API_LIST_MEMBERS_GROUP,
+    API_LIST_MEMBERS_OFFICAL_GROUP,
+    API_LIST_MEMBERS_UNAPPROVED_GROUP,
+    API_CHECK_ROLE_MEMBER_GROUP,
+    API_INVITE_MEMBER_GROUP,
+    API_ACCEPT_INVITE_MEMBER_GROUP,
+    API_REFUSE_INVITE_MEMBER_GROUP,
+    API_SET_ADMIN_MEMBER_GROUP,
 };

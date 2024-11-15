@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import AvatarUser from '../AvatarUser/AvatarUser';
 import Search from '../Search/Search';
 import './CreatePost.scss';
@@ -13,10 +13,14 @@ const CreatePost = () => {
     const [openFile, setOpenFile] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const [openIconModal, setOpenIconModal] = useState(false); // State for Icon Modal
-    setTimeout(() => {
-        setLoaded(true);
-    }, 1000);
     const dataOwner = useContext(OwnDataContext);
+
+    useEffect(() => {
+        if (dataOwner) {
+            setLoaded(true);
+        }
+    }, [dataOwner]);
+
     const handleOpen = () => {
         setOpen(true);
     };

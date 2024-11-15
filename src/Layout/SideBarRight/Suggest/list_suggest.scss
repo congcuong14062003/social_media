@@ -1,0 +1,12 @@
+.list-suggest--container {
+  h4 {
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid var(--border-color);
+    color: var(--text-blur-color);
+  }
+  ul.list-suggest {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -25,8 +25,6 @@ function FriendItem({ data }) {
             socket.off('onlineUsers');
         };
     }, [socket, data]);
-    
-    console.log(statusFriend?.includes(data?.friend_id || data?.user_id));
     return (
         <Link to={`${config.routes.profile}/${data?.friend_id || data?.user_id}`}>
             <div

@@ -1,0 +1,81 @@
+.list_group_container {
+    height: 100%;
+    .list-post-group {
+        height: 100%;
+        svg.icon-gr {
+            display: none;
+            @media (max-width: 800px) {
+                display: inline;
+                position: fixed;
+                bottom: 10px;
+                right: 10px;
+                z-index: 110;
+                font-size: 40px;
+                padding: 5px;
+                border-radius: 10px;
+                background-color: var(--border-color);
+                cursor: pointer;
+            }
+        }
+        .container {
+            display: flex;
+            height: 100%;
+            ul.list-gr {
+                width: 100%;
+            }
+            .side-left {
+                background-color: var(--navbar-background-color);
+                border-right: 1px solid var(--comment-backgroud);
+                width: 100%;
+                overflow-y: auto;
+                flex: 1;
+                padding: 20px;
+                @media (max-width: 800px) {
+                    display: none;
+                    width: 50%;
+                    position: fixed;
+                    padding: 30px 10px;
+                    z-index: 90;
+                    &.active {
+                        display: inline;
+                    }
+                }
+                h2 {
+                    color: var(--primary-text);
+                    margin: 0 0 10px 0;
+                    padding-bottom: 10px;
+                    border-bottom: 1px solid var(--border-color);
+                }
+                li.list-suggest--item {
+                    .avt-suggest img {
+                        border-radius: 5px;
+                        width: 45px;
+                        height: 45px;
+                    }
+                }
+                .create-gr {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 10px 0;
+                    button {
+                      width: 100%;
+                    }
+                }
+            }
+            .side-right {
+                width: 100%;
+                background-color: var(--right-background-story);
+                overflow-y: auto;
+                flex: 3;
+                @media (max-width: 800px) {
+                    padding: 0;
+                }
+                padding: 0 80px;
+                &::-webkit-scrollbar {
+                    display: none;
+                }
+            }
+        }
+    }
+}

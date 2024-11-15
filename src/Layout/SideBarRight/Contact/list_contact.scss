@@ -1,0 +1,14 @@
+.list-contact--container {
+  h4 {
+    margin-bottom: 5px;
+    padding-bottom: 10px;
+    border-bottom: 0.5px solid var(--border-color);
+    padding-top: 20px;
+    color: var(--text-blur-color);
+  }
+  ul.list-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

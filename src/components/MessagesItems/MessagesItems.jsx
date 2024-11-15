@@ -16,6 +16,28 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import { OwnDataContext } from '../../provider/own_data';
 import HorizontalItem from '../HorizontalItem/HorizontalItem';
 import ToolTip from '../ToolTip/ToolTip';
+import { format } from 'date-fns';
+function formatTimeFacebookStyle(time) {
+    // Kiểm tra nếu `time` không hợp lệ hoặc không thể chuyển thành `Date`
+    if (time) {
+        const date = new Date(time);
+        const now = new Date();
+
+        const isToday = date.toDateString() === now.toDateString();
+        const isYesterday = new Date(now - 86400000).toDateString() === date.toDateString();
+
+        if (isToday) {
+            return `Hôm nay ${format(date, 'HH:mm')}`;
+        } else if (isYesterday) {
+            return `Hôm qua ${format(date, 'HH:mm')}`;
+        } else {
+            return format(date, 'dd/MM/yyyy HH:mm');
+        }
+    }
+    // if (!time || isNaN(new Date(time).getTime())) {
+    //     return ''; // Trả về chuỗi rỗng hoặc giá trị mặc định nếu `time` không hợp lệ
+    // }
+}
 function MessagesItems({
     handleDeleteMessage,
     handleDeleteMessageOwnSide,
@@ -33,11 +55,11 @@ function MessagesItems({
     inputRef,
     handleClickCall,
     handleClick,
+    time,
 }) {
     const classes = `receiver_user_container ${className}`;
     const dataOwner = useContext(OwnDataContext);
     const [hoverItem, setHoverItem] = useState(false);
-    console.log(anchorEl);
     const scrollToMessage = (messageId) => {
         const messageElement = document.querySelector(`.messenger-id-${messageId}`);
 
@@ -133,7 +155,6 @@ function MessagesItems({
                             </div>
                         )}
                     </div>
-
                     {hoverItem && (
                         <div className="action_messages">
                             <div className="delete_icon">
@@ -176,6 +197,7 @@ function MessagesItems({
                         </div>
                     )}
                 </div>
+                <div className="time_message">{formatTimeFacebookStyle(time)}</div>
             </div>
         )
     );

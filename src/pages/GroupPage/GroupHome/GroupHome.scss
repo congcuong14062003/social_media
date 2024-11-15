@@ -1,0 +1,59 @@
+.group-dom {
+    background-color: var(--navbar-background-color);
+    .group-wrapper {
+        width: 100vw;
+        margin-top: 56px !important;
+        .group-container {
+            background-color: var(--navbar-background-color);
+            margin: auto;
+            .group_main_container {
+                width: 100%;
+                background-color: var(--body-color);
+                .group-main {
+                  padding-top: 20px;
+                    max-width: 1095px;
+                    margin: auto;
+                    .box {
+                        border-radius: 5px;
+                        padding: 15px;
+                        margin: 20px 0;
+                        background-color: var(--navbar-color);
+                    }
+                    display: flex;
+                    .group-right {
+                        margin-top: -20px;
+                        padding-left: 15px;
+                        flex: 3;
+                        .title-intro {
+                          color: var(--primary-text);
+                            .slogan {
+                                padding: 10px 0;
+                                font-size: 13px;
+                                color: var(--secondary-text);
+                                border-bottom: 1px solid var(--border-color);
+                            }
+                            .info-short--item {
+                                font-size: 14px !important;
+                                padding: 10px 0 0;
+                                margin-top: 5px;
+                                display: flex;
+                                font-size: 15px;
+                                align-items: center;
+                                b {
+                                    padding: 0 4px;
+                                }
+
+                                svg {
+                                    margin-right: 5px;
+                                }
+                            }
+                        }
+                    }
+                    .group-left {
+                        flex: 5;
+                    }
+                }
+            }
+        }
+    }
+}
