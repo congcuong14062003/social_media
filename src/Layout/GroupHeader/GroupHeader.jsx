@@ -10,6 +10,7 @@ import { FcInvite } from 'react-icons/fc';
 // import QRCodePopup from "../../component/QRCode/qr_code";
 import { API_CHECK_ROLE_MEMBER_GROUP, API_GROUP_DETAIL, API_INVITE_MEMBER_GROUP } from '../../API/api_server';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
+import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 
 function GroupHeader({ classNameActive, group_id }) {
     const [showQRCodePopup, setShowQRCodePopup] = useState(false);
@@ -40,7 +41,7 @@ function GroupHeader({ classNameActive, group_id }) {
                 if (!response?.data) return;
                 const { member_status, member_role } = response?.data;
                 console.log(response.data);
-                
+
                 if (member_status === 0) {
                     setStatusMember({ isInvite: true, isMember: false, isAdmin: false });
                 } else if (member_status === 1) {
@@ -91,85 +92,95 @@ function GroupHeader({ classNameActive, group_id }) {
     console.log(statusMember);
 
     return (
-        <React.Fragment>
-            <div className="group-header--main">
-                <div className="group-header--container">
-                    <div className="group-header">
-                        <div className="cover_image">
-                            <Link target="blank">
-                                <img src={dataGroup?.cover_media_link} alt="" />
-                            </Link>
-                        </div>
-                        <div className="group-avatar--img">
-                            <img src={dataGroup?.avatar_media_link} alt="" />
-                            <div className="header-container">
-                                <div className="info-analyst">
-                                    <h1 className="name">{dataGroup?.group_name}</h1>
-                                    <div className="analyst">
-                                        <p
-                                            className="private"
-                                            style={{
-                                                margin: '5px 0',
-                                            }}
-                                        >
-                                            <FaUserLock />
-                                            {dataGroup?.group_privacy === 1 ? 'Nhóm công khai' : 'Nhóm riêng tư'}
-                                        </p>
-                                    </div>
+        <div className="group-header--main">
+            <div className="group-header--container">
+                <div className="group-header">
+                    <div className="cover_image">
+                        <Link target="blank">
+                            <img src={dataGroup?.cover_media_link} alt="" />
+                        </Link>
+                    </div>
+                    <div className="group-avatar--img">
+                        <img src={dataGroup?.avatar_media_link} alt="" />
+                        <div className="header-container">
+                            <div className="info-analyst">
+                                <h1 className="name">{dataGroup?.group_name}</h1>
+                                <div className="analyst">
+                                    <p
+                                        className="private"
+                                        style={{
+                                            margin: '5px 0',
+                                        }}
+                                    >
+                                        <FaUserLock />
+                                        {dataGroup?.group_privacy === 1 ? 'Nhóm công khai' : 'Nhóm riêng tư'}
+                                    </p>
                                 </div>
-                                <div className="btn-action">
-                                    {/* <IoQrCodeOutline onClick={handleQRCodeClick} className="code-qr" /> */}
-                                    {/* <QRCodePopup
+                            </div>
+                            <div className="btn-action">
+                                {/* <IoQrCodeOutline onClick={handleQRCodeClick} className="code-qr" /> */}
+                                {/* <QRCodePopup
                     show={showQRCodePopup}
                     url={currentURL}
                     onClose={handleClosePopup}
                   /> */}
-                                    {(statusMember?.isAdmin || statusMember?.isMember) && (
+                                {/* {(statusMember?.isAdmin || statusMember?.isMember) && (
                                         <Link>
                                             <div className="btn btn-messenger">
                                                 <FaFacebookMessenger /> Nhắn tin
                                             </div>
                                         </Link>
+                                    )} */}
+                                <div
+                                    className={`btn btn-add--gr ${
+                                        statusMember.isAdmin || statusMember.isMember ? 'active' : ''
+                                    }`}
+                                >
+                                    {statusMember.isAdmin || statusMember.isMember ? (
+                                        <>
+                                            <ButtonCustom
+                                                startIcon={<MdGroupRemove />}
+                                                className="secondary"
+                                                title="Rời nhóm"
+                                            />
+                                        </>
+                                    ) : statusMember.isInvite ? (
+                                        <div onClick={handleSendInvited}>
+                                            <ButtonCustom
+                                                startIcon={<FcInvite />}
+                                                className="secondary"
+                                                title="Huỷ lời mời"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div onClick={handleSendInvited}>
+                                            <ButtonCustom
+                                                startIcon={<MdGroupAdd />}
+                                                className="primary"
+                                                title="Tham gia nhóm"
+                                            />
+                                        </div>
                                     )}
-                                    <div
-                                        className={`btn btn-add--gr ${
-                                            statusMember.isAdmin || statusMember.isMember ? 'active' : ''
-                                        }`}
-                                    >
-                                        {statusMember.isAdmin || statusMember.isMember ? (
-                                            <>
-                                                <MdGroupRemove /> Rời nhóm
-                                            </>
-                                        ) : statusMember.isInvite ? (
-                                            <div onClick={handleSendInvited}>
-                                                <FcInvite /> Huỷ lời mời
-                                            </div>
-                                        ) : (
-                                            <div onClick={handleSendInvited}>
-                                                <MdGroupAdd /> Tham gia nhóm
-                                            </div>
-                                        )}
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <ul className="group-navigation">
-                        <Link to={`/group/${group_id}`}>
-                            <li className="group-navigation--item post active">Bài viết</li>
-                        </Link>
-                        <Link to={`/group/${group_id}/members`}>
-                            <li className="group-navigation--item members">Thành viên</li>
-                        </Link>
-                        {statusMember?.isAdmin && (
-                            <Link to={`/group/${group_id}/admin`}>
-                                <li className="group-navigation--item admin">Quản trị nhóm</li>
-                            </Link>
-                        )}
-                    </ul>
                 </div>
+                <ul className="group-navigation">
+                    <Link to={`/group/${group_id}`}>
+                        <li className="group-navigation--item post active">Bài viết</li>
+                    </Link>
+                    <Link to={`/group/${group_id}/members`}>
+                        <li className="group-navigation--item members">Thành viên</li>
+                    </Link>
+                    {statusMember?.isAdmin && (
+                        <Link to={`/group/${group_id}/admin`}>
+                            <li className="group-navigation--item admin">Quản trị nhóm</li>
+                        </Link>
+                    )}
+                </ul>
             </div>
-        </React.Fragment>
+        </div>
     );
 }
 

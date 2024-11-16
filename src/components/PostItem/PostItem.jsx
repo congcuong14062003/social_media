@@ -10,6 +10,8 @@ import HeaderPostItem from '../HeaderPostItem/HeaderPostItem';
 function PostItem({ dataPost }) {
     const dataOwner = useContext(OwnDataContext);
     const [loaded, setLoaded] = useState(false);
+    console.log(dataPost);
+    
     const [showEditPost, setShowEditPost] = useState(false);
     useEffect(() => {
        if(dataPost) {

@@ -51,6 +51,9 @@
                     }
                     .group-left {
                         flex: 5;
+                        .title-content {
+                            color: var(--primary-text);
+                        }
                     }
                 }
             }

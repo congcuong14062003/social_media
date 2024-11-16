@@ -1,4 +1,5 @@
 import FriendProfile from '../components/FriendProfile/FriendProfile';
+import GroupProfile from '../components/GroupProfile/GroupProfile';
 import ImageProfile from '../components/ImageProfile/ImageProfile';
 import PostProfile from '../components/PostProfile/PostProfile';
 import config from '../configs';
@@ -12,8 +13,11 @@ import Friends from '../pages/Friends/Friends';
 import FriendSuggestion from '../pages/Friends/FriendsSuggestion';
 import InvitedFriends from '../pages/Friends/InvitedFriends';
 import CreateGroupPage from '../pages/GroupPage/CreateGroup/CreateGroupPage';
+import EditInfoGroupPage from '../pages/GroupPage/EditInfoGroup/EditInfoGroup';
+import GroupAdminPage from '../pages/GroupPage/GroupAdmin/GroupAdminPage';
+import GroupAdminMemberPage from '../pages/GroupPage/GroupAdminMember/GroupAdminMemberPage';
 import GroupHomePage from '../pages/GroupPage/GroupHome/GroupHome';
-import GroupPage from '../pages/GroupPage/GroupPage';
+import GroupMemberPage from '../pages/GroupPage/GroupMember/GroupMember';
 import ListPostGroup from '../pages/GroupPage/ListPostGroup/ListPostGroup';
 import HomePage from '../pages/HomePage/HomePage';
 import Login from '../pages/Login/Login';
@@ -97,8 +101,29 @@ const publicRouter = [
         path: config.routes.creategroup,
         component: CreateGroupPage,
         requireAuth: true,
+        
+    },
+    {
+        path:  `${config.routes.group}/:group_id/members`,
+        requireAuth: true,
+        component: GroupMemberPage
+      },
+    {
+        path: `${config.routes.group}/:group_id/admin/members`,
+        requireAuth: true,
+        component: GroupAdminMemberPage,
+    },
+    {
+        path: `${config.routes.group}/:group_id/admin`,
+        requireAuth: true,
+        component: GroupAdminPage,
     },
 
+      {
+        path: `${config.routes.group}/:group_id/admin/edit`,
+        requireAuth: true,
+        component: EditInfoGroupPage
+      },
 
     // story
     {
@@ -146,6 +171,7 @@ const publicRouter = [
             { path: '', component: <PostProfile /> },
             { path: 'ban-be', component: <FriendProfile /> },
             { path: 'anh', component: <ImageProfile /> },
+            { path: 'group', component: <GroupProfile /> },
         ],
     },
 ];

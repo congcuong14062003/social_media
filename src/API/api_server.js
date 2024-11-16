@@ -130,6 +130,14 @@ const API_REFUSE_INVITE_MEMBER_GROUP = (id) =>
   API_HOST + "/group/members/refuse-invited-group/" + id;
 const API_SET_ADMIN_MEMBER_GROUP = (id) =>
   API_HOST + "/group/members/set-admin-group/" + id;
+
+
+
+// api bài viết nhóm
+const API_GROUP_POST_CREATE = (post_id) => API_HOST + "/group/posts/create/" + post_id;
+const API_LIST_GROUP_ACCEPTED_POST = (group_id) => API_HOST + "/group/posts/list-post-accepted/" + group_id;
+const API_LIST_GROUP_UNAPPROVED_POST = (group_id) => API_HOST + "/group/posts/list-post-unapproved/" + group_id;
+
 export {
     API_SIGNUP_POST,
     API_LOGIN_POST,
@@ -223,4 +231,8 @@ export {
     API_ACCEPT_INVITE_MEMBER_GROUP,
     API_REFUSE_INVITE_MEMBER_GROUP,
     API_SET_ADMIN_MEMBER_GROUP,
+
+    API_GROUP_POST_CREATE,
+    API_LIST_GROUP_ACCEPTED_POST,
+    API_LIST_GROUP_UNAPPROVED_POST,
 };

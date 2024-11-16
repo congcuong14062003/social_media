@@ -67,6 +67,9 @@ function ProfilePage() {
             case `/profile/${id_user}/ban-be`:
                 setValue(2);
                 break;
+            case `/profile/${id_user}/group`:
+                setValue(3);
+                break;
             default:
                 setValue(0);
                 break;
@@ -256,6 +259,12 @@ function ProfilePage() {
                                         {...a11yProps(2)}
                                         component={Link}
                                         to={`/profile/${id_user}/ban-be`}
+                                    />
+                                    <Tab
+                                        label="Nhóm"
+                                        {...a11yProps(3)}
+                                        component={Link}
+                                        to={`/profile/${id_user}/group`}
                                     />
                                 </Tabs>
                             </Box>

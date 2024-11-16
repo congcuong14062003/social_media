@@ -8,13 +8,12 @@ import { OwnDataContext } from '../../provider/own_data';
 import AvatarWithText from '../../skeleton/avatarwithtext';
 import { Link } from 'react-router-dom';
 import config from '../../configs';
-const CreatePost = () => {
+const CreatePost = ({ group_id = null }) => {
     const [open, setOpen] = useState(false);
     const [openFile, setOpenFile] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const [openIconModal, setOpenIconModal] = useState(false); // State for Icon Modal
     const dataOwner = useContext(OwnDataContext);
-
     useEffect(() => {
         if (dataOwner) {
             setLoaded(true);
@@ -60,6 +59,7 @@ const CreatePost = () => {
                         </div>
                     </div>
                     <ModalCreatePost
+                        group_id={group_id}
                         dataOwner={dataOwner}
                         openFile={openFile}
                         openIcon={openIconModal}

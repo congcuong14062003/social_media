@@ -1,0 +1,10 @@
+.group_profile_container {
+    background-color: var(--navbar-background-color);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 20px;
+    gap: 50px;
+    .container_item {
+        border: 1px solid var(--border-color);
+    }
+}

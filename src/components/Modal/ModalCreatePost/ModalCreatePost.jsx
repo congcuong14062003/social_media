@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import CloseBtn from '../../CloseBtn/CloseBtn';
 import ButtonCustom from '../../ButtonCustom/ButtonCustom';
 import { postData } from '../../../ultils/fetchAPI/fetch_API';
-import { API_CREATE_POST, API_UPDATE_POST } from '../../../API/api_server';
+import { API_CREATE_POST, API_GROUP_POST_CREATE, API_UPDATE_POST } from '../../../API/api_server';
 import { LoadingIcon } from '../../../assets/icons/icons';
 import ModalIcon from '../ModalIcon/ModalIcon';
 import { useLoading } from '../../Loading/Loading';
@@ -28,7 +28,7 @@ const style = {
     boxShadow: 24,
 };
 
-export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner, openIcon, isEdit, dataEdit }) {
+export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner, openIcon, isEdit, dataEdit, group_id }) {
     const [openAccess, setOpenAccess] = useState(false);
     const [accessLabel, setAccessLabel] = useState(dataOwner?.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi');
     const [accessIcon, setAccessIcon] = useState(dataOwner?.post_privacy === 1 ? images.global : images.private);
@@ -158,8 +158,8 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     }, [dataOwner]);
 
     const handlePost = async () => {
-        showLoading(); // Hiển thị loading
 
+        showLoading(); // Hiển thị loading
         try {
             setLoadingSendPost(true);
             const formData = new FormData();
@@ -200,6 +200,9 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                         created_at: new Date().toISOString(),
                     });
                 }
+                if(group_id) {
+                   await handleCreatePostGroup(response?.post_id); // Thêm bài viết vào nhóm
+                }
             }
         } catch (error) {
             console.error('Lỗi:', error);
@@ -208,6 +211,14 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
             // Gửi thông báo qua socket tới bạn bè khi tạo bài viết thành công
         }
     };
+
+    const handleCreatePostGroup = async(post_id) => {
+        const response = await postData(API_GROUP_POST_CREATE(group_id), {
+            post_id
+        })
+        console.log(response);
+        
+    }
 
     const hanleChangeInput = (e) => {
         setValueInput(e.target.value);

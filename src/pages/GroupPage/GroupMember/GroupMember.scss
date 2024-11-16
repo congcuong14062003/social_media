@@ -1,0 +1,56 @@
+.group-dom--members {
+    .group-wrapper {
+        .group-container {
+            background-color: var(--navbar-background-color);
+            margin: auto;
+            .group_main_container {
+                width: 100%;
+                background-color: var(--body-color);
+                .group-main {
+                  color: var(--primary-text);
+                    flex-direction: column;
+                    display: flex;
+                    padding: 20px 0;
+                    max-width: 1095px;
+                    margin: auto;
+                    .temp {
+                        padding: 20px;
+                    }
+                    h3.title {
+                        padding: 10px;
+                        border-bottom: 1px solid var(--border-color);
+                    }
+                    form {
+                        margin: 10px 0 0;
+                        padding: 10px;
+                        input[type='text'] {
+                            width: 100%;
+                            padding: 10px;
+                            font-size: 13px;
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            outline: none;
+                            color: var(--text-color);
+                            background-color: var(--bg-color);
+                            &::placeholder {
+                                color: var(--text-color);
+                            }
+
+                            &:focus {
+                                border-color: var(--active-color);
+                                box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+                            }
+                        }
+                    }
+                    .box {
+                        width: 100%;
+                        border-radius: 5px;
+                        padding: 0 10px 10px;
+                        margin: 10px 0 5px;
+                        border-bottom: 1px solid var(--border-color);
+                    }
+                }
+            }
+        }
+    }
+}
