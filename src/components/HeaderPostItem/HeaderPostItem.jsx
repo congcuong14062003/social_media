@@ -26,9 +26,6 @@ function HeaderPostItem({ dataPost, setShowEditPost }) {
         try {
             const response = await deleteData(API_DELETE_POST(dataPost?.post_id));
             if (response.status === true) {
-                // Xóa bài viết qua WebSocket
-                // socket.emit('deletePost', dataPost?.post_id);
-                // alert('Bài viết đã được xoá');
                 window.location.reload(); // Reload lại trang
             }
         } catch (error) {
@@ -38,32 +35,46 @@ function HeaderPostItem({ dataPost, setShowEditPost }) {
     return (
         <div className="header_post_container">
             <div className="user_post">
-                <Link to={`${config.routes.profile}/${dataPost?.user_id}`}>
-                    <div className="user_post_detai">
-                        <AvatarUser avatar={dataPost?.avatar} />
-                        <div className="infor_user_post">
-                            <div className="user_name_post">
-                                {dataPost?.user_name}{' '}
-                                {emoji_post ? `Đang cảm thấy ${emoji_post?.label} ${emoji_post?.icon}` : ''}
+                {/* <Link to={`${config.routes.profile}/${dataPost?.user_id}`}> */}
+                <div className={`${dataPost?.infor_group ? 'have_group' : ''} user_post_detai`}>
+                    {dataPost?.infor_group && (
+                        <Link to={`${config.routes.group}/${dataPost?.infor_group?.group_id}`}>
+                            <div className="infor_group">
+                                <div className="avatar_group">
+                                    <img src={dataPost?.infor_group?.avatar_media_link} alt="" />
+                                </div>
+                                <div className="name_group">{dataPost?.infor_group?.group_name}</div>
                             </div>
-                            <div className="time_post">
-                                {timeAgo(dataPost?.created_at)}
-                                <ToolTip title={dataPost?.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi'}>
-                                    <img
-                                        src={
-                                            dataPost?.post_privacy === 1
-                                                ? images.global // Public
-                                                : dataPost?.post_privacy === 0
-                                                ? images.private // Private
-                                                : images.global
-                                        }
-                                        alt=""
-                                    />
-                                </ToolTip>
+                        </Link>
+                    )}
+                    <Link to={`${config.routes.profile}/${dataPost?.user_id}`}>
+                        <div className="infor_user">
+                            <AvatarUser avatar={dataPost?.avatar} />
+                            <div className="infor_user_post">
+                                <div className="user_name_post">
+                                    {dataPost?.user_name}{' '}
+                                    {emoji_post ? `Đang cảm thấy ${emoji_post?.label} ${emoji_post?.icon}` : ''}
+                                </div>
+                                <div className="time_post">
+                                    {timeAgo(dataPost?.created_at)}
+                                    <ToolTip title={dataPost?.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi'}>
+                                        <img
+                                            src={
+                                                dataPost?.post_privacy === 1
+                                                    ? images.global // Public
+                                                    : dataPost?.post_privacy === 0
+                                                    ? images.private // Private
+                                                    : images.global
+                                            }
+                                            alt=""
+                                        />
+                                    </ToolTip>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </Link>
+                    </Link>
+                </div>
+                {/* </Link> */}
 
                 {dataOwner?.user_id === dataPost?.user_id && (
                     <div className="action_user_post">

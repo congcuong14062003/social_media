@@ -87,7 +87,10 @@ const API_CREATE_HEART_STORY = (id) => `${API_HOST}/stories/create-heart-story/$
 
 ////// Thông báo
 const API_CREATE_NOTIFICATION = API_HOST + '/notices/create-notice';
+const API_DELETE_NOTIFICATION_BY_ID = (id) => API_HOST + '/notices/delete-notice/' + id;
 const API_LIST_NOTIFICATION = API_HOST + '/notices/list-notice';
+const API_DELETE_ALL_NOTIFICATION = API_HOST + '/notices/delete-all';
+const API_DELETE_ALL_NOTICE_CURRRENT = API_HOST + '/notices/delete-notice-current';
 
 
 
@@ -137,6 +140,8 @@ const API_SET_ADMIN_MEMBER_GROUP = (id) =>
 const API_GROUP_POST_CREATE = (post_id) => API_HOST + "/group/posts/create/" + post_id;
 const API_LIST_GROUP_ACCEPTED_POST = (group_id) => API_HOST + "/group/posts/list-post-accepted/" + group_id;
 const API_LIST_GROUP_UNAPPROVED_POST = (group_id) => API_HOST + "/group/posts/list-post-unapproved/" + group_id;
+const API_ACCEPT_GROUP_POST = (group_post_id) => API_HOST + "/group/posts/accept-post/" + group_post_id;
+const API_REFUSE_GROUP_POST = (group_post_id) => API_HOST + "/group/posts/refuse-post/" + group_post_id;
 
 export {
     API_SIGNUP_POST,
@@ -215,7 +220,9 @@ export {
     // api notice,
     API_LIST_NOTIFICATION,
     API_CREATE_NOTIFICATION,
-
+    API_DELETE_NOTIFICATION_BY_ID,
+    API_DELETE_ALL_NOTIFICATION,
+    API_DELETE_ALL_NOTICE_CURRRENT,
     //api group
     API_GROUP_CREATE,
     API_LIST_GROUP_BY_USERID,
@@ -235,4 +242,6 @@ export {
     API_GROUP_POST_CREATE,
     API_LIST_GROUP_ACCEPTED_POST,
     API_LIST_GROUP_UNAPPROVED_POST,
+    API_REFUSE_GROUP_POST,
+    API_ACCEPT_GROUP_POST
 };

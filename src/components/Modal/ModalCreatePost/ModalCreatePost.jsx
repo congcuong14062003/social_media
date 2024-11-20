@@ -28,7 +28,16 @@ const style = {
     boxShadow: 24,
 };
 
-export default function ModalCreatePost({ openModel, closeModel, openFile, dataOwner, openIcon, isEdit, dataEdit, group_id }) {
+export default function ModalCreatePost({
+    openModel,
+    closeModel,
+    openFile,
+    dataOwner,
+    openIcon,
+    isEdit,
+    dataEdit,
+    group_id,
+}) {
     const [openAccess, setOpenAccess] = useState(false);
     const [accessLabel, setAccessLabel] = useState(dataOwner?.post_privacy === 1 ? 'Công khai' : 'Chỉ mình tôi');
     const [accessIcon, setAccessIcon] = useState(dataOwner?.post_privacy === 1 ? images.global : images.private);
@@ -158,7 +167,6 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
     }, [dataOwner]);
 
     const handlePost = async () => {
-
         showLoading(); // Hiển thị loading
         try {
             setLoadingSendPost(true);
@@ -200,8 +208,8 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                         created_at: new Date().toISOString(),
                     });
                 }
-                if(group_id) {
-                   await handleCreatePostGroup(response?.post_id); // Thêm bài viết vào nhóm
+                if (group_id) {
+                    await handleCreatePostGroup(response?.post_id); // Thêm bài viết vào nhóm
                 }
             }
         } catch (error) {
@@ -212,13 +220,12 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
         }
     };
 
-    const handleCreatePostGroup = async(post_id) => {
+    const handleCreatePostGroup = async (post_id) => {
         const response = await postData(API_GROUP_POST_CREATE(group_id), {
-            post_id
-        })
+            post_id,
+        });
         console.log(response);
-        
-    }
+    };
 
     const hanleChangeInput = (e) => {
         setValueInput(e.target.value);
@@ -255,11 +262,14 @@ export default function ModalCreatePost({ openModel, closeModel, openFile, dataO
                                         <span>{`đang cảm thấy ${selectedIcon.label} ${selectedIcon.icon}`}</span>
                                     )}
                                 </div>
-                                <div className="access_post" onClick={handleOpenAccess}>
-                                    <img src={accessIcon} alt="Access Icon" />
-                                    <span>{accessLabel}</span>
-                                    <FontAwesomeIcon icon={faCaretDown} />
-                                </div>
+                                {!group_id ? (
+                                    <div className="access_post" onClick={handleOpenAccess}>
+                                        <img src={accessIcon} alt="Access Icon" />
+                                        <span>{accessLabel}</span>
+                                        <FontAwesomeIcon icon={faCaretDown} />
+                                    </div>
+                                ) : null
+                            }
                             </div>
                         </div>
                         <div className="input_post">

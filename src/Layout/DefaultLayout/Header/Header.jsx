@@ -17,6 +17,8 @@ import { darkHandle, lightHandle } from '../../../redux/Reducer/reducer';
 import { useSocket } from '../../../provider/socket_context';
 import ToggleButton from 'react-toggle-button';
 import SideBarMobile from '../../SideBarMobile/SideBarMobile';
+import { getData, postData } from '../../../ultils/fetchAPI/fetch_API';
+import { API_DELETE_ALL_NOTICE_CURRRENT, API_LIST_NOTIFICATION } from '../../../API/api_server';
 
 function Header() {
     const dataUser = useContext(OwnDataContext);
@@ -28,8 +30,54 @@ function Header() {
     const [activeMe, setActiveMe] = useState(false);
     const dataOwner = useContext(OwnDataContext);
     const [darkOn, setDarkOn] = useState(dataOwner?.dark_theme === 1);
+
+    // Gọi API lấy danh sách thông báo
+    const [number, setNumber] = useState(0);
     const socket = useSocket();
     const dispatch = useDispatch();
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const response = await getData(API_LIST_NOTIFICATION);
+                if (response?.status && Array.isArray(response.data)) {
+                    // Tính tổng count_notice
+                    const totalCount = response.data.reduce((total, item) => {
+                        return total + (item.count_notice || 0); // Nếu không có count_notice thì lấy 0
+                    }, 0);
+                    setNumber(totalCount); // Cập nhật state với tổng
+                } else {
+                    console.error('Lỗi khi lấy thông báo hoặc dữ liệu không hợp lệ');
+                }
+            } catch (error) {
+                console.error('Có lỗi khi gọi API thông báo:', error);
+            }
+        };
+
+        fetchNotifications();
+    }, []); // Chỉ chạy một lần khi component được render
+
+    useEffect(() => {
+        if (socket && dataOwner) {
+            socket.emit('registerUser', { user_id: dataOwner?.user_id });
+            // lắng nghe sự kiện thông báo
+            socket.on('newPostNotification', async (data) => {
+                console.log(data);
+                if (data && data?.user_create_notice !== dataOwner?.user_id) {
+                    setNumber((pre) => pre + 1);
+                }
+            });
+        }
+    }, [dataOwner, socket]);
+    const handleDeleteAllCount = async () => {
+        try {
+            const response = await postData(API_DELETE_ALL_NOTICE_CURRRENT);
+            if (response?.status) {
+                setNumber(0); // Cập nhật lại số thông báo đã xoá
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
     // Cập nhật dark theme trên server mỗi khi darkOn thay đổi
     useEffect(() => {
         if (socket && dataOwner) {
@@ -71,9 +119,8 @@ function Header() {
 
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
-    const getReceiverId = (receiverId) => {
-        
-    };
+    const getReceiverId = (receiverId) => {};
+
     return (
         <div className="header_container">
             <div className="left_header">
@@ -109,12 +156,15 @@ function Header() {
                         onClick={(e) => handleClickPopover(e, 'chat')}
                     />
                 )}
+                <div className="notice_btn" onClick={() => handleDeleteAllCount()}>
+                    <PrimaryIcon
+                        number={number}
+                        className={activeNotice ? 'active_popover' : ''}
+                        icon={<NoticeIcon />}
+                        onClick={(e) => handleClickPopover(e, 'notice')}
+                    />
+                </div>
 
-                <PrimaryIcon
-                    className={activeNotice ? 'active_popover' : ''}
-                    icon={<NoticeIcon />}
-                    onClick={(e) => handleClickPopover(e, 'notice')}
-                />
                 <div className="avatar_me" onClick={(e) => handleClickPopover(e, 'me')}>
                     <AvatarUser avatar={dataUser?.avatar} />
                 </div>
@@ -135,10 +185,14 @@ function Header() {
                 >
                     <Typography sx={{ p: 0 }}>
                         {popoverContent === 'notice' ? (
-                            <PopoverNotice />
+                            <PopoverNotice handleClosePopover={handleClosePopover} />
                         ) : popoverContent === 'chat' ? (
                             privateKey && (
-                                <PopoverChat setReceiverId={getReceiverId} privateKey={privateKey} handleClosePopover={handleClosePopover} />
+                                <PopoverChat
+                                    setReceiverId={getReceiverId}
+                                    privateKey={privateKey}
+                                    handleClosePopover={handleClosePopover}
+                                />
                             )
                         ) : (
                             <PopoverMe darkOn={darkOn} setDarkOn={setDarkOn} handleClosePopover={handleClosePopover} />

@@ -2,18 +2,27 @@ import React, { useEffect, useState } from 'react';
 import './GroupHome.scss';
 import { MdDateRange } from 'react-icons/md';
 import { FaPeopleGroup } from 'react-icons/fa6';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CreatePost from '../../../components/CreatePost/CreatePost';
 import PostItem from '../../../components/PostItem/PostItem';
 import GroupHeader from '../../../Layout/GroupHeader/GroupHeader';
-import { API_GROUP_DETAIL, API_LIST_GROUP_UNAPPROVED_POST } from '../../../API/api_server';
+import {
+    API_GROUP_DETAIL,
+    API_LIST_GROUP_ACCEPTED_POST,
+    API_LIST_GROUP_UNAPPROVED_POST,
+} from '../../../API/api_server';
 import { getData } from '../../../ultils/fetchAPI/fetch_API';
+import { formatDate, formatJoinDate } from '../../../ultils/formatDate/format_date';
+import { toast } from 'react-toastify';
 function GroupHomePage() {
     const { group_id } = useParams();
     const [dataGroup, setDataGroup] = useState(null);
     const [listPostGroup, setListPostGroup] = useState(null);
+    const navigate = useNavigate();
     useEffect(() => {
+        
         const fetchGroupDetail = async () => {
+            if (!group_id) return;
             try {
                 const response = await getData(API_GROUP_DETAIL(group_id));
                 if (response?.status) {
@@ -26,12 +35,18 @@ function GroupHomePage() {
         fetchGroupDetail();
     }, [group_id]);
 
+    console.log(group_id);
+    
     useEffect(() => {
         const getAllGroupPost = async () => {
+            if (!group_id) return;
             try {
-                const response = await getData(API_LIST_GROUP_UNAPPROVED_POST(group_id));
+                const response = await getData(API_LIST_GROUP_ACCEPTED_POST(group_id));
                 if (response?.status) {
                     setListPostGroup(response?.data);
+                } else {
+                    navigate(-1);
+                    // toast.error('Bạn không có quyền truy cập bài viết');
                 }
             } catch (error) {
                 console.error('Error fetching group detail:', error);
@@ -62,7 +77,7 @@ function GroupHomePage() {
                                     <div className="slogan">{dataGroup?.group_slogan}</div>
                                     <div className="info-short--item info-school">
                                         <MdDateRange />
-                                        Tạo ngày: <b>{dataGroup?.created_at}</b>
+                                        Ngày tạo nhóm: <b>{formatDate(dataGroup?.created_at, 'dd/mm/yy')}</b>
                                     </div>
                                     <div className="info-short--item info-address">
                                         <FaPeopleGroup />

@@ -51,13 +51,13 @@ export const SocketProvider = ({ children }) => {
             return null;
         }
     };
-    const addNotification = async (user_create_notice, post_owner_id, post_id, message, created_at, type) => {
+    const addNotification = async (user_create_notice, user_id, target_id, message, created_at, type) => {
         try {
             const response = await postData(API_CREATE_NOTIFICATION, {
                 user_create_notice,
-                user_id: post_owner_id,
+                user_id: user_id,
                 content: message,
-                target_id: `${config.routes.post}/${post_id}`,
+                target_id: target_id,
                 created_at,
                 type: type, // Bạn có thể thêm các loại thông báo nếu cần
             });
@@ -71,50 +71,11 @@ export const SocketProvider = ({ children }) => {
     useEffect(() => {
         if (socket && dataOwner) {
             socket.emit('registerUser', { user_id: dataOwner?.user_id });
-
-            // Lắng nghe sự kiện thông báo bình luận
-            socket.on('newCommentNotification', async (data) => {
-                const { user_create_notice, post_owner_id, post_id, message, created_at } = data;
-                console.log('data: ', data);
-                // Kiểm tra xem người dùng hiện tại có phải là người đăng bài không
-                if (dataOwner?.user_id === post_owner_id) {
-                    // Hiển thị thông báo
-                    toast.info(message, {
-                        position: 'top-right',
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: false,
-                        icon: false,
-                    });
-                    // Gọi API thêm thông báo
-                    await addNotification(user_create_notice, post_owner_id, post_id, message, created_at,"comment");
-                }
-            });
-            socket.on('newSubCommentNotification', async (data) => {
-                const { user_create_notice, post_owner_id, post_id, message, created_at } = data;
-                console.log('data: ', data);
-                if (dataOwner?.user_id === post_owner_id) {
-                    // Kiểm tra xem người dùng hiện tại có phải là người đăng bài không
-                    // Hiển thị thông báo
-                    toast.info(message, {
-                        position: 'top-right',
-                        autoClose: 5000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: false,
-                        icon: false,
-                    });
-                    // Gọi API thêm thông báo
-                    await addNotification(user_create_notice, post_owner_id, post_id, message, created_at,"subcomment");
-                }
-            });
-            // lắng nghe sự kiện đăng bài
-
+            // lắng nghe sự kiện thông báo
             socket.on('newPostNotification', async (data) => {
                 console.log('data: ', data);
-                const {user_create_post, friend_id, post_id, message, created_at } = data
-                if (dataOwner?.user_id !== data.user_create_post) {
+                const {user_create_notice, user_id, target_id, message, type, created_at } = data
+                if (dataOwner?.user_id !== data.user_create_notice) {
                     toast.info(message, {
                         position: 'top-right',
                         autoClose: 5000,
@@ -124,7 +85,7 @@ export const SocketProvider = ({ children }) => {
                         icon: false,
                     });
                     // Gọi API thêm thông báo
-                    await addNotification(user_create_post , friend_id,  post_id, message, created_at, "createPost");
+                    await addNotification(user_create_notice , user_id, target_id, message, created_at, type);
                 }
                
             });
@@ -212,8 +173,8 @@ export const SocketProvider = ({ children }) => {
 
         return () => {
             if (socket) {
-                socket.off('newCommentNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
-                socket.off('newSubCommentNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
+                // socket.off('newCommentNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
+                // socket.off('newSubCommentNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
                 socket.off('newPostNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
                 socket.off('user-calling'); // Dọn dẹp khi component unmount
             }

@@ -1,4 +1,5 @@
 .notice_item_container {
+    position: relative;
     display: flex;
     align-items: center;
     padding: 8px;
@@ -19,6 +20,11 @@
             color: var(--secondary-text);
             font-size: var(--twelve-px);
         }
+    }
+    .btn_delete_notice {
+        position: absolute;
+        right: 20px;
+        top: 20px;
     }
     &:hover {
         background-color: var(--secondary-button);

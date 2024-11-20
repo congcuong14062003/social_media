@@ -4,13 +4,14 @@ import ButtonCustom from '../ButtonCustom/ButtonCustom';
 import ComponentProfile from '../ComponentProfile/ComponentProfile';
 import { useContext } from 'react';
 import { OwnDataContext } from '../../provider/own_data';
-const formatJoinDate = (isoDate) => {
-    const date = new Date(isoDate);
-    const month = date.toLocaleString('vi-VN', { month: 'numeric' }); // Lấy tháng dạng số
-    const year = date.getFullYear(); // Lấy năm
+import { formatJoinDate } from '../../ultils/formatDate/format_date';
+// const formatJoinDate = (isoDate) => {
+//     const date = new Date(isoDate);
+//     const month = date.toLocaleString('vi-VN', { month: 'numeric' }); // Lấy tháng dạng số
+//     const year = date.getFullYear(); // Lấy năm
 
-    return `tháng ${month} năm ${year}`;
-};
+//     return `tháng ${month} năm ${year}`;
+// };
 function IntroduceComponent({dataUser}) {
     // const dataOwner = useContext(OwnDataContext);
     return (

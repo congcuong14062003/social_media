@@ -28,7 +28,7 @@ function Login() {
         e.preventDefault();
         if (!email || !password) {
             console.log('vào');
-            setLoading(false);
+            hideLoading();
             toast.error('Vui lòng nhập đầy đủ thông tin');
             return;
         }

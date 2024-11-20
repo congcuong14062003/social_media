@@ -1,9 +1,9 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Button } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import './ToolTip.scss';
-function ToolTip({ children, title, onClick, className }) {
+function ToolTip({ children, title, onClick, className, placement }) {
     const classes = `main_tooltip ${className}`;
     return (
         <Tooltip
@@ -25,6 +25,27 @@ function ToolTip({ children, title, onClick, className }) {
                     },
                 },
             }}
+            slotProps={
+                placement && {
+                    popper: {
+                        sx: {
+                            [`&.${tooltipClasses.popper}[data-popper-placement*="bottom"] .${tooltipClasses.tooltip}`]:
+                                {
+                                    marginTop: '0px',
+                                },
+                            [`&.${tooltipClasses.popper}[data-popper-placement*="top"] .${tooltipClasses.tooltip}`]: {
+                                marginBottom: '0px',
+                            },
+                            // [`&.${tooltipClasses.popper}[data-popper-placement*="right"] .${tooltipClasses.tooltip}`]: {
+                            //     marginLeft: '0px',
+                            // },
+                            // [`&.${tooltipClasses.popper}[data-popper-placement*="left"] .${tooltipClasses.tooltip}`]: {
+                            //     marginRight: '10px',
+                            // },
+                        },
+                    },
+                }
+            }
         >
             <div>{children}</div>
         </Tooltip>

@@ -9,13 +9,27 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-       
     }
     svg {
-        color: var(--icon-color)
+        color: var(--icon-color);
     }
     &:hover {
         cursor: pointer;
+    }
+    .number_count_notice {
+        width: 15px;
+        height: 15px;
+        background-color: #fff;
+        border-radius: 50%;
+        right: 5px;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        position: absolute;
+        color: red;
+        z-index: 1;
+        top: 5px;
+        font-size: 15px;
     }
 }
 .active_popover {

@@ -1,15 +1,38 @@
 .header_post_container {
     padding: 10px 15px;
-
     .user_post {
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         .user_post_detai {
-            align-items: center;
             display: flex;
-
+            flex-direction: column;
+            .infor_group {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+                .avatar_group {
+                    img {
+                        width: 40px;
+                        object-fit: cover;
+                        border-radius: 10px;
+                    }
+                }
+                .name_group {
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                    align-self: flex-start;
+                    margin-top: 2px;
+                    margin-left: 10px;
+                    font-size: var(--fourteen-px);
+                    font-weight: bold;
+                    color: var(--primary-text);
+                }
+            }
+            .infor_user {
+                display: flex;
+            }
             .infor_user_post {
                 margin-left: 10px;
 
@@ -17,6 +40,9 @@
                     font-size: var(--fourteen-px);
                     color: var(--primary-text);
                     font-weight: var(--secon-font-weight);
+                    &:hover {
+                        text-decoration: underline;
+                    }
                 }
 
                 .time_post {
@@ -30,6 +56,34 @@
                         margin-left: 5px;
                         width: 12px;
                         filter: invert(var(--invert));
+                    }
+                }
+            }
+        }
+        .have_group {
+            .infor_user {
+                margin-left: 15px;
+                margin-top: -30px;
+                align-items: center;
+                .avatar_user {
+                    width: 25px;
+                    height: 25px;
+                    img {
+                        width: 25px;
+                        height: 25px;
+                        object-fit: cover;
+                    }
+                }
+                .infor_user_post {
+                    display: flex;
+                    align-items: center;
+                    .user_name_post {
+                        color: var(--secondary-text);
+                        font-size: var(--twelve-px);
+                    }
+                    .time_post {
+                        margin-left: 5px;
+                        margin-top: 0;
                     }
                 }
             }

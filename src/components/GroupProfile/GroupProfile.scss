@@ -8,3 +8,12 @@
         border: 1px solid var(--border-color);
     }
 }
+.no_group {
+    background-color: var(--navbar-background-color);
+    color: var(--primary-text);
+    min-height: 200px;
+    display: flex;
+    h1 {
+        margin: auto;
+    }
+}

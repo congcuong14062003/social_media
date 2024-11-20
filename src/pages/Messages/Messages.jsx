@@ -52,6 +52,7 @@ import { toast } from 'react-toastify';
 import config from '../../configs';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import AvatarWithText from '../../skeleton/avatarwithtext';
+import { useLoading } from '../../components/Loading/Loading';
 
 function MessagesPage() {
     const [files, setFiles] = useState([]);
@@ -83,6 +84,8 @@ function MessagesPage() {
     const [loadingSend, setLoadingSend] = useState(false);
     const [contentReply, setContentReply] = useState(null);
     const [id_receiver, setReceiverId] = useState(idReceiver);
+    const { showLoading, hideLoading } = useLoading();
+
     useEffect(() => {
         if (idReceiver) {
             setReceiverId(idReceiver);
@@ -329,11 +332,13 @@ function MessagesPage() {
         const submitterName = e.nativeEvent.submitter.name; // Lấy tên của nút submit
         if (submitterName === 'set-password') {
             if (codeMessage === false) {
+                showLoading();
                 const createKey = await postData(API_POST_KEY_PAIR, { code: codeString });
                 if (createKey.status === true) {
                     navigate(`${config.routes.messages}/${id_receiver}`);
                     setCodeMessage(true);
                 }
+                hideLoading();
             } else {
                 const checkPrivateKey = await postData(API_POST_DECODE_PRIVATE_KEY_PAIR, { code: codeString });
                 if (checkPrivateKey.status === true) {

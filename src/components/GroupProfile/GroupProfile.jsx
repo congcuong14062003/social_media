@@ -7,11 +7,11 @@ import { API_GET_ALL_MEDIA, API_LIST_GROUP_BY_USERID } from '../../API/api_serve
 import HorizontalItem from '../HorizontalItem/HorizontalItem';
 import config from '../../configs';
 function GroupProfile() {
-    const {id_user} = useParams();
+    const { id_user } = useParams();
     const [listGroup, setListGroup] = useState([]);
 
-      // Gọi API danh sách ảnh
-      useEffect(() => {
+    // Gọi API danh sách ảnh
+    useEffect(() => {
         const listGroup = async () => {
             try {
                 const response = await getData(API_LIST_GROUP_BY_USERID(id_user));
@@ -28,12 +28,25 @@ function GroupProfile() {
         listGroup();
     }, [id_user]);
     return (
-        <div className="group_profile_container">
-            {listGroup.length < 0 && <h1>Chưa có nhóm</h1>}
-            {listGroup && listGroup.map((data, index)=> (
-                <HorizontalItem to={`${config.routes.group}/${data?.group_id}`} key={index} title={data?.group_name} avt={data?.avatar_media_link} />
-            ))}
-        </div>
+        <>
+            {listGroup.length <= 0 ? (
+                <div className="no_group">
+                    <h1>Chưa có nhóm</h1>
+                </div>
+            ) : (
+                <div className="group_profile_container">
+                    {listGroup &&
+                        listGroup.map((data, index) => (
+                            <HorizontalItem
+                                to={`${config.routes.group}/${data?.group_id}`}
+                                key={index}
+                                title={data?.group_name}
+                                avt={data?.avatar_media_link}
+                            />
+                        ))}
+                </div>
+            )}
+        </>
     );
 }
 

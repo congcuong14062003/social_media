@@ -11,6 +11,7 @@ import { FcInvite } from 'react-icons/fc';
 import { API_CHECK_ROLE_MEMBER_GROUP, API_GROUP_DETAIL, API_INVITE_MEMBER_GROUP } from '../../API/api_server';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
+import QRCodePopup from '../../components/QRCode/QRCodePopup';
 
 function GroupHeader({ classNameActive, group_id }) {
     const [showQRCodePopup, setShowQRCodePopup] = useState(false);
@@ -40,8 +41,6 @@ function GroupHeader({ classNameActive, group_id }) {
                 }
                 if (!response?.data) return;
                 const { member_status, member_role } = response?.data;
-                console.log(response.data);
-
                 if (member_status === 0) {
                     setStatusMember({ isInvite: true, isMember: false, isAdmin: false });
                 } else if (member_status === 1) {
@@ -88,7 +87,7 @@ function GroupHeader({ classNameActive, group_id }) {
             console.error(error);
         }
     };
-
+    const handleCancelInvited = async () => {};
     console.log(statusMember);
 
     return (
@@ -118,19 +117,19 @@ function GroupHeader({ classNameActive, group_id }) {
                                 </div>
                             </div>
                             <div className="btn-action">
-                                {/* <IoQrCodeOutline onClick={handleQRCodeClick} className="code-qr" /> */}
-                                {/* <QRCodePopup
-                    show={showQRCodePopup}
-                    url={currentURL}
-                    onClose={handleClosePopup}
-                  /> */}
-                                {/* {(statusMember?.isAdmin || statusMember?.isMember) && (
-                                        <Link>
-                                            <div className="btn btn-messenger">
-                                                <FaFacebookMessenger /> Nhắn tin
-                                            </div>
-                                        </Link>
-                                    )} */}
+                                {/* <IoQrCodeOutline onClick={handleQRCodeClick} className="code-qr" />
+                                <QRCodePopup show={showQRCodePopup} url={currentURL} onClose={handleClosePopup} /> */}
+                                {(statusMember?.isAdmin || statusMember?.isMember) && (
+                                    <Link>
+                                        <div className="btn btn-messenger">
+                                            <ButtonCustom
+                                                startIcon={<FaFacebookMessenger />}
+                                                // className="secondary"
+                                                title="Nhắn tin"
+                                            />
+                                        </div>
+                                    </Link>
+                                )}
                                 <div
                                     className={`btn btn-add--gr ${
                                         statusMember.isAdmin || statusMember.isMember ? 'active' : ''
@@ -145,7 +144,7 @@ function GroupHeader({ classNameActive, group_id }) {
                                             />
                                         </>
                                     ) : statusMember.isInvite ? (
-                                        <div onClick={handleSendInvited}>
+                                        <div onClick={handleCancelInvited}>
                                             <ButtonCustom
                                                 startIcon={<FcInvite />}
                                                 className="secondary"

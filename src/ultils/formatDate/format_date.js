@@ -4,17 +4,15 @@ export function formatDate(dateString, format) {
     let year = date.getFullYear();
     let month = (date.getMonth() + 1).toString().padStart(2, '0');
     let day = date.getDate().toString().padStart(2, '0');
-    
-    if (format === "yy/mm/dd") {
+
+    if (format === 'yy/mm/dd') {
         return `${year}-${month}-${day}`;
-    } else if (format === "dd/mm/yy") {
+    } else if (format === 'dd/mm/yy') {
         return `${day}-${month}-${year}`;
     } else {
-        throw new Error("Invalid format");
+        throw new Error('Invalid format');
     }
 }
-
-
 
 export function getAge(dateString) {
     var birthDateString = dateString;
@@ -22,72 +20,85 @@ export function getAge(dateString) {
     var today = new Date();
     var age = today.getUTCFullYear() - birthDate.getUTCFullYear();
 
-    if (today.getUTCMonth() < birthDate.getUTCMonth() || (today.getUTCMonth() === birthDate.getUTCMonth() && today.getUTCDate() < birthDate.getUTCDate())) {
+    if (
+        today.getUTCMonth() < birthDate.getUTCMonth() ||
+        (today.getUTCMonth() === birthDate.getUTCMonth() && today.getUTCDate() < birthDate.getUTCDate())
+    ) {
         age--;
     }
     return age;
-
 }
-
-
 
 export function calculateDaysWorked(startDate) {
     const currentDate = new Date();
     const startDateTime = new Date(startDate).getTime();
     const currentDateTime = currentDate.getTime();
-  
+
     if (isNaN(startDateTime)) {
-      return 'Invalid start date';
+        return 'Invalid start date';
     }
-  
+
     const millisecondsPerDay = 24 * 60 * 60 * 1000;
     const daysWorked = Math.floor((currentDateTime - startDateTime) / millisecondsPerDay);
-  
-    return daysWorked;
-  }
-  
 
-  export function timeAgo(date) {
+    return daysWorked;
+}
+
+export function timeAgo(date) {
     const now = new Date();
     const messageTime = new Date(date);
     const secondsAgo = Math.floor((now - messageTime) / 1000);
-  
+
     const intervals = {
-      năm: 365 * 24 * 60 * 60,
-      tháng: 30 * 24 * 60 * 60,
-      ngày: 24 * 60 * 60,
-      giờ: 60 * 60,
-      phút: 60,
+        năm: 365 * 24 * 60 * 60,
+        tháng: 30 * 24 * 60 * 60,
+        ngày: 24 * 60 * 60,
+        giờ: 60 * 60,
+        phút: 60,
     };
-  
-    let timeString = "Vừa xong";
-  
+
+    let timeString = 'Vừa xong';
+
     for (const interval in intervals) {
-      const intervalSeconds = intervals[interval];
-      const count = Math.floor(secondsAgo / intervalSeconds);
-  
-      if (count > 0) {
-        timeString = `${count} ${interval}${count !== 1 ? "" : ""} trước`;
-        break;
-      }
+        const intervalSeconds = intervals[interval];
+        const count = Math.floor(secondsAgo / intervalSeconds);
+
+        if (count > 0) {
+            timeString = `${count} ${interval}${count !== 1 ? '' : ''} trước`;
+            break;
+        }
     }
-  
+
     return timeString;
-  }
+}
+
+export const formatJoinDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const month = date.toLocaleString('vi-VN', { month: 'numeric' }); // Lấy tháng dạng số
+    const year = date.getFullYear(); // Lấy năm
+
+    return `tháng ${month} năm ${year}`;
+};
 
 
-  
+export const formatFullDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 // timeFormatter.js
 
 export function formatSecondsToTime(seconds) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
 
-  // Đảm bảo rằng giờ, phút, giây có định dạng 2 chữ số
-  const formattedHours = hours.toString().padStart(2, '0');
-  const formattedMinutes = minutes.toString().padStart(2, '0');
-  const formattedSeconds = secs.toString().padStart(2, '0');
+    // Đảm bảo rằng giờ, phút, giây có định dạng 2 chữ số
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const formattedSeconds = secs.toString().padStart(2, '0');
 
-  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }

@@ -20,9 +20,10 @@ import { LoadingIcon } from '../../assets/icons/icons';
 import { toast } from 'react-toastify';
 import domtoimage from 'dom-to-image-more';
 import { useLoading } from '../../components/Loading/Loading';
-
+import { useSocket } from '../../provider/socket_context';
 
 function CreateStory() {
+    const socket = useSocket();
     const dataOwner = useContext(OwnDataContext);
     const [openAccess, setOpenAccess] = useState(false);
     const [openImageStory, setOpenImageStory] = useState(false);
@@ -150,7 +151,7 @@ function CreateStory() {
     };
     const handleOpenTextStory = () => {
         setOpenTextStory(true);
-        setBtnCutImage(true)
+        setBtnCutImage(true);
     };
     const handleCancel = () => {
         setOpenTextStory(false);
@@ -177,7 +178,7 @@ function CreateStory() {
             toast.error('Vui lòng chọn ảnh hoặc nhập văn bản');
             return;
         }
-        showLoading()
+        showLoading();
         let blob;
 
         try {
@@ -200,6 +201,14 @@ function CreateStory() {
 
             const responseData = await postData(API_CREATE_STORY, payload);
             if (responseData.status === true) {
+                socket.emit('new_story', {
+                    user_create_post: dataOwner?.user_id,
+                    story_id: responseData?.story_id,
+                    userName: dataOwner?.user_name,
+                    postText: valueInput,
+                    created_at: new Date().toISOString(),
+                });
+
                 toast.success('Tin đã được đăng thành công!');
                 navigate(config.routes.home);
             } else {
@@ -209,7 +218,7 @@ function CreateStory() {
             console.error('Error uploading story:', error);
             toast.error('Đã xảy ra lỗi khi đăng tin.');
         } finally {
-            hideLoading()
+            hideLoading();
             setBgImageStory('');
             setFileInput('');
         }
@@ -351,20 +360,18 @@ function CreateStory() {
 
                     {(openTextStory || openImageStory) && (
                         <div className="action_left_story">
-
-                                <>
-                                    <div className="btn_cancel_story" onClick={handleCancel}>
-                                        <ButtonCustom className="secondary" title="Bỏ" />
-                                    </div>
-                                    <div className="btn_ok_story">
-                                        <ButtonCustom
-                                            onClick={handleCreateStory}
-                                            className="primary"
-                                            title="Chia sẻ lên tin"
-                                        />
-                                    </div>
-                                </>
-
+                            <>
+                                <div className="btn_cancel_story" onClick={handleCancel}>
+                                    <ButtonCustom className="secondary" title="Bỏ" />
+                                </div>
+                                <div className="btn_ok_story">
+                                    <ButtonCustom
+                                        onClick={handleCreateStory}
+                                        className="primary"
+                                        title="Chia sẻ lên tin"
+                                    />
+                                </div>
+                            </>
                         </div>
                     )}
                     <ModalAccess
