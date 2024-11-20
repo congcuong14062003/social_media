@@ -60,9 +60,9 @@ function Header() {
         if (socket && dataOwner) {
             socket.emit('registerUser', { user_id: dataOwner?.user_id });
             // lắng nghe sự kiện thông báo
-            socket.on('newPostNotification', async (data) => {
+            socket.on('receiver_notify', async (data) => {
                 console.log(data);
-                if (data && data?.user_create_notice !== dataOwner?.user_id) {
+                if (data && data?.sender_id !== dataOwner?.user_id) {
                     setNumber((pre) => pre + 1);
                 }
             });

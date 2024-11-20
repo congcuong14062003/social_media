@@ -18,6 +18,7 @@ import ModalIcon from '../ModalIcon/ModalIcon';
 import { useLoading } from '../../Loading/Loading';
 import { toast } from 'react-toastify';
 import { useSocket } from '../../../provider/socket_context';
+import config from '../../../configs';
 
 const style = {
     position: 'absolute',
@@ -55,7 +56,6 @@ export default function ModalCreatePost({
     useEffect(() => {
         if (openModel) {
             if (isEdit && dataEdit) {
-                console.log(123123232312312);
                 // Gán dữ liệu bài viết cũ vào các trường input
                 setOpenSelectFile(true);
                 setValueInput(dataEdit?.post_text || '');
@@ -201,10 +201,9 @@ export default function ModalCreatePost({
                 setTimeout(() => window.location.reload(), 1000);
                 if (!isEdit && accessLabel === 'Công khai') {
                     socket.emit('new_post', {
-                        user_create_post: dataOwner?.user_id,
-                        post_id: response?.post_id,
-                        userName: dataOwner?.user_name,
-                        postText: valueInput,
+                        sender_id: dataOwner?.user_id,
+                        link_notice: `${config.routes.post}/${response?.post_id}`,
+                        content: `${dataOwner?.user_name} vừa đăng bài viết mới`,
                         created_at: new Date().toISOString(),
                     });
                 }

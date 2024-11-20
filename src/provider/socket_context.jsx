@@ -6,7 +6,7 @@ import { FaPhoneAlt, FaPhoneSlash } from 'react-icons/fa';
 import { OwnDataContext } from './own_data';
 import { toast } from 'react-toastify';
 import { API_CREATE_NOTIFICATION, API_GET_INFO_USER_PROFILE_BY_ID } from '../API/api_server';
-import config from '../configs';
+
 
 const SocketContext = createContext();
 
@@ -51,15 +51,14 @@ export const SocketProvider = ({ children }) => {
             return null;
         }
     };
-    const addNotification = async (user_create_notice, user_id, target_id, message, created_at, type) => {
+    const addNotification = async (sender_id, receiver_id, content, link_notice, created_at) => {
         try {
             const response = await postData(API_CREATE_NOTIFICATION, {
-                user_create_notice,
-                user_id: user_id,
-                content: message,
-                target_id: target_id,
+                sender_id,
+                receiver_id,
+                content,
+                link_notice,
                 created_at,
-                type: type, // Bạn có thể thêm các loại thông báo nếu cần
             });
             if (response?.status) {
                 console.log('Thông báo đã được thêm thành công');
@@ -71,12 +70,11 @@ export const SocketProvider = ({ children }) => {
     useEffect(() => {
         if (socket && dataOwner) {
             socket.emit('registerUser', { user_id: dataOwner?.user_id });
-            // lắng nghe sự kiện thông báo
-            socket.on('newPostNotification', async (data) => {
-                console.log('data: ', data);
-                const {user_create_notice, user_id, target_id, message, type, created_at } = data
-                if (dataOwner?.user_id !== data.user_create_notice) {
-                    toast.info(message, {
+
+            socket.on('receiver_notify', async (data) => {
+                const { sender_id, receiver_id, content, link_notice, created_at } = data;
+                if (dataOwner?.user_id !== data?.sender_id) {
+                    toast.info(content, {
                         position: 'top-right',
                         autoClose: 5000,
                         hideProgressBar: false,
@@ -85,9 +83,8 @@ export const SocketProvider = ({ children }) => {
                         icon: false,
                     });
                     // Gọi API thêm thông báo
-                    await addNotification(user_create_notice , user_id, target_id, message, created_at, type);
+                    await addNotification(sender_id, receiver_id, content, link_notice, created_at);
                 }
-               
             });
             // Nhận cuộc gọi
             socket.on('user-calling', async (data) => {
@@ -173,10 +170,8 @@ export const SocketProvider = ({ children }) => {
 
         return () => {
             if (socket) {
-                // socket.off('newCommentNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
-                // socket.off('newSubCommentNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
-                socket.off('newPostNotification'); // Cleanup listener khi socket thay đổi hoặc component unmount
-                socket.off('user-calling'); // Dọn dẹp khi component unmount
+                socket.off('receiver_notify'); 
+                socket.off('user-calling');
             }
         };
     }, [dataOwner, socket]);

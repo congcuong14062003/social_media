@@ -27,7 +27,7 @@ function NoticeItem({ notification, onClick }) {
         hideLoading();
     };
     return (
-        <Link to={notification?.target_id} onClick={onClick}>
+        <a href={notification?.link_notice} onClick={onClick}>
             <ToolTip
                 placement
                 title={
@@ -53,7 +53,7 @@ function NoticeItem({ notification, onClick }) {
                     </div>
                 </div>
             </ToolTip>
-        </Link>
+        </a>
     );
 }
 

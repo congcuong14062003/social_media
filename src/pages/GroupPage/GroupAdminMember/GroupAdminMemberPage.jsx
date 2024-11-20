@@ -20,12 +20,14 @@ import { getData, postData } from '../../../ultils/fetchAPI/fetch_API';
 import HorizontalItem from '../../../components/HorizontalItem/HorizontalItem';
 import { toast } from 'react-toastify';
 import { OwnDataContext } from '../../../provider/own_data';
+import { useSocket } from '../../../provider/socket_context';
 
 function GroupAdminMemberPage() {
     const { group_id } = useParams();
     const [listMemberOffical, setListMemberOffical] = useState([]);
     const [listUnapproved, setListUnapproved] = useState([]);
     const [listAcceptedPostGroup, setListAcceptedPostGroup] = useState(null);
+    const socket = useSocket();
 
     const dataOwner = useContext(OwnDataContext);
     useEffect(() => {
@@ -47,19 +49,19 @@ function GroupAdminMemberPage() {
     }, [group_id]);
     console.log(listMemberOffical);
     // danh sách bài viết đã đc duyệt
- useEffect(() => {
-    const getAllGroupAcceptedPost = async () => {
-        try {
-            const response = await getData(API_LIST_GROUP_ACCEPTED_POST(group_id));
-            if (response?.status) {
-                setListAcceptedPostGroup(response?.data);
+    useEffect(() => {
+        const getAllGroupAcceptedPost = async () => {
+            try {
+                const response = await getData(API_LIST_GROUP_ACCEPTED_POST(group_id));
+                if (response?.status) {
+                    setListAcceptedPostGroup(response?.data);
+                }
+            } catch (error) {
+                console.error('Error fetching group detail:', error);
             }
-        } catch (error) {
-            console.error('Error fetching group detail:', error);
-        }
-    };
-    getAllGroupAcceptedPost();
-}, [group_id]);
+        };
+        getAllGroupAcceptedPost();
+    }, [group_id]);
     useEffect(() => {
         const listUnapprovedMembers = async () => {
             try {
@@ -84,6 +86,14 @@ function GroupAdminMemberPage() {
             member_id,
         });
         if (response.status) {
+            socket.emit('accepted_join_group', {
+                group_id: group_id,
+                sender_id: dataOwner?.user_id,
+                receiver_id: member_id,
+                link_notice: `${config.routes.group}/${group_id}`,
+                content: `${dataOwner?.user_name} đã chấp nhận bạn tham gia nhóm`,
+                created_at: new Date().toISOString(),
+            });
             window.location.reload();
         }
     };
@@ -93,6 +103,14 @@ function GroupAdminMemberPage() {
             member_id,
         });
         if (response.status) {
+            socket.emit('decline_join_group', {
+                group_id: group_id,
+                sender_id: dataOwner?.user_id,
+                receiver_id: member_id,
+                link_notice: `${config.routes.group}/${group_id}`,
+                content: `${dataOwner?.user_name} đã từ chối bạn tham gia nhóm`,
+                created_at: new Date().toISOString(),
+            });
             window.location.reload();
         }
     };
@@ -183,7 +201,8 @@ function GroupAdminMemberPage() {
                                         {listAcceptedPostGroup?.length} bài viết
                                     </div>
                                     <div className="info-short--item info-address">
-                                        <FaPeopleGroup />{listMemberOffical?.length} thành viên
+                                        <FaPeopleGroup />
+                                        {listMemberOffical?.length} thành viên
                                     </div>
                                 </div>
                                 <div className="title-content box">

@@ -17,18 +17,18 @@
         cursor: pointer;
     }
     .number_count_notice {
-        width: 15px;
-        height: 15px;
-        background-color: #fff;
+        width: 19px;
+        height: 19px;
+        background-color: #dd2334;
         border-radius: 50%;
-        right: 5px;
+        right: -3px;
         align-items: center;
         justify-content: center;
         display: flex;
         position: absolute;
-        color: red;
+        color: #fff;
         z-index: 1;
-        top: 5px;
+        top: -5px;
         font-size: 15px;
     }
 }

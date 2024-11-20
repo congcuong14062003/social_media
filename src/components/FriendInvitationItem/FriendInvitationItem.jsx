@@ -8,16 +8,26 @@ import { toast } from 'react-toastify';
 import { useContext, useEffect, useState } from 'react';
 import { OwnDataContext } from '../../provider/own_data';
 import { getMutualFriends } from '../../services/fetch_api';
+import { useSocket } from '../../provider/socket_context';
 function FriendInvitationItem({ data }) {
     console.log(data);
     const [countMutual, setCountMutual] = useState();
     const [listFriendMutuals, setListFriendMutuals] = useState([]);
     const dataOwner = useContext(OwnDataContext);
     const navigate = useNavigate();
+    const socket = useSocket();
+
     const handleAcceptInvite = async (event) => {
         event.stopPropagation();
         const response = await postData(API_ACCEPT_INVITE(data?.user_id));
         if (response.status === true) {
+            socket.emit('accepted_friend', {
+                sender_id: dataOwner?.user_id,
+                receiver_id: data?.user_id,
+                content: `${dataOwner?.user_name} đã chấp nhận lời mời kết bạn`,
+                link_notice: `${config.routes.friends}/list-friend`,
+                created_at: new Date().toISOString(),
+            });
             navigate(`${config.routes.friends}/list-friend`);
         }
         console.log(response);
@@ -26,8 +36,14 @@ function FriendInvitationItem({ data }) {
         event.stopPropagation();
         const response = await postData(API_CANCEL_FRIEND_REQUEST(data?.user_id));
         if (response.status === true) {
+            socket.emit('declined_friend', {
+                sender_id: dataOwner?.user_id,
+                receiver_id: data?.user_id,
+                content: `${dataOwner?.user_name} đã từ chối lời mời kết bạn`,
+                link_notice: `${config.routes.friends}/suggestion`,
+                created_at: new Date().toISOString(),
+            });
             navigate(`${config.routes.friends}/suggestion`);
-            toast.success("Huỷ lời mời kết bạn thành công");
         }
     };
     useEffect(() => {

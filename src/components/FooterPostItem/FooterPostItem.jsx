@@ -170,11 +170,10 @@ function FooterPostItem({ dataPost, className }) {
             if (response.status === true) {
                 // Gửi bình luận qua WebSocket
                 socket.emit('sendComment', {
-                    user_create_notice: dataOwner?.user_id,
-                    avatar_user_create_notice: dataOwner?.avatar,
-                    user_name_comment: dataOwner?.user_name,
-                    post_owner_id: dataPost?.user_id, // ID của người đăng bài
-                    post_id: dataPost?.post_id,
+                    sender_id: dataOwner?.user_id,
+                    receiver_id: dataPost?.user_id, // ID của người đăng bài
+                    content: `${dataOwner?.user_name} vừa bình luận bài viết của bạn`,
+                    link_notice: `${config.routes.post}/${dataPost?.post_id}`,
                     created_at: new Date().toISOString(),
                 });
                 setComment(''); // Reset input comment
@@ -238,11 +237,10 @@ function FooterPostItem({ dataPost, className }) {
             if (response.status === true) {
                 // Gửi sub-comment qua WebSocket
                 socket.emit('sendSubComment', {
-                    user_create_notice: dataOwner?.user_id,
-                    avatar_user_create_notice: dataOwner?.avatar,
-                    user_name_comment: dataOwner?.user_name,
-                    post_owner_id: user_comment, // ID của người bình luận
-                    post_id: dataPost?.post_id,
+                    sender_id: dataOwner?.user_id,
+                    receiver_id: user_comment, // ID của người đăng bài
+                    content: `${dataOwner?.user_name} vừa trả lời bình luận của bạn`,
+                    link_notice: `${config.routes.post}/${dataPost?.post_id}`,
                     created_at: new Date().toISOString(),
                 });
 

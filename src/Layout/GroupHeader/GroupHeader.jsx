@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './GroupHeader.scss';
 import { MdGroupAdd } from 'react-icons/md';
 import { MdGroupRemove } from 'react-icons/md';
@@ -12,9 +12,14 @@ import { API_CHECK_ROLE_MEMBER_GROUP, API_GROUP_DETAIL, API_INVITE_MEMBER_GROUP 
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import QRCodePopup from '../../components/QRCode/QRCodePopup';
+import { useSocket } from '../../provider/socket_context';
+import { OwnDataContext } from '../../provider/own_data';
+import config from '../../configs';
 
 function GroupHeader({ classNameActive, group_id }) {
     const [showQRCodePopup, setShowQRCodePopup] = useState(false);
+    const socket = useSocket();
+    const dataOwner = useContext(OwnDataContext);
     const [statusMember, setStatusMember] = useState({
         isInvite: false,
         isMember: false,
@@ -81,6 +86,13 @@ function GroupHeader({ classNameActive, group_id }) {
         try {
             const response = await postData(API_INVITE_MEMBER_GROUP(group_id));
             if (response?.status) {
+                socket.emit('join_group', {
+                    group_id: group_id,
+                    sender_id: dataOwner?.user_id,
+                    link_notice: `${config.routes.group}/${group_id}/admin/members`,
+                    content: `${dataOwner?.user_name} muốn vào nhóm ${dataGroup?.group_name} của bạn`,
+                    created_at: new Date().toISOString(),
+                });
                 window.location.reload();
             }
         } catch (error) {

@@ -202,13 +202,11 @@ function CreateStory() {
             const responseData = await postData(API_CREATE_STORY, payload);
             if (responseData.status === true) {
                 socket.emit('new_story', {
-                    user_create_post: dataOwner?.user_id,
-                    story_id: responseData?.story_id,
-                    userName: dataOwner?.user_name,
-                    postText: valueInput,
+                    sender_id: dataOwner?.user_id,
+                    content: `${dataOwner?.user_name} vừa đăng một tin mới`,
+                    link_notice: `${config.routes.story}/user_id=${dataOwner?.user_id}`,
                     created_at: new Date().toISOString(),
                 });
-
                 toast.success('Tin đã được đăng thành công!');
                 navigate(config.routes.home);
             } else {
