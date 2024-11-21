@@ -59,7 +59,7 @@
                     justify-content: center;
                     margin: 10px 0;
                     button {
-                      width: 100%;
+                        width: 100%;
                     }
                 }
             }
@@ -67,7 +67,7 @@
                 width: 100%;
                 background-color: var(--right-background-story);
                 overflow-y: auto;
-                flex: 3;
+                flex: 2;
                 @media (max-width: 800px) {
                     padding: 0;
                 }
@@ -76,6 +76,9 @@
                     display: none;
                 }
             }
+            // .list_group_suggesst {
+            //     flex: 1;
+            // }
         }
     }
 }

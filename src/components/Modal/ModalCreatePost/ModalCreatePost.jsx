@@ -199,7 +199,7 @@ export default function ModalCreatePost({
                 setLoadingSendPost(false);
                 closeModel();
                 setTimeout(() => window.location.reload(), 1000);
-                if (!isEdit && accessLabel === 'Công khai') {
+                if (!isEdit && !group_id && accessLabel === 'Công khai') {
                     socket.emit('new_post', {
                         sender_id: dataOwner?.user_id,
                         link_notice: `${config.routes.post}/${response?.post_id}`,

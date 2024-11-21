@@ -8,7 +8,12 @@ import { FaFacebookMessenger } from 'react-icons/fa6';
 import { IoQrCodeOutline } from 'react-icons/io5';
 import { FcInvite } from 'react-icons/fc';
 // import QRCodePopup from "../../component/QRCode/qr_code";
-import { API_CHECK_ROLE_MEMBER_GROUP, API_GROUP_DETAIL, API_INVITE_MEMBER_GROUP } from '../../API/api_server';
+import {
+    API_CHECK_ROLE_MEMBER_GROUP,
+    API_GROUP_DETAIL,
+    API_INVITE_MEMBER_GROUP,
+    API_LEAVE_GROUP,
+} from '../../API/api_server';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
 import QRCodePopup from '../../components/QRCode/QRCodePopup';
@@ -99,8 +104,18 @@ function GroupHeader({ classNameActive, group_id }) {
             console.error(error);
         }
     };
-    const handleCancelInvited = async () => {};
-    console.log(statusMember);
+    const handleLeaveGroup = async () => {
+        try {
+            const response = await postData(API_LEAVE_GROUP(group_id));
+            if (response?.status) {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    // const handleCancelInvited = async () => {};
+    // console.log(statusMember);
 
     return (
         <div className="group-header--main">
@@ -148,15 +163,18 @@ function GroupHeader({ classNameActive, group_id }) {
                                     }`}
                                 >
                                     {statusMember.isAdmin || statusMember.isMember ? (
-                                        <>
-                                            <ButtonCustom
-                                                startIcon={<MdGroupRemove />}
-                                                className="secondary"
-                                                title="Rời nhóm"
-                                            />
-                                        </>
+                                        (statusMember.isMember) && (
+                                            <>
+                                                <ButtonCustom
+                                                    onClick={handleLeaveGroup}
+                                                    startIcon={<MdGroupRemove />}
+                                                    className="secondary"
+                                                    title="Rời nhóm"
+                                                />
+                                            </>
+                                        )
                                     ) : statusMember.isInvite ? (
-                                        <div onClick={handleCancelInvited}>
+                                        <div onClick={handleLeaveGroup}>
                                             <ButtonCustom
                                                 startIcon={<FcInvite />}
                                                 className="secondary"

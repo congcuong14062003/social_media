@@ -131,6 +131,9 @@ const API_ACCEPT_INVITE_MEMBER_GROUP = (id) =>
   API_HOST + "/group/members/accept-invited-group/" + id;
 const API_REFUSE_INVITE_MEMBER_GROUP = (id) =>
   API_HOST + "/group/members/refuse-invited-group/" + id;
+
+const API_LEAVE_GROUP = (id) =>
+  API_HOST + "/group/members/leave-group/" + id;
 const API_SET_ADMIN_MEMBER_GROUP = (id) =>
   API_HOST + "/group/members/set-admin-group/" + id;
 
@@ -142,6 +145,8 @@ const API_LIST_GROUP_ACCEPTED_POST = (group_id) => API_HOST + "/group/posts/list
 const API_LIST_GROUP_UNAPPROVED_POST = (group_id) => API_HOST + "/group/posts/list-post-unapproved/" + group_id;
 const API_ACCEPT_GROUP_POST = (group_post_id) => API_HOST + "/group/posts/accept-post/" + group_post_id;
 const API_REFUSE_GROUP_POST = (group_post_id) => API_HOST + "/group/posts/refuse-post/" + group_post_id;
+const API_LIST_POST_GROUP_JOINED =  API_HOST + "/group/posts/list-post-all-group";
+const API_LIST_SUGGESST_GROUP =  API_HOST + "/group/members/list-suggest-group";
 
 export {
     API_SIGNUP_POST,
@@ -238,10 +243,13 @@ export {
     API_ACCEPT_INVITE_MEMBER_GROUP,
     API_REFUSE_INVITE_MEMBER_GROUP,
     API_SET_ADMIN_MEMBER_GROUP,
+    API_LEAVE_GROUP,
 
     API_GROUP_POST_CREATE,
     API_LIST_GROUP_ACCEPTED_POST,
     API_LIST_GROUP_UNAPPROVED_POST,
     API_REFUSE_GROUP_POST,
-    API_ACCEPT_GROUP_POST
+    API_ACCEPT_GROUP_POST,
+    API_LIST_POST_GROUP_JOINED,
+    API_LIST_SUGGESST_GROUP
 };

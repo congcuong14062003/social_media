@@ -7,6 +7,7 @@ import CreatePost from '../../../components/CreatePost/CreatePost';
 import PostItem from '../../../components/PostItem/PostItem';
 import GroupHeader from '../../../Layout/GroupHeader/GroupHeader';
 import {
+    API_CHECK_ROLE_MEMBER_GROUP,
     API_GROUP_DETAIL,
     API_LIST_GROUP_ACCEPTED_POST,
     API_LIST_GROUP_UNAPPROVED_POST,
@@ -19,8 +20,12 @@ function GroupHomePage() {
     const [dataGroup, setDataGroup] = useState(null);
     const [listPostGroup, setListPostGroup] = useState(null);
     const navigate = useNavigate();
+    const [statusMember, setStatusMember] = useState({
+        isInvite: false,
+        isMember: false,
+        isAdmin: false,
+    });
     useEffect(() => {
-        
         const fetchGroupDetail = async () => {
             if (!group_id) return;
             try {
@@ -36,7 +41,7 @@ function GroupHomePage() {
     }, [group_id]);
 
     console.log(group_id);
-    
+
     useEffect(() => {
         const getAllGroupPost = async () => {
             if (!group_id) return;
@@ -54,7 +59,42 @@ function GroupHomePage() {
         };
         getAllGroupPost();
     }, [group_id]);
+    useEffect(() => {
+        try {
+            // const getGroupDetail = async () => {
+            //     const response = await getData(API_GROUP_DETAIL(group_id));
+            //     if (response?.status) {
+            //         setDataGroup(response?.data);
+            //     }
+            // };
+            const checkRole = async () => {
+                const response = await getData(API_CHECK_ROLE_MEMBER_GROUP(group_id));
+                if (!response?.status) {
+                    return setStatusMember({
+                        isInvite: false,
+                        isMember: false,
+                        isAdmin: false,
+                    });
+                }
+                if (!response?.data) return;
+                const { member_status, member_role } = response?.data;
+                if (member_status === 0) {
+                    setStatusMember({ isInvite: true, isMember: false, isAdmin: false });
+                } else if (member_status === 1) {
+                    setStatusMember({
+                        isInvite: false,
+                        isMember: member_role === 0,
+                        isAdmin: member_role === 1,
+                    });
+                }
+            };
 
+            // getGroupDetail();
+            checkRole();
+        } catch (error) {
+            console.error(error.message);
+        }
+    }, [group_id]);
     return (
         <div className="group-dom">
             <div className="group-wrapper container">
@@ -63,7 +103,9 @@ function GroupHomePage() {
                     <div className="group_main_container">
                         <div className="group-main">
                             <div className="group-left">
-                                <CreatePost group_id={group_id} />
+                                {(statusMember?.isMember || statusMember?.isAdmin) && (
+                                    <CreatePost group_id={group_id} />
+                                )}
                                 <div className="title-content box">
                                     <h3>Bài viết</h3>
                                 </div>

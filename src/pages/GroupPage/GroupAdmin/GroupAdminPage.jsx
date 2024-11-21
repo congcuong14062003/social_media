@@ -95,9 +95,9 @@ function GroupAdminPage() {
         }
         hideLoading();
     };
-    const handleRefusedPost = async (group_post_id) => {
+    const handleRefusedPost = async (group_post_id, post_id) => {
         showLoading()
-        const response = await postData(API_REFUSE_GROUP_POST(group_id), { status_post: '0', group_post_id });
+        const response = await postData(API_REFUSE_GROUP_POST(group_id), { status_post: '0', group_post_id, post_id: post_id});
         if (response.status) {
             setTimeout(() => {
                 window.location.reload();
@@ -135,7 +135,7 @@ function GroupAdminPage() {
                                             </div>
                                             <div className="btn-action btn-delete">
                                                 <ButtonCustom
-                                                    onClick={() => handleRefusedPost(data?.group_post_id)}
+                                                    onClick={() => handleRefusedPost(data?.group_post_id, data?.post_id)}
                                                     title="Từ chối"
                                                     className="secondary"
                                                     startIcon={<RiDeleteBin5Fill />}

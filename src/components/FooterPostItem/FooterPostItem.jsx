@@ -47,6 +47,7 @@ function FooterPostItem({ dataPost, className }) {
     const socket = useSocket();
     const { showLoading, hideLoading } = useLoading();
     const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
+    const [activeSubComment, setActiveSubComment] = useState(null);
 
     const [selectedReaction, setSelectedReaction] = useState(() => {
         const userReaction = dataPost?.reacts?.find((item) => item?.user_id === dataOwner?.user_id);
@@ -68,6 +69,7 @@ function FooterPostItem({ dataPost, className }) {
             });
         }
     }, [socket]);
+
     const fetchComments = async () => {
         try {
             const response = await getData(API_LIST_COMMENT_POST(dataPost?.post_id));
@@ -76,6 +78,7 @@ function FooterPostItem({ dataPost, className }) {
             console.error('Error fetching comments:', error);
         }
     };
+
     const getTopReactions = () => {
         const reactionCount = {};
 
@@ -96,6 +99,7 @@ function FooterPostItem({ dataPost, className }) {
 
         return sortedReactions;
     };
+
     const topReactions = getTopReactions();
     const handleFocusComment = () => {
         inputRef.current.focus(); // Focus vào ô input khi click vào "Bình luận"
@@ -111,6 +115,7 @@ function FooterPostItem({ dataPost, className }) {
             [commentId]: !prev[commentId], // Toggle hiển thị subcomment cho comment cụ thể
         }));
     };
+
     const handleShowCommentInput = (commentId, comment_user_name, comment_user_id) => {
         const comment = `Trả lời ${comment_user_name}: `;
         setSubComment(comment);
@@ -189,7 +194,6 @@ function FooterPostItem({ dataPost, className }) {
         setShowCommentPost(true);
         inputRef.current.focus(); // Đặt focus vào input
     };
-
     const handleSendSubComment = async (commentId, user_comment) => {
         showLoading(); // Hiển thị loading
 
@@ -204,57 +208,75 @@ function FooterPostItem({ dataPost, className }) {
 
         // Nếu có file, thêm file vào FormData
         if (filesSub && filesSub.length > 0) {
-            const file = filesSub[0]; // Lấy file đầu tiên
+            const file = filesSub[0];
             const fileType = file.file.type;
 
-            // Xác định loại media
             if (fileType.startsWith('image/')) {
                 media_type = 'image';
             } else if (fileType.startsWith('video/')) {
                 media_type = 'video';
             }
 
-            formData.append('file', file.file, file.file.name); // Thêm file vào FormData
+            formData.append('file', file.file, file.file.name);
         }
 
         // Tạo payload
         const payload = {
             comment_text: subComment,
-            media_type: media_type, // Có thể là `null` nếu không có file
+            media_type: media_type,
             replying_user_id: dataOwner?.user_id,
+            parent_comment_id: commentId, // ID của bình luận cha
+            sub_comment_id: activeSubComment?.subCommentId || null, // ID của sub-comment (nếu có)
         };
 
-        // Duyệt qua từng key trong payload và thêm vào FormData
         Object.entries(payload).forEach(([key, value]) => {
             if (value !== null) formData.append(key, value);
         });
-        console.log('user_comment: ', user_comment);
 
         try {
-            // Gọi API với FormData
             const response = await postData(API_CREATE_SUB_COMMENT(commentId), formData);
 
             if (response.status === true) {
-                // Gửi sub-comment qua WebSocket
+                // Xác định receiver_id
+                const receiver_id = activeSubComment?.subCommentId // Nếu đang trả lời bình luận phụ
+                    ? activeSubComment?.replyingUserId
+                    : user_comment; // Nếu trả lời bình luận cha
+
+                // Gửi socket thông báo
                 socket.emit('sendSubComment', {
                     sender_id: dataOwner?.user_id,
-                    receiver_id: user_comment, // ID của người đăng bài
+                    receiver_id: receiver_id, // Đúng người nhận
                     content: `${dataOwner?.user_name} vừa trả lời bình luận của bạn`,
                     link_notice: `${config.routes.post}/${dataPost?.post_id}`,
                     created_at: new Date().toISOString(),
                 });
 
                 setSubComment(''); // Reset input
-                fetchComments(); // Cập nhật bình luận
+                fetchComments(); // Cập nhật danh sách bình luận
             }
         } catch (error) {
             console.error('Error posting sub-comment:', error);
         }
+
         handleShowSubComment(commentId);
         hideLoading(); // Ẩn loading
         setFilesSub(''); // Reset files
-        setShowFilePondSub(false); // Ẩn file input nếu cần
-        inputSubRef.current.focus(); // Đặt lại focus vào input sub-comment
+        setShowFilePondSub(false);
+        inputSubRef.current.focus(); // Đặt lại focus
+    };
+
+    // trả lời bình luận phụ:
+    const handleResponseSubcommet = (commentId, subCommentId, replyingUserName, replyingUserId) => {
+        const responseText = `Trả lời ${replyingUserName}: `;
+        setSubComment(responseText);
+        setShowSubCommentInput((prev) => ({
+            ...prev,
+            [commentId]: true,
+        }));
+        setActiveSubComment({ commentId, subCommentId, replyingUserId }); // Thêm replyingUserId
+        setTimeout(() => {
+            inputSubRef.current?.focus();
+        }, 0);
     };
 
     const handleReactionSelect = async (reaction, event) => {
@@ -278,6 +300,7 @@ function FooterPostItem({ dataPost, className }) {
             console.error('Error saving reaction:', error);
         }
     };
+
     const handleDeleteReactPost = async () => {
         if (!selectedReaction) {
             const payload = {
@@ -332,6 +355,7 @@ function FooterPostItem({ dataPost, className }) {
                 console.error('Failed to copy the link: ', err);
             });
     };
+
     const classes = `${className} footer_post_container`;
     return (
         <div className={classes}>
@@ -490,9 +514,19 @@ function FooterPostItem({ dataPost, className }) {
                                                                 {timeAgo(subCommentData?.created_at)}
                                                             </div>
                                                             <div className="item_status like_comment">Thích</div>
-                                                            {/* <div className="item_status responsive_comment" onClick={()=>setShowInforReply(subCommentData?.replying_user_id, subCommentData?.replying_user_name,commentData?.comment_id)}>
-                                                            Phản hồi
-                                                        </div> */}
+                                                            <div
+                                                                className="item_status responsive_comment response_sub_coment"
+                                                                onClick={() =>
+                                                                    handleResponseSubcommet(
+                                                                        commentData?.comment_id,
+                                                                        subCommentData?.sub_comment_id,
+                                                                        subCommentData?.replying_user_name,
+                                                                        subCommentData?.replying_user_id, // Tham số mới
+                                                                    )
+                                                                }
+                                                            >
+                                                                Phản hồi
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -500,7 +534,6 @@ function FooterPostItem({ dataPost, className }) {
                                         })}
                                     </div>
                                 )}
-
                                 {showSubCommentInput[commentData?.comment_id] && (
                                     <>
                                         {showFilePondSub && (

@@ -16,7 +16,7 @@ import { useSocket } from '../../../provider/socket_context';
 function PopoverMe({ darkOn, setDarkOn, handleClosePopover }) {
     const navigate = useNavigate();
     const dataOwner = useContext(OwnDataContext);
-    const socket = useSocket()
+    const socket = useSocket();
     const handleLogout = async () => {
         const response = await deleteData(API_LOGOUT);
         if (response.status === true) {
@@ -29,12 +29,16 @@ function PopoverMe({ darkOn, setDarkOn, handleClosePopover }) {
             navigate('/login');
         }
     };
-    
-
     return (
         <Popover className="popover_me">
             <div className="popover_me_container">
-                <HorizontalItem className="item_user_main" avt={dataOwner?.avatar} title={dataOwner?.user_name} />
+                <HorizontalItem
+                    handleClick={handleClosePopover}
+                    className="item_user_main"
+                    to={`${config.routes.profile}/${dataOwner?.user_id}`}
+                    avt={dataOwner?.avatar}
+                    title={dataOwner?.user_name}
+                />
                 <div className="line"></div>
                 <div className="setting_dark_mode">
                     <HorizontalItem
