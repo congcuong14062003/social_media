@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './GroupAdminPage.scss';
 import { MdDateRange, MdGroupOff } from 'react-icons/md';
 import { FaFileCircleCheck, FaPeopleGroup, FaPeopleLine } from 'react-icons/fa6';
@@ -19,13 +19,17 @@ import {
 } from '../../../API/api_server';
 import { useLoading } from '../../../components/Loading/Loading';
 import ButtonCustom from '../../../components/ButtonCustom/ButtonCustom';
+import { useSocket } from '../../../provider/socket_context';
+import { OwnDataContext } from '../../../provider/own_data';
 
 function GroupAdminPage() {
     const { showLoading, hideLoading } = useLoading();
+    const socket = useSocket();
     const [listUnapprovedPostGroup, setListUnapprovedPostGroup] = useState(null);
     const [listAcceptedPostGroup, setListAcceptedPostGroup] = useState(null);
     const [listMemberOffical, setListMemberOffical] = useState([]);
     console.log(listUnapprovedPostGroup);
+    const dataOwner = useContext(OwnDataContext);
 
     const { group_id } = useParams();
     const handleDeleteGroup = async () => {
@@ -82,23 +86,47 @@ function GroupAdminPage() {
         getListMemberOffical();
     }, [group_id]);
 
-    const handleAcceptedPost = async (group_post_id) => {
-         showLoading()
+    const handleAcceptedPost = async (data) => {
+        showLoading();
         const response = await postData(API_ACCEPT_GROUP_POST(group_id), {
             status_post: '1',
-            group_post_id,
+            group_post_id: data?.group_post_id,
         });
         if (response.status) {
+            socket.emit('new_post', {
+                sender_id: data?.user_id,
+                link_notice: `${config.routes.post}/${data?.post_id}`,
+                content: `${data?.user_name} vừa đăng bài viết mới`,
+                created_at: new Date().toISOString(),
+            });
+            socket.emit('accept_post', {
+                sender_id: dataOwner?.user_id,
+                receiver_id: data?.user_id,
+                link_notice: `${config.routes.post}/${data?.post_id}`,
+                content: `Bài viết của bạn đã được phê duyệt`,
+                created_at: new Date().toISOString(),
+            });
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
         }
         hideLoading();
     };
-    const handleRefusedPost = async (group_post_id, post_id) => {
-        showLoading()
-        const response = await postData(API_REFUSE_GROUP_POST(group_id), { status_post: '0', group_post_id, post_id: post_id});
+    const handleRefusedPost = async (data) => {
+        showLoading();
+        const response = await postData(API_REFUSE_GROUP_POST(group_id), {
+            status_post: '0',
+            group_post_id: data?.group_post_id,
+            post_id: data?.post_id,
+        });
         if (response.status) {
+            socket.emit('declined_post', {
+                sender_id: dataOwner?.user_id,
+                receiver_id: data?.user_id,
+                link_notice: `${config.routes.group}`,
+                content: `Bài viết của bạn đã bị từ chối`,
+                created_at: new Date().toISOString(),
+            });
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
@@ -127,7 +155,7 @@ function GroupAdminPage() {
                                         <div className="action-post">
                                             <div className="btn-action btn-accept">
                                                 <ButtonCustom
-                                                    onClick={() => handleAcceptedPost(data?.group_post_id)}
+                                                    onClick={() => handleAcceptedPost(data)}
                                                     title="Phê duyệt"
                                                     className="primary"
                                                     startIcon={<FaFileCircleCheck />}
@@ -135,7 +163,9 @@ function GroupAdminPage() {
                                             </div>
                                             <div className="btn-action btn-delete">
                                                 <ButtonCustom
-                                                    onClick={() => handleRefusedPost(data?.group_post_id, data?.post_id)}
+                                                    onClick={() =>
+                                                        handleRefusedPost(data)
+                                                    }
                                                     title="Từ chối"
                                                     className="secondary"
                                                     startIcon={<RiDeleteBin5Fill />}

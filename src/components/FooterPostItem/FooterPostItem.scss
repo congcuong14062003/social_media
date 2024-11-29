@@ -139,6 +139,8 @@
                 .container_comment {
                     width: max-content;
                     padding: 10px;
+                    max-width: 400px;
+                    word-wrap: break-word;
                     border-radius: 20px;
                     background-color: var(--comment-backgroud);
                     margin-left: 5px;

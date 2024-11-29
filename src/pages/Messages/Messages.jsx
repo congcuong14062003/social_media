@@ -89,6 +89,11 @@ function MessagesPage() {
     useEffect(() => {
         if (idReceiver) {
             setReceiverId(idReceiver);
+            setShowReply(false);
+            setContentReply(null);
+            setMessage('')
+            setFiles([]);
+            // setAudioURL('');
         }
     }, [idReceiver]);
 

@@ -76,7 +76,17 @@ const API_LIST_COMMENT_POST = (id) => `${API_HOST}/posts/list-comment-post/${id}
 // react post
 const API_CREATE_REACT_POST = (id) => `${API_HOST}/posts/create-react-post/${id}`;
 const API_DELETE_REACT_POST = (id) => `${API_HOST}/posts/delete-react-post/${id}`;
+// comment post
+const API_HEART_COMMENT_BY_COMMENT_ID = (id) =>
+  `${API_HOST}/posts/heart-comment/${id}`;
 
+const API_HEART_SUB_COMMENT_BY_COMMENT_ID = (id) =>
+  `${API_HOST}/posts/heart-sub-comment/${id}`;
+const API_DELETE_COMMENT_POST_BY_COMMENT_ID = (id) =>
+  `${API_HOST}/posts/delete-comment/${id}`;
+
+const API_DELETE_SUB_COMMENT_POST_BY_SUB_COMMENT_ID = (id) =>
+  `${API_HOST}/posts/delete-sub-comment/${id}`;
 
 ////// STORY
 const API_CREATE_STORY = API_HOST + '/stories/create-story';
@@ -216,6 +226,10 @@ export {
     API_LIST_COMMENT_POST,
     API_CREATE_REACT_POST,
     API_DELETE_REACT_POST,
+    API_HEART_COMMENT_BY_COMMENT_ID,
+    API_HEART_SUB_COMMENT_BY_COMMENT_ID,
+    API_DELETE_COMMENT_POST_BY_COMMENT_ID,
+    API_DELETE_SUB_COMMENT_POST_BY_SUB_COMMENT_ID,
     // api story
     API_CREATE_STORY,
     API_LIST_STORY,

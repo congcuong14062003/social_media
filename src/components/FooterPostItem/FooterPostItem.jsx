@@ -8,7 +8,11 @@ import {
     API_CREATE_COMMENT_POST,
     API_CREATE_REACT_POST,
     API_CREATE_SUB_COMMENT,
+    API_DELETE_COMMENT_POST_BY_COMMENT_ID,
     API_DELETE_REACT_POST,
+    API_DELETE_SUB_COMMENT_POST_BY_SUB_COMMENT_ID,
+    API_HEART_COMMENT_BY_COMMENT_ID,
+    API_HEART_SUB_COMMENT_BY_COMMENT_ID,
     API_LIST_COMMENT_POST,
 } from '../../API/api_server';
 import { FaRegComment } from 'react-icons/fa6';
@@ -22,6 +26,8 @@ import 'filepond/dist/filepond.min.css';
 import { useLoading } from '../Loading/Loading';
 import { toast } from 'react-toastify';
 import config from '../../configs';
+import PrimaryIcon from '../PrimaryIcon/PrimaryIcon';
+import { MdDelete } from 'react-icons/md';
 function FooterPostItem({ dataPost, className }) {
     const reactionIcons = [
         { id: 'like', icon: '👍' },
@@ -48,16 +54,20 @@ function FooterPostItem({ dataPost, className }) {
     const { showLoading, hideLoading } = useLoading();
     const [showCopyConfirmation, setShowCopyConfirmation] = useState(false);
     const [activeSubComment, setActiveSubComment] = useState(null);
-
+    const [heartCmt, setHeartCmt] = useState();
+    // State để lưu tổng số lượng bình luận
+    const [totalCommentsCount, setTotalCommentsCount] = useState(0);
     const [selectedReaction, setSelectedReaction] = useState(() => {
         const userReaction = dataPost?.reacts?.find((item) => item?.user_id === dataOwner?.user_id);
         return reactionIcons.find((i) => i.id === userReaction?.react);
     });
+    console.log(comments);
     const inputRef = useRef(null); // Tạo ref cho input
     const inputSubRef = useRef(null); // Tạo ref cho sub input
     useEffect(() => {
-        setTimeout(() => setLoaded(true), 1000);
-        fetchComments();
+        if (dataPost) {
+            fetchComments();
+        }
     }, [dataPost]);
     useEffect(() => {
         if (socket) {
@@ -73,7 +83,14 @@ function FooterPostItem({ dataPost, className }) {
     const fetchComments = async () => {
         try {
             const response = await getData(API_LIST_COMMENT_POST(dataPost?.post_id));
-            setComments(response.data || []);
+            const commentsList = response.data || [];
+            setComments(commentsList);
+
+            // Tính tổng số bình luận ban đầu
+            const initialCount = commentsList.reduce((total, comment) => {
+                return total + 1 + (comment?.sub_comments?.length || 0);
+            }, 0);
+            setTotalCommentsCount(initialCount);
         } catch (error) {
             console.error('Error fetching comments:', error);
         }
@@ -99,6 +116,7 @@ function FooterPostItem({ dataPost, className }) {
 
         return sortedReactions;
     };
+    console.log('comments: ', comments);
 
     const topReactions = getTopReactions();
     const handleFocusComment = () => {
@@ -129,104 +147,92 @@ function FooterPostItem({ dataPost, className }) {
             }, 0);
         }
     };
+
     const handleComment = async () => {
-        showLoading(); // Hiển thị loading
+        showLoading();
         if (!comment && (!files || files.length === 0)) {
             toast.error('Vui lòng nhập comment');
-            hideLoading(); // Ẩn loading
+            hideLoading();
             return;
         }
 
         const formData = new FormData();
         let media_type = null;
 
-        // Nếu có file, thêm file vào FormData
         if (files && files.length > 0) {
-            const file = files[0]; // Lấy file đầu tiên
+            const file = files[0];
             const fileType = file.file.type;
-
-            // Xác định loại media
-            if (fileType.startsWith('image/')) {
-                media_type = 'image';
-            } else if (fileType.startsWith('video/')) {
-                media_type = 'video';
-            }
-
-            // Thêm file vào FormData
+            media_type = fileType.startsWith('image/') ? 'image' : fileType.startsWith('video/') ? 'video' : null;
             formData.append('file', file.file, file.file.name);
         }
 
-        // Tạo payload chung
         const payload = {
-            media_type: media_type, // Sẽ là `null` nếu không có file
+            media_type,
             comment_text: comment,
             commenting_user_id: dataOwner?.user_id,
         };
 
-        // Duyệt qua từng key và thêm vào FormData
         Object.entries(payload).forEach(([key, value]) => {
             if (value !== null) formData.append(key, value);
         });
 
         try {
-            // Gọi API với FormData
             const response = await postData(API_CREATE_COMMENT_POST(dataPost?.post_id), formData);
 
-            if (response.status === true) {
-                // Gửi bình luận qua WebSocket
+            if (response.status === true && response.data) {
+                // Thêm comment vào state
+                setComments((prevComments) => [response.data, ...prevComments]);
+
+                // Tăng tổng số bình luận
+                setTotalCommentsCount((prevCount) => prevCount + 1);
+
+                // Gửi socket
                 socket.emit('sendComment', {
                     sender_id: dataOwner?.user_id,
-                    receiver_id: dataPost?.user_id, // ID của người đăng bài
+                    receiver_id: dataPost?.user_id,
                     content: `${dataOwner?.user_name} vừa bình luận bài viết của bạn`,
                     link_notice: `${config.routes.post}/${dataPost?.post_id}`,
                     created_at: new Date().toISOString(),
                 });
-                setComment(''); // Reset input comment
-                fetchComments(); // Cập nhật danh sách bình luận
+
+                setComment('');
+                setShowFilePond(false);
+                setFiles('');
+                setShowCommentPost(true);
             }
         } catch (error) {
             console.error('Error posting comment:', error);
+        } finally {
+            hideLoading();
+            inputRef.current.focus();
         }
-
-        setShowFilePond(false); // Ẩn file input nếu cần
-        hideLoading(); // Ẩn loading
-        setFiles(''); // Reset files
-        setShowCommentPost(true);
-        inputRef.current.focus(); // Đặt focus vào input
     };
+
     const handleSendSubComment = async (commentId, user_comment) => {
-        showLoading(); // Hiển thị loading
+        showLoading();
 
         if (!subComment && (!filesSub || filesSub.length === 0)) {
             toast.error('Vui lòng nhập comment');
-            hideLoading(); // Ẩn loading
+            hideLoading();
             return;
         }
 
         const formData = new FormData();
         let media_type = null;
 
-        // Nếu có file, thêm file vào FormData
         if (filesSub && filesSub.length > 0) {
             const file = filesSub[0];
             const fileType = file.file.type;
-
-            if (fileType.startsWith('image/')) {
-                media_type = 'image';
-            } else if (fileType.startsWith('video/')) {
-                media_type = 'video';
-            }
-
+            media_type = fileType.startsWith('image/') ? 'image' : fileType.startsWith('video/') ? 'video' : null;
             formData.append('file', file.file, file.file.name);
         }
 
-        // Tạo payload
         const payload = {
             comment_text: subComment,
-            media_type: media_type,
+            media_type,
             replying_user_id: dataOwner?.user_id,
-            parent_comment_id: commentId, // ID của bình luận cha
-            sub_comment_id: activeSubComment?.subCommentId || null, // ID của sub-comment (nếu có)
+            parent_comment_id: commentId,
+            sub_comment_id: activeSubComment?.subCommentId || null,
         };
 
         Object.entries(payload).forEach(([key, value]) => {
@@ -236,33 +242,42 @@ function FooterPostItem({ dataPost, className }) {
         try {
             const response = await postData(API_CREATE_SUB_COMMENT(commentId), formData);
 
-            if (response.status === true) {
-                // Xác định receiver_id
-                const receiver_id = activeSubComment?.subCommentId // Nếu đang trả lời bình luận phụ
-                    ? activeSubComment?.replyingUserId
-                    : user_comment; // Nếu trả lời bình luận cha
+            if (response.status === true && response.data) {
+                setComments((prevComments) =>
+                    prevComments.map((comment) =>
+                        comment.comment_id === commentId
+                            ? {
+                                  ...comment,
+                                  sub_comments: [...(comment.sub_comments || []), response.data],
+                              }
+                            : comment,
+                    ),
+                );
 
-                // Gửi socket thông báo
+                // Tăng tổng số bình luận
+                setTotalCommentsCount((prevCount) => prevCount + 1);
+
+                const receiver_id = activeSubComment?.subCommentId ? activeSubComment?.replyingUserId : user_comment;
+
                 socket.emit('sendSubComment', {
                     sender_id: dataOwner?.user_id,
-                    receiver_id: receiver_id, // Đúng người nhận
+                    receiver_id,
                     content: `${dataOwner?.user_name} vừa trả lời bình luận của bạn`,
                     link_notice: `${config.routes.post}/${dataPost?.post_id}`,
                     created_at: new Date().toISOString(),
                 });
 
-                setSubComment(''); // Reset input
-                fetchComments(); // Cập nhật danh sách bình luận
+                setSubComment('');
+                setFilesSub('');
+                setShowFilePondSub(false);
+                setShowCommentPost(true); // Mở danh sách bình luận con nếu cần
             }
         } catch (error) {
             console.error('Error posting sub-comment:', error);
+        } finally {
+            hideLoading();
+            inputSubRef.current.focus();
         }
-
-        handleShowSubComment(commentId);
-        hideLoading(); // Ẩn loading
-        setFilesSub(''); // Reset files
-        setShowFilePondSub(false);
-        inputSubRef.current.focus(); // Đặt lại focus
     };
 
     // trả lời bình luận phụ:
@@ -320,9 +335,6 @@ function FooterPostItem({ dataPost, className }) {
             }
         }
     };
-    const totalCommentsCount = comments.reduce((total, commentData) => {
-        return total + 1 + commentData?.sub_comments?.length; // 1 cho comment chính và thêm số lượng subcomments
-    }, 0);
 
     const handleFilesChange = (newFiles) => {
         setFiles(newFiles); // Update the files state
@@ -338,7 +350,6 @@ function FooterPostItem({ dataPost, className }) {
     };
 
     // share bài viết
-
     const handleShare = () => {
         // Get the URL of the post, assuming `dataPost` has a `post_url` field
         const postUrl = `http://localhost:3001${config.routes.post}/${dataPost?.post_id}`;
@@ -354,6 +365,108 @@ function FooterPostItem({ dataPost, className }) {
             .catch((err) => {
                 console.error('Failed to copy the link: ', err);
             });
+    };
+
+    // thả tym bình luận
+    const handleHeartComment = async (commentId) => {
+        try {
+            await postData(API_HEART_COMMENT_BY_COMMENT_ID(commentId));
+
+            // Cập nhật trực tiếp số lượt thích trong state
+            setComments((prevComments) =>
+                prevComments.map((comment) =>
+                    comment.comment_id === commentId
+                        ? {
+                              ...comment,
+                              comment_count_comment_heart: (comment.comment_count_comment_heart || 0) + 1,
+                          }
+                        : comment,
+                ),
+            );
+        } catch (error) {
+            console.error('Error liking comment:', error);
+            toast.error('Không thể thích bình luận. Vui lòng thử lại!');
+        }
+    };
+    // thả tym subs bình luận
+    const handleHeartSubComment = async (commentId, subCommentId) => {
+        const prevComments = [...comments]; // Sao lưu trạng thái trước đó
+
+        // Tìm và cập nhật sub-comment trong state
+        setComments((prevComments) =>
+            prevComments.map((comment) =>
+                comment.comment_id === commentId
+                    ? {
+                          ...comment,
+                          sub_comments: comment.sub_comments.map((subComment) =>
+                              subComment.sub_comment_id === subCommentId
+                                  ? {
+                                        ...subComment,
+                                        sub_comment_count_heart: subComment.sub_comment_count_heart + 1, // Tăng lượt thích
+                                    }
+                                  : subComment,
+                          ),
+                      }
+                    : comment,
+            ),
+        );
+
+        try {
+            // Gọi API để tăng lượt thích
+            await postData(API_HEART_SUB_COMMENT_BY_COMMENT_ID(subCommentId));
+        } catch (error) {
+            console.error('Error liking sub-comment:', error);
+            toast.error('Không thể thích bình luận. Vui lòng thử lại!');
+
+            // Khôi phục trạng thái nếu có lỗi
+            setComments(prevComments);
+        }
+    };
+    // xoá bình luận
+    const handleDeleteComment = async (commentId) => {
+        if (window.confirm('Bạn có chắc chắn muốn xoá bình luận này?')) {
+            showLoading();
+            try {
+                // Gọi API để xoá comment
+                await postData(API_DELETE_COMMENT_POST_BY_COMMENT_ID(commentId), {
+                    post_id: dataPost?.post_id,
+                });
+                // Cập nhật state sau khi xoá
+                setComments((prevComments) => prevComments.filter((comment) => comment.comment_id !== commentId));
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+            } finally {
+                hideLoading();
+            }
+        }
+    };
+
+    // xoá sub bình luận
+    const handleDeleteSubComment = async (subCommentId) => {
+        if (window.confirm('Bạn có chắc chắn muốn xoá phản hồi này?')) {
+            showLoading();
+            try {
+                const response = await postData(API_DELETE_SUB_COMMENT_POST_BY_SUB_COMMENT_ID(subCommentId), {
+                    post_id: dataPost?.post_id,
+                });
+
+                if (response.status === true) {
+                    // Cập nhật lại danh sách bình luận
+                    setComments((prevComments) =>
+                        prevComments.map((comment) => ({
+                            ...comment,
+                            sub_comments: comment.sub_comments.filter(
+                                (subComment) => subComment.sub_comment_id !== subCommentId,
+                            ),
+                        })),
+                    );
+                }
+            } catch (error) {
+                console.error('Error deleting sub-comment:', error);
+            } finally {
+                hideLoading();
+            }
+        }
     };
 
     const classes = `${className} footer_post_container`;
@@ -446,7 +559,13 @@ function FooterPostItem({ dataPost, className }) {
                                 </div>
                                 <div className="status_post_comment">
                                     <div className="item_status time_comment">{timeAgo(commentData?.created_at)}</div>
-                                    <div className="item_status like_comment">Thích</div>
+                                    <div
+                                        className="item_status like_comment"
+                                        onClick={() => handleHeartComment(commentData?.comment_id)}
+                                    >
+                                        Thích
+                                    </div>
+
                                     <div
                                         className="item_status responsive_comment"
                                         onClick={() =>
@@ -459,6 +578,17 @@ function FooterPostItem({ dataPost, className }) {
                                     >
                                         {showSubCommentInput[commentData?.comment_id] ? 'Ẩn' : 'Phản hồi'}
                                     </div>
+                                    {commentData?.commenting_user_id === dataOwner?.user_id && (
+                                        <div
+                                            className="item_status like_comment"
+                                            onClick={() => handleDeleteComment(commentData?.comment_id)}
+                                        >
+                                            <MdDelete />
+                                        </div>
+                                    )}
+                                    {commentData?.comment_count_comment_heart > 0 && (
+                                        <div className="item_status">{commentData?.comment_count_comment_heart} ❤️</div>
+                                    )}
                                 </div>
                                 <div className="count_subs_comment">
                                     {commentData?.sub_comments?.length > 0 && (
@@ -513,7 +643,17 @@ function FooterPostItem({ dataPost, className }) {
                                                             <div className="item_status time_comment">
                                                                 {timeAgo(subCommentData?.created_at)}
                                                             </div>
-                                                            <div className="item_status like_comment">Thích</div>
+                                                            <div
+                                                                className="item_status like_comment"
+                                                                onClick={() =>
+                                                                    handleHeartSubComment(
+                                                                        commentData?.comment_id,
+                                                                        subCommentData?.sub_comment_id,
+                                                                    )
+                                                                }
+                                                            >
+                                                                Thích
+                                                            </div>
                                                             <div
                                                                 className="item_status responsive_comment response_sub_coment"
                                                                 onClick={() =>
@@ -527,6 +667,26 @@ function FooterPostItem({ dataPost, className }) {
                                                             >
                                                                 Phản hồi
                                                             </div>
+
+                                                            {/* Hiển thị nút xóa nếu là chủ của bình luận con */}
+                                                            {subCommentData?.replying_user_id ===
+                                                                dataOwner?.user_id && (
+                                                                <div
+                                                                    className="item_status delete_sub_comment"
+                                                                    onClick={() =>
+                                                                        handleDeleteSubComment(
+                                                                            subCommentData?.sub_comment_id,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <MdDelete />
+                                                                </div>
+                                                            )}
+                                                            {subCommentData?.sub_comment_count_heart > 0 && (
+                                                                <div className="item_status">
+                                                                    {subCommentData?.sub_comment_count_heart} ❤️
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>

@@ -35,7 +35,7 @@ function ListStory() {
     const handleTransition = (stateClick) => {
         setIndexItemStart((prevIndex) => {
             const newIndex = stateClick === 'next' ? prevIndex + 1 : prevIndex - 1;
-            return Math.max(0, Math.min(newIndex, listStory.length - 4));
+            return Math.max(0, Math.min(newIndex, listStory.length - 3));
         });
     };
 
@@ -45,7 +45,7 @@ function ListStory() {
 
         if (btnPrev && btnNext) {
             btnPrev.style.display = indexItemStart <= 0 ? 'none' : 'block';
-            btnNext.style.display = indexItemStart >= listStory.length - 4 ? 'none' : 'block';
+            btnNext.style.display = indexItemStart >= groupedStories.length - 3 ? 'none' : 'block';
         }
     }, [indexItemStart, listStory]);
     const groupStoriesByUser = (stories) => {
@@ -67,10 +67,12 @@ function ListStory() {
         return Object.values(groupedStories);
     };
     const groupedStories = groupStoriesByUser(listStory);
+    console.log(groupedStories);
+    
     return (
         <React.Fragment>
             <div className="list_stories_container">
-                {groupedStories.length > 4 && (
+                {groupedStories.length > 3 && (
                     <FaCircleChevronLeft className="btn btn-prev" onClick={() => handleTransition('prev')} />
                 )}
 
@@ -101,7 +103,7 @@ function ListStory() {
                     ))}
                 </ul>
 
-                {groupedStories.length > 4 && (
+                {groupedStories.length > 3 && (
                     <FaCircleChevronRight className="btn btn-next" onClick={() => handleTransition('next')} />
                 )}
             </div>

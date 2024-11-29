@@ -59,6 +59,7 @@ function PostDetail() {
     return (
         <div className="post-detail">
             <div className="container post-detail--container">
+                
                 <div className="post-detail--media">
                     <span className="close_btn_model close">
                         <CloseBtn onClick={() => navigate(-1)} />
@@ -86,8 +87,8 @@ function PostDetail() {
                             <FaChevronRight />
                         </div>
                     )}
+                    
                 </div>
-
                 <div className="post-detail--comment">
                     <HeaderPostItem dataPost={postDetail} />
                     <FooterPostItem className="detail_post" dataPost={postDetail} />
