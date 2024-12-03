@@ -8,7 +8,7 @@ import { IoMenu } from 'react-icons/io5';
 import { NavLink } from 'react-router-dom'; // Dùng NavLink
 import './SideBarMobile.scss'; // Import CSS riêng
 import HorizontalItem from '../../components/HorizontalItem/HorizontalItem'; // Import HorizontalItem
-import { FriendIcon, HomeIcon, VideoIcon } from '../../assets/icons/icons'; // Import icons
+import { FriendIcon, GroupIcon, HomeIcon, MessageIcon, VideoIcon } from '../../assets/icons/icons'; // Import icons
 import config from '../../configs';
 
 export default function SideBarMobile() {
@@ -21,7 +21,8 @@ export default function SideBarMobile() {
   const menuItems = [
     { text: 'Trang chủ', icon: <HomeIcon />, link: config.routes.home },
     { text: 'Bạn bè', icon: <FriendIcon />, link: config.routes.friends },
-    { text: 'Video', icon: <VideoIcon />, link: config.routes.video },
+    { text: 'Tin nhắn', icon: <MessageIcon />, link: config.routes.messages },
+    { text: 'Nhóm', icon: <GroupIcon />, link: config.routes.group },
   ];
 
   const DrawerList = (

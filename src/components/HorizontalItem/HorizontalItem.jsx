@@ -3,8 +3,6 @@ import './HorizontalItem.scss';
 import AvatarUser from '../AvatarUser/AvatarUser';
 function HorizontalItem({ avt, icon, title, className, dark, handleClick, to, isActive }) {
     const classes = `container_item ${className} ${isActive ? 'active' : ''}`;
-    console.log(avt);
-    
     return (
         <Link to={to}>
                 <div onClick={handleClick && handleClick} className={classes}>

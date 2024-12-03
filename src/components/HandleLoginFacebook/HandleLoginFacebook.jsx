@@ -13,8 +13,6 @@ async function ShowPopupLoginWithFacebook() {
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-        console.log("user: ", user);
-        
         return {
             user_id: user.providerData[0].uid,
             user_name: user.providerData[0].displayName,

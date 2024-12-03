@@ -61,7 +61,6 @@ function FooterPostItem({ dataPost, className }) {
         const userReaction = dataPost?.reacts?.find((item) => item?.user_id === dataOwner?.user_id);
         return reactionIcons.find((i) => i.id === userReaction?.react);
     });
-    console.log(comments);
     const inputRef = useRef(null); // Tạo ref cho input
     const inputSubRef = useRef(null); // Tạo ref cho sub input
     useEffect(() => {
@@ -72,7 +71,6 @@ function FooterPostItem({ dataPost, className }) {
     useEffect(() => {
         if (socket) {
             socket.on('newComment', (data) => {
-                console.log('Dataa tin nhắn mới: ', data);
                 if (data) {
                     fetchComments();
                 }
@@ -116,7 +114,6 @@ function FooterPostItem({ dataPost, className }) {
 
         return sortedReactions;
     };
-    console.log('comments: ', comments);
 
     const topReactions = getTopReactions();
     const handleFocusComment = () => {
@@ -609,7 +606,6 @@ function FooterPostItem({ dataPost, className }) {
                                 {showSubComment[commentData?.comment_id] && (
                                     <div className="sub_comment_container">
                                         {commentData?.sub_comments?.map((subCommentData) => {
-                                            console.log(subCommentData);
                                             return (
                                                 <div
                                                     key={subCommentData?.sub_comment_id}

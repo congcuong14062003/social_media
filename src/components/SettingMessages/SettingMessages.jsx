@@ -11,8 +11,10 @@ import { deleteData } from '../../ultils/fetchAPI/fetch_API';
 import { toast } from 'react-toastify';
 import Search from '../Search/Search';
 import { API_DELETE_ALL_MESSAGE } from '../../API/api_server';
+import { Cancel } from '@mui/icons-material';
+import CloseBtn from '../CloseBtn/CloseBtn';
 
-function SettingMessages({ dataFriend, messages }) {
+function SettingMessages({ dataFriend, messages, onsetOpenSettingChat }) {
     const [openFile, setOpenFile] = useState(false);
     const [openFileOther, setOpenFileOther] = useState(false);
     const [openFormSearch, setOpenFormSearch] = useState(false);
@@ -94,6 +96,9 @@ function SettingMessages({ dataFriend, messages }) {
 
     return (
         <div className="setting_message_container">
+            <div className="close_setting_message">
+                <CloseBtn onClick={() => onsetOpenSettingChat()} />
+            </div>
             <div className="receiver_infor">
                 <div className="avatar_receiver">
                     <AvatarUser avatar={dataFriend.avatar || dataFriend.avatar_link} />

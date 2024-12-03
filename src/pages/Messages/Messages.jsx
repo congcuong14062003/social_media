@@ -26,6 +26,7 @@ import {
     API_DELETE_KEY_PAIR,
     API_DELETE_MESSAGE,
     API_DELETE_MESSAGE_OWNER_SIDE,
+    API_GET_CONVERSATIONS,
     API_GET_INFO_USER_PROFILE_BY_ID,
     API_GET_MESSAGES,
     API_POST_DECODE_PRIVATE_KEY_PAIR,
@@ -91,7 +92,7 @@ function MessagesPage() {
             setReceiverId(idReceiver);
             setShowReply(false);
             setContentReply(null);
-            setMessage('')
+            setMessage('');
             setFiles([]);
             // setAudioURL('');
         }
@@ -107,6 +108,8 @@ function MessagesPage() {
             }
         }
     };
+    console.log('messages: ', messages);
+
     //Biến lưu trạng thái icon xoá hiện hay không
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -177,7 +180,21 @@ function MessagesPage() {
             setHasPrivateKey(false); // Nếu không có, trạng thái là false
         }
     }, []);
-
+    const getAllMessages = async () => {
+        try {
+            const response = await postData(API_GET_MESSAGES(id_receiver), {
+                private_key: privateKey,
+            });
+            if (response?.status === true) {
+                setMessages(response?.data);
+            }
+        } catch (error) {
+            console.log('Error: ' + error);
+        }
+    };
+    useEffect(() => {
+        getAllMessages();
+    }, [id_receiver]);
     // Lấy tin nhắn
     useEffect(() => {
         if (socket && dataOwner && id_receiver && privateKey) {
@@ -188,36 +205,24 @@ function MessagesPage() {
                 setIsOnline(data.includes(id_receiver));
             });
 
-            const getAllMessages = async () => {
-                try {
-                    const response = await postData(API_GET_MESSAGES(id_receiver), {
-                        private_key: privateKey,
-                    });
-                    if (response?.status === true) {
-                        setMessages(response?.data);
-                    }
-                } catch (error) {
-                    console.log('Error: ' + error);
-                }
-            };
-
-            getAllMessages();
-
             socket.on('receiveMessage', (data) => {
-                setMessages((prevMessages) => [
-                    ...prevMessages,
-                    {
-                        created_at: data?.created_at,
-                        messenger_id: data?.messenger_id,
-                        reply_id: data?.reply_id,
-                        sender_id: data?.sender_id,
-                        receiver_id: id_receiver,
-                        content_text: data?.content_text,
-                        content_type: data?.content_type,
-                        name_file: data?.name_file ?? 'Không xác định',
-                    },
-                ]);
-                setMessage(''); // Reset input
+                console.log('Tôi có nhận đc: ', data);
+                if (data?.sender_id === id_receiver || data?.sender_id === dataOwner?.user_id) {
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        {
+                            created_at: data?.created_at,
+                            messenger_id: data?.messenger_id,
+                            reply_id: data?.reply_id,
+                            sender_id: data?.sender_id,
+                            receiver_id: data?.receiver_id,
+                            content_text: data?.content_text,
+                            content_type: data?.content_type,
+                            name_file: data?.name_file ?? 'Không xác định',
+                        },
+                    ]);
+                    setMessage(''); // Reset input
+                }
             });
 
             // Dọn dẹp khi component bị hủy
@@ -241,6 +246,10 @@ function MessagesPage() {
         if (socket && dataOwner?.user_id) {
             socket.emit('addUser', dataOwner?.user_id); // Gửi id_receiver tới server
         }
+        // Lắng nghe sự kiện xoá tin nhắn từ phía người gửi
+        socket?.on('message_deleted', ({ messageId }) => {
+            setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
+        });
     }, [socket, dataOwner]);
 
     // Lấy thông tin bạn bè từ API
@@ -290,11 +299,6 @@ function MessagesPage() {
             //Lắng nghe sự kiện đối phương nhắn tin
             socket?.on('receiverNotifiWritting', (data) => {
                 setReceiverIsTyping(data?.status);
-            });
-
-            // Lắng nghe sự kiện xoá tin nhắn từ phía người gửi
-            socket?.on('message_deleted', ({ messageId }) => {
-                setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
             });
         } catch (error) {
             console.log('error', error);
@@ -598,7 +602,8 @@ function MessagesPage() {
             const response = await deleteData(API_DELETE_MESSAGE(messageId));
             if (response.status) {
                 setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
-                socket.emit('message_deleted', { messageId });
+                // Emit sự kiện xóa tin nhắn
+                socket.emit('message_delete', { messageId });
             }
         } catch (error) {
             console.error(error);
@@ -610,6 +615,8 @@ function MessagesPage() {
             const response = await deleteData(API_DELETE_MESSAGE_OWNER_SIDE(messageId));
             if (response.status) {
                 setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
+                // Emit sự kiện thu hồi tin nhắn nếu chỉ xóa bên mình
+                socket.emit('messageRecalled', { messageId });
             }
         } catch (error) {
             console.error(error);
@@ -621,7 +628,10 @@ function MessagesPage() {
             setReceiverId(receiverId);
         }
     };
-
+    const handleClearReply = () => {
+        setShowReply(false);
+        setIDReply(null);
+    };
     return (
         <div className="messenger_container">
             {hasPrivateKey && ( // Chat UI
@@ -723,7 +733,7 @@ function MessagesPage() {
                                     <div className="right_reply">
                                         <IoMdCloseCircle
                                             className="close_reply_message"
-                                            onClick={() => setShowReply(false)}
+                                            onClick={() => handleClearReply()}
                                         />
                                     </div>
                                 </div>
@@ -796,9 +806,14 @@ function MessagesPage() {
                             )}
                         </div>
                     </div>
+
                     {openSettingChat && (
                         <div className="right_messenger">
-                            <SettingMessages dataFriend={dataFriend} messages={messages} />
+                            <SettingMessages
+                                onsetOpenSettingChat={setOpenSettingChat}
+                                dataFriend={dataFriend}
+                                messages={messages}
+                            />
                         </div>
                     )}
                 </>

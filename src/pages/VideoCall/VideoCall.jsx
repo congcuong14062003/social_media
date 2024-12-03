@@ -17,7 +17,7 @@ const VideoCall = ({ isVideoCall, userId }) => {
         isAudioMuted: false,
     };
     console.log(initialState);
-    
+
     const callReducer = (state, action) => {
         switch (action.type) {
             case 'ACCEPT_CALL':
@@ -205,22 +205,28 @@ const VideoCall = ({ isVideoCall, userId }) => {
     // Sync remote state with the server
     useEffect(() => {
         if (socket && state) {
+            console.log('state: ', state);
+
             socket.emit('statusCall', {
                 ...state,
                 to: dataOwner?.user_id !== sender_id ? sender_id : receiver_id,
             });
 
+            // if (!state.isCallAccepted) {
+            //     handleEndCall();
+            // }
+
             socket.on('statusCallToUser', (data) => {
                 setStateRemote(data);
-                if (statusCall && !data.isCallRemoteAccepted) {
+
+                if (statusCall && !data.isCallRemoteAccepted && !state.isCallAccepted) {
+                    // Chỉ gọi nếu cả trạng thái và cuộc gọi thực sự kết thúc
                     handleEndCall();
                 }
             });
             return () => socket.off('statusCallToUser'); // Cleanup khi component unmount
         }
     }, [state]);
-
-
 
     // End call and navigate back
     const handleEndCall = async () => {
@@ -232,6 +238,8 @@ const VideoCall = ({ isVideoCall, userId }) => {
         peerRef.current.destroy();
 
         dispatch({ type: 'END_CALL' });
+        // Gửi thông báo kết thúc cuộc gọi đến cả hai người
+        socket.emit('endCall', { sender_id, receiver_id });
         if (statusCall) {
             await handleSendMessage('accepted');
         } else {
@@ -241,6 +249,24 @@ const VideoCall = ({ isVideoCall, userId }) => {
         if (sender_id && receiver_id && dataOwner)
             window.location.href = `/messages/${dataOwner?.user_id !== sender_id ? sender_id : receiver_id}`;
     };
+    useEffect(() => {
+        if (socket) {
+            // Listen for the "callEnded" event from the server
+            socket.on('callEnded', (data) => {
+                console.log(data.message); // "The call has ended."
+                // Navigate the user back to the message screen
+                if (dataOwner.user_id === receiver_id) {
+                    window.location.href = `/messages/${sender_id}`;
+                } else if (dataOwner.user_id === sender_id) {
+                    window.location.href = `/messages/${receiver_id}`;
+                }
+            });
+
+            return () => {
+                socket.off('callEnded');
+            };
+        }
+    }, [socket, receiver_id]);
 
     const handleVideoToggle = () => {
         const videoTrack = localStreamRef.current?.getTracks().find((track) => track.kind === 'video');
@@ -250,19 +276,21 @@ const VideoCall = ({ isVideoCall, userId }) => {
 
             dispatch({ type: 'TOGGLE_VIDEO' }); // Update UI state
 
-            if (videoTrack.enabled) {
-                // If the video is re-enabled, renegotiate the stream
-                socket.emit('renegotiateStream', {
-                    peer_id: peerRef.current.id,
-                    videoEnabled: videoTrack.enabled,
-                });
-            }
+            // if (videoTrack.enabled) {
+            //     // If the video is re-enabled, renegotiate the stream
+            //     socket.emit('renegotiateStream', {
+            //         peer_id: peerRef.current.id,
+            //         videoEnabled: videoTrack.enabled,
+            //     });
+            // }
         }
     };
 
     const handleSendMessage = async (status) => {
-        if (time === 0 && status === 'accepted') return; // Không gửi nếu thời gian là 0 giây
+        // Không gửi nếu type là TOGGLE_AUDIO hoặc TOGGLE_VIDEO
+        if (status === 'TOGGLE_AUDIO' || status === 'TOGGLE_VIDEO') return;
 
+        if (time === 0 && status === 'accepted') return; // Không gửi nếu thời gian là 0 giây
         try {
             await postData(API_SEND_MESSAGE(receiver_id), {
                 content_type: `call:${status}`,
@@ -307,14 +335,13 @@ const VideoCall = ({ isVideoCall, userId }) => {
             return () => clearTimeout(timeCounter);
         }
     }, [time, statusCall]);
-    console.log(receiver_id);
 
     useEffect(() => {
         if (!statusCall) {
             const timeoutId = setTimeout(async () => {
                 await handleSendMessage('missed');
                 window.location.href = `/messages/${receiver_id}`;
-            }, 5000); // 60 seconds
+            }, 15000); // gọi 15 giây thôi
 
             // Clear the timeout if the component unmounts or if statusCall becomes true
             return () => clearTimeout(timeoutId);
@@ -326,7 +353,7 @@ const VideoCall = ({ isVideoCall, userId }) => {
             <div className="video-call-container">
                 <div className="video-wrapper">
                     <video ref={localVideoRef} playsInline autoPlay muted className="user-video" />
-                    
+
                     {dataOwner?.user_id === sender_id ? (
                         statusCall ? (
                             <video ref={remoteVideoRef} autoPlay playsInline className="partner-video" />
@@ -344,7 +371,9 @@ const VideoCall = ({ isVideoCall, userId }) => {
                         <img src={dataReceiver?.avatar} alt="Avatar" className="partner-avatar" />
                     </div>
                 </div>
-                <div className="time"><p>{formatSecondsToTime(time)}</p></div>
+                <div className="time">
+                    <p>{formatSecondsToTime(time)}</p>
+                </div>
                 <div className="controls">
                     {/* <ToolTipCustom content={"Bật/Tắt video"}> */}
                     <button className="control-button" onClick={handleVideoToggle}>

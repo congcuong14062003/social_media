@@ -156,7 +156,7 @@ export const SocketProvider = ({ children }) => {
                             ),
                             {
                                 position: 'top-right',
-                                autoClose: 5000,
+                                autoClose: 15000,
                                 closeOnClick: true,
                                 pauseOnHover: false,
                                 hideProgressBar: false,

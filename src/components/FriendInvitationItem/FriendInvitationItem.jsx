@@ -10,7 +10,6 @@ import { OwnDataContext } from '../../provider/own_data';
 import { getMutualFriends } from '../../services/fetch_api';
 import { useSocket } from '../../provider/socket_context';
 function FriendInvitationItem({ data }) {
-    console.log(data);
     const [countMutual, setCountMutual] = useState();
     const [listFriendMutuals, setListFriendMutuals] = useState([]);
     const dataOwner = useContext(OwnDataContext);
@@ -30,7 +29,6 @@ function FriendInvitationItem({ data }) {
             });
             navigate(`${config.routes.friends}/list-friend`);
         }
-        console.log(response);
     };
     const handleCancelRequest = async (event) => {
         event.stopPropagation();
