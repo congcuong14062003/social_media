@@ -30,63 +30,59 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover, setReceive
         }
     };
 
-    // Lắng nghe sự kiện nhận tin nhắn mới
     useEffect(() => {
         if (socket) {
             socket.on('receiveMessage', (data) => {
                 console.log('Nhận tin nhắn mới:', data);
-
                 setConversations((prevConversations) => {
-                    const updatedConversations = prevConversations.map((conversation) => {
-                        // Kiểm tra nếu cuộc trò chuyện có sẵn và cập nhật thông tin
-                        if (conversation.friend_id === data.sender_id || conversation.friend_id === data.receiver_id) {
-                            // Kiểm tra người gửi có phải là người dùng hiện tại không
-                            return {
-                                ...conversation,
-                                sender_id: data.sender_id,
-                                last_message: data.content_text, // Nếu là người nhận thì chỉ hiển thị nội dung tin nhắn
-                                last_message_time: data.created_at,
-                                content_type: data.content_type,
-                                name_file: data.name_file,
-                            };
-                        }
-                        return conversation;
+                    const isConversationExist = prevConversations?.some((conversation) => {
+                        return (
+                            (conversation?.receiver_id === data?.receiver_id &&
+                                conversation?.sender_id === data?.sender_id) ||
+                            (conversation?.receiver_id === data?.sender_id &&
+                                conversation?.sender_id === data?.receiver_id)
+                        );
                     });
 
-                    // Kiểm tra nếu cuộc trò chuyện chưa có trong danh sách, chỉ thêm nếu không có
-                    const isConversationExist = updatedConversations.some(
-                        (conversation) => conversation.sender_id === data.sender_id,
-                    );
+                    if (isConversationExist) {
+                        // Nếu cuộc hội thoại đã tồn tại, chỉ cập nhật
+                        return prevConversations.map((conversation) => {
+                            if (
+                                conversation.friend_id === data.sender_id ||
+                                conversation.friend_id === data.receiver_id
+                            ) {
+                                return {
+                                    ...conversation,
+                                    last_message: data?.content_text,
+                                    last_message_time: data.created_at,
+                                    sender_id: data.sender_id,
+                                    receiver_id: data.receiver_id,
+                                    content_type: data.content_type,
+                                    name_file: data.name_file,
+                                };
+                            }
+                            return conversation;
+                        });
+                    } else {
+                        console.log('vàoooo');
 
-                    if (!isConversationExist) {
-                        const newConversation = {
-                            friend_id: data.sender_id,
-                            friend_name: data.sender_name, // Tên người gửi
-                            friend_avatar: data.sender_avatar, // Avatar người gửi
-                            last_message: data.content_text,
-                            last_message_time: data.created_at,
-                            messenger_id: data.messenger_id,
-                            content_type: data.content_type,
-                            name_file: data.name_file,
-                        };
-
-                        updatedConversations.unshift(newConversation); // Thêm cuộc trò chuyện mới vào đầu danh sách
+                        // Nếu cuộc hội thoại chưa tồn tại, fetch toàn bộ danh sách
+                        fetchConversations();
+                        return prevConversations;
                     }
-
-                    return updatedConversations;
                 });
             });
         }
-    }, [socket, dataOwner]); // dataOwner là state lưu thông tin người dùng hiện tại
+    }, [socket, dataOwner]);
 
     console.log('Conversation: ', conversations);
 
     useEffect(() => {
         fetchConversations();
-    }, [privateKey]);
+    }, []);
 
     useEffect(() => {
-        if (conversations.length > 0) {
+        if (conversations?.length > 0) {
             setReceiverId(conversations[0]?.friend_id);
         }
     }, [conversations]);
@@ -104,8 +100,8 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover, setReceive
                     </div>
                     <div className="chat_container">
                         {conversations
-                            .filter((conversation) => conversation.last_message !== null) // Only show conversations with a non-null last message
-                            .map((conversation, index) => (
+                            ?.filter((conversation) => conversation.last_message !== null) // Only show conversations with a non-null last message
+                            ?.map((conversation, index) => (
                                 <ChatItem
                                     key={index}
                                     nameFile={conversation.name_file}

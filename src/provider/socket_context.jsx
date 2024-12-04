@@ -51,26 +51,25 @@ export const SocketProvider = ({ children }) => {
             return null;
         }
     };
-    const addNotification = async (sender_id, receiver_id, content, link_notice, created_at) => {
-        try {
-            const response = await postData(API_CREATE_NOTIFICATION, {
-                sender_id,
-                receiver_id,
-                content,
-                link_notice,
-                created_at,
-            });
-            if (response?.status) {
-                console.log('Thông báo đã được thêm thành công');
-            }
-        } catch (error) {
-            console.error('Lỗi khi thêm thông báo:', error);
-        }
-    };
+    // const addNotification = async (sender_id, receiver_id, content, link_notice, created_at) => {
+    //     try {
+    //         const response = await postData(API_CREATE_NOTIFICATION, {
+    //             sender_id,
+    //             receiver_id,
+    //             content,
+    //             link_notice,
+    //             created_at,
+    //         });
+    //         if (response?.status) {
+    //             console.log('Thông báo đã được thêm thành công');
+    //         }
+    //     } catch (error) {
+    //         console.error('Lỗi khi thêm thông báo:', error);
+    //     }
+    // };
     useEffect(() => {
         if (socket && dataOwner) {
             socket.emit('registerUser', { user_id: dataOwner?.user_id });
-
             socket.on('receiver_notify', async (data) => {
                 const { sender_id, receiver_id, content, link_notice, created_at } = data;
                 if (dataOwner?.user_id !== data?.sender_id) {
@@ -83,7 +82,7 @@ export const SocketProvider = ({ children }) => {
                         icon: false,
                     });
                     // Gọi API thêm thông báo
-                    await addNotification(sender_id, receiver_id, content, link_notice, created_at);
+                    // await addNotification(sender_id, receiver_id, content, link_notice, created_at);
                 }
             });
             // Nhận cuộc gọi

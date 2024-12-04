@@ -135,8 +135,8 @@ function MessagesPage() {
         try {
             const response = await getData(API_CHECK_IF_FRIEND(id_receiver));
             if (response.isFriend === false) {
-                // navigate('/');
-                toast.error('Bạn với người này chưa phải bạn bè vui lòng kết bạn để nhắn tin');
+                navigate('/');
+                // toast.error('Bạn với người này chưa phải bạn bè vui lòng kết bạn để nhắn tin');
             }
         } catch (error) {
             console.error('Error checking if friend:', error);
