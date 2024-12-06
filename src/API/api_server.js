@@ -25,6 +25,7 @@ const API_CREATE_FACE_RECOGNITION_BY_ID = `${API_HOST}/users/create-face-recogni
 const API_GET_FACE_RECOGNITION_BY_ID = `${API_HOST}/users/get-face-recognition/`;
 const API_DELETE_FACE_RECOGNITION_BY_ID = `${API_HOST}/users/delete-face-recognition/`;
 const API_ALL_FACE_RECOGNITION = `${API_HOST}/users/get-all-face-recognition`;
+const API_ALL_FACE_RECOGNITION_BY_ID = `${API_HOST}/users/get-all-face-recognition-by-id`;
 const API_LOGIN_FACE_RECOGNITION = `${API_HOST}/users/login-face-recognition`;
 
 // friend API endpoints
@@ -265,5 +266,6 @@ export {
     API_REFUSE_GROUP_POST,
     API_ACCEPT_GROUP_POST,
     API_LIST_POST_GROUP_JOINED,
-    API_LIST_SUGGESST_GROUP
+    API_LIST_SUGGESST_GROUP,
+    API_ALL_FACE_RECOGNITION_BY_ID
 };

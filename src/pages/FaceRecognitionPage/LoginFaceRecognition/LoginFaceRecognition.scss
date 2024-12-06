@@ -1,88 +1,170 @@
 .login-face-recognition {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100vh;
-  background-color: var(--bg-color);
-  .login-face-recognition-container {
-    padding: 20px;
-    background-color: var(--navbar-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--bg-color);
+
+    .login-face-recognition-container {
+        padding: 20px;
+        background-color: var(--navbar-color);
+        border-radius: 10px;
+        width: 500px;
+
+        h3 {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 4 / 3;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 5px solid aqua;
+
+            video {
+                width: 100%;
+                height: 100%;
+                display: block;
+                border-radius: 8px;
+            }
+
+            .overlay {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 1;
+            }
+            .line {
+                left: 0;
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background-color: aqua;
+                animation: identifier 2s ease-in-out infinite;
+            }
+            @keyframes identifier {
+                0% {
+                    top: 0%;
+                }
+                25% {
+                    top: 50%;
+                }
+                50% {
+                    top: 100%;
+                }
+                75% {
+                    top: 50%;
+                }
+                100% {
+                    top: 0%;
+                }
+            }
+        }
+        h4 {
+            padding: 10px;
+            font-style: italic;
+            text-align: center;
+            color: green;
+        }
+        h6.text-danger {
+            text-align: center;
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+    }
+}
+.model_authen_email {
+    background-color: var(--card-background);
     border-radius: 10px;
+    border: none;
+    outline: none;
+    padding: 20px;
     width: 500px;
-    h3 {
-      margin-bottom: 10px;
-      text-align: center;
+    .header_modal {
+        padding: 5px 10px 15px 10px;
+        h2 {
+            text-align: center;
+            font-size: var(--twenty-px);
+            color: var(--primary-text);
+        }
     }
+    .content_modal {
+        .input-group {
+            label {
+                font-size: var(--fourteen-px);
+                color: var(--primary-text);
+            }
+            margin-bottom: 20px;
+            input {
+                font-size: var(--fourteen-px);
 
-    .loading {
-      text-align: center;
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
+                color: var(--primary-text);
+            }
+        }
+        label {
+            color: var(--primary-text);
+        }
+        .custom_textfield {
+            width: 100% !important;
+            color: var(--primary-text);
+        }
+        .custom_textfield {
+            input {
+                color: var(--primary-text); // Màu chữ
+            }
+            .css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-11u53oe-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+              font-size: var(--fourteen-px);
+            }
+            fieldset {
+                border-color: var(--primary-text); // Viền
+            }
 
-    .video-container {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-      aspect-ratio: 4 / 3;
-      margin: 0 auto;
-      background: #000;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 5px solid aqua;
+            &:hover fieldset {
+                border-color: var(--primary-text); // Viền khi hover
+            }
 
-      video {
-        width: 100%;
-        height: 100%;
-        display: block;
-        border-radius: 8px;
-      }
+            &.Mui-focused fieldset {
+                border-color: var(--primary-text); // Viền khi được focus
+            }
+        }
+        // Select (account type)
+        .account-type-select {
+            .MuiInputBase-root {
+                color: var(--primary-text); // Màu chữ
+                font-size: var(--fourteen-px);
+            }
 
-      .overlay {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
-      }
-      .line {
-        left: 0;
-        position: absolute;
-        width: 100%;
-        height: 2px;
-        background-color: aqua;
-        animation: identifier 2s ease-in-out infinite;
-      }
-      @keyframes identifier {
-        0% {
-          top: 0%;
+            .MuiOutlinedInput-notchedOutline {
+                border-color: var(--primary-text); // Viền
+            }
+
+            &:hover .MuiOutlinedInput-notchedOutline {
+                border-color: var(--primary-text); // Viền khi hover
+            }
+
+            &.Mui-focused .MuiOutlinedInput-notchedOutline {
+                border-color: var(--primary-text); // Viền khi được focus
+            }
         }
-        25% {
-          top: 50%;
-        }
-        50% {
-          top: 100%;
-        }
-        75% {
-          top: 50%;
-        }
-        100% {
-          top: 0%;
-        }
-      }
     }
-    h4 {
-      padding: 10px;
-      font-style: italic;
-      text-align: center;
-      color: green;
+    .footer_detail_post {
+        .secondary {
+            margin: 0 10px;
+        }
     }
-    h6.text-danger {
-      text-align: center;
-      color: #e74c3c;
-      margin-top: 10px;
-    }
-  }
 }

@@ -20,6 +20,7 @@ function Signup() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [payloadSignup, setPayloadSignup] = useState('');
     const [loading, setLoading] = useState(false);
+    const [otpExpiration, setOtpExpiration] = useState(0);
     const navigate = useNavigate();
     const { showLoading, hideLoading } = useLoading();
     const handleOtpVerifySuccess = async () => {
@@ -43,7 +44,7 @@ function Signup() {
         // Kiểm tra xem có trường nào bị bỏ trống không
         if (!email || !username || !password || !confirmPassword) {
             toast.error('Vui lòng nhập đầy đủ thông tin!');
-            hideLoading()
+            hideLoading();
             return;
         }
         // Kiểm tra mật khẩu có khớp không
@@ -56,6 +57,7 @@ function Signup() {
         try {
             const response = await postData(API_CREATE_OTP_SIGNUP, data);
             if (response?.status) {
+                setOtpExpiration(response.otpExpiration); // Lưu thời gian hết hạn OTP từ server
                 setShowOtpPopup(true);
             } else {
                 toast.error('Đăng ký thất bại, vui lòng thử lại!');
@@ -122,6 +124,7 @@ function Signup() {
             </div>
             {showOtpPopup && (
                 <OtpPopup
+                    otpExpiration={otpExpiration} // Truyền thời gian hết hạn OTP
                     email={email}
                     onVerifySuccess={handleOtpVerifySuccess}
                     onClose={handleCloseOtpPopup}

@@ -79,7 +79,7 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover, setReceive
 
     useEffect(() => {
         fetchConversations();
-    }, []);
+    }, [privateKey]);
 
     useEffect(() => {
         if (conversations?.length > 0) {

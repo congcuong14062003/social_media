@@ -8,9 +8,9 @@ import { OwnDataContext } from '../../../provider/own_data';
 import BackButton from '../../../components/BackButton/BackButton';
 import { dataURLtoBlob } from '../../../ultils/dataURLtoBLOB/dataURL_to_BLOB';
 
-const CreateFaceRecognitionPage = () => {
+const CreateFaceRecognitionPage = ({ titlePage }) => {
   const dataOwner = useContext(OwnDataContext);
-
+  const [error, setError] = useState(null); // State để hiển thị lỗi khi khuôn mặt đã tồn tại
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [loading, setLoading] = useState(false);
@@ -19,29 +19,104 @@ const CreateFaceRecognitionPage = () => {
   const [dots, setDots] = useState(0);
 
   useEffect(() => {
+    document.title = titlePage;
+  }, [titlePage]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
-      setDots(prevDots => (prevDots + 1) % 4);
+      setDots((prevDots) => (prevDots + 1) % 4);
     }, 300);
 
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const setupFaceDetection = async () => {
-      try {
-        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-        await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-        await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-        setLoading(true);
-      } catch (err) {
-        console.error("Error loading Face API models:", err);
-      }
-    };
+  const setupFaceDetection = async () => {
+    try {
+      await faceapi.nets.ssdMobilenetv1.loadFromUri("/models"); // Tải mô hình SSD Mobilenet
+      await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+      await faceapi.nets.faceLandmark68Net.loadFromUri("/models");
+      await faceapi.nets.faceRecognitionNet.loadFromUri("/models");
+      setLoading(true);
+    } catch (err) {
+      console.error("Error loading Face API models:", err);
+    }
+  };
+  const detectFace = async () => {
+    if (!canvasRef.current || !videoRef.current) return;
 
+    const displaySize = {
+      width: videoRef.current.videoWidth,
+      height: videoRef.current.videoHeight,
+    };
+    faceapi.matchDimensions(canvasRef.current, displaySize);
+
+    const captureInterval = setInterval(async () => {
+      if (!videoRef.current || !canvasRef.current) return;
+
+      const detections = await faceapi
+        .detectSingleFace(
+          videoRef.current,
+          new faceapi.TinyFaceDetectorOptions()
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+      if (detections) {
+        const resizedDetections = faceapi.resizeResults(
+          [detections],
+          displaySize
+        );
+        const ctx = canvasRef.current.getContext("2d");
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
+        faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
+
+        // Kiểm tra nếu danh sách existingFaces không rỗng và tạo FaceMatcher
+
+        if (capturedImages.length < 5) {
+          await captureImage(videoRef.current); // Tiến hành thu thập hình ảnh khi không có lỗi
+        }
+      }
+    }, 500);
+
+    return () => clearInterval(captureInterval);
+  };
+
+  const captureImage = async (video) => {
+    if (!video || !canvasRef.current) return;
+    console.log("Đang chụp");
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL("image/jpeg");
+
+    setCapturedImages((prevImages) => {
+      if (prevImages.length < 5) {
+        return [...prevImages, imageData];
+      } else {
+        // Dừng video stream khi đã có 5 ảnh
+        const stream = video.srcObject;
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+        }
+        // Ẩn container video
+        document.querySelector(".video-container")?.remove();
+        // Đặt trạng thái đang tải lên
+        setUpLoading(true);
+      }
+      return prevImages;
+    });
+  };
+  useEffect(() => {
     const startVideo = async () => {
       if (videoRef.current && !videoRef.current.srcObject) {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: {},
+          });
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
             videoRef.current.onloadedmetadata = () => {
@@ -55,60 +130,6 @@ const CreateFaceRecognitionPage = () => {
       }
     };
 
-    const detectFace = async () => {
-      if (!canvasRef.current || !videoRef.current) return;
-
-      const displaySize = { width: videoRef.current.videoWidth, height: videoRef.current.videoHeight };
-      faceapi.matchDimensions(canvasRef.current, displaySize);
-
-      const captureInterval = setInterval(async () => {
-        if (!videoRef.current || !canvasRef.current) return;
-
-        const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-          .withFaceLandmarks().withFaceDescriptors();
-
-        const resizedDetections = faceapi.resizeResults(detections, displaySize);
-        const ctx = canvasRef.current.getContext('2d');
-        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
-        faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
-
-        if (resizedDetections.length > 0 && capturedImages.length < 10) {
-          await captureImage(videoRef.current);
-        }
-      }, 500);
-
-      return () => clearInterval(captureInterval);
-    };
-
-    const captureImage = async (video) => {
-      if (!video || !canvasRef.current) return;
-
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const context = canvas.getContext('2d');
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = canvas.toDataURL('image/jpeg');
-
-      setCapturedImages(prevImages => {
-        if (prevImages.length < 10) {
-          return [...prevImages, imageData];
-        } else {
-          // Stop the video stream
-          const stream = video.srcObject;
-          if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-          }
-          // Hide the video container
-          document.querySelector('.video-container')?.remove();
-          // Set uploading state to true
-          setUpLoading(true);
-        }
-        return prevImages;
-      });
-    };
-
     const init = async () => {
       await setupFaceDetection();
       await startVideo();
@@ -118,21 +139,28 @@ const CreateFaceRecognitionPage = () => {
 
     return () => {
       if (videoRef.current) {
-        videoRef.current.srcObject?.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject
+          ?.getTracks()
+          .forEach((track) => track.stop());
       }
     };
-  }, []);
-
+  }, [loading]);
+  // useEffect khi uploading
   useEffect(() => {
+    console.log(capturedImages);
+
     const fetchData = async () => {
       const formData = new FormData();
       capturedImages.forEach((image, index) => {
         const blob = dataURLtoBlob(image);
-        formData.append('images_face_recognition', blob, `image_${index}.jpg`);
+        formData.append("images_face_recognition", blob, `image_${index}.jpg`);
       });
-      const response = await postData(API_CREATE_FACE_RECOGNITION_BY_ID, formData);
-      if (response.status) {
-        window.location.href = "/setting/";
+      const response = await postData(
+        API_CREATE_FACE_RECOGNITION_BY_ID,
+        formData
+      );
+      if (response?.status) {
+        window.location.href = "/setting/"; // Điều hướng sau khi upload thành công
       }
     };
     if (uploading) {
@@ -147,16 +175,26 @@ const CreateFaceRecognitionPage = () => {
           <BackButton />
           <h3>Tạo nhận diện khuôn mặt</h3>
           {!loading ? (
-            <div className="loading text-danger">Đang tải mô hình nhận diện...</div>
+            <div className="loading text-danger">
+              Đang tải mô hình nhận diện...
+            </div>
           ) : (
             <>
               <div className="video-container">
                 <div className="line"></div>
                 <video ref={videoRef} autoPlay muted width="640" height="480" />
-                <canvas ref={canvasRef} className="overlay" width="640" height="480" />
+                <canvas
+                  ref={canvasRef}
+                  className="overlay"
+                  width="640"
+                  height="480"
+                />
               </div>
+              {error && <div className="error text-danger">{error}</div>}
               {!uploading && (
-                <h6 className='text-danger'>Đang thu thập dữ liệu khuôn mặt {'.'.repeat(dots)} </h6>
+                <h6 className="text-danger">
+                  Đang thu thập dữ liệu khuôn mặt {".".repeat(dots)}{" "}
+                </h6>
               )}
               {capturedImages.length > 0 && (
                 <ul className="captured-images">
@@ -167,9 +205,7 @@ const CreateFaceRecognitionPage = () => {
                   ))}
                 </ul>
               )}
-              {uploading && (
-                <h5>Đang gửi dữ liệu {'.'.repeat(dots)} </h5>
-              )}
+              {uploading && <h5>Đang gửi dữ liệu {".".repeat(dots)} </h5>}
             </>
           )}
         </div>
@@ -177,5 +213,7 @@ const CreateFaceRecognitionPage = () => {
     </React.Fragment>
   );
 };
+
+
 
 export default CreateFaceRecognitionPage;

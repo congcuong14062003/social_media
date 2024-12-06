@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { useState, useEffect, useContext } from 'react';
 import ContentProfileUser from '../../components/ContentProfileUser/ContentProfileUser';
 import ButtonCustom from '../../components/ButtonCustom/ButtonCustom';
-import { Link, Outlet, useLocation, useParams } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import config from '../../configs';
 import { OwnDataContext } from '../../provider/own_data';
 import { getData, postData } from '../../ultils/fetchAPI/fetch_API';
@@ -18,6 +18,8 @@ import { FaHeart } from 'react-icons/fa';
 import {
     API_ACCEPT_INVITE,
     API_ADD_FRIEND,
+    API_CANCEL_FRIEND_REQUEST,
+    API_CHECK_FRIEND_REQUEST,
     API_CHECK_IF_FRIEND,
     API_GET_INFO_OWNER_PROFILE_BY_ID,
     API_GET_INFO_USER_PROFILE_BY_ID,
@@ -25,6 +27,7 @@ import {
 } from '../../API/api_server';
 import ModalProfile from '../../components/Modal/ModalProfile/ModalProfile';
 import { getMutualFriends } from '../../services/fetch_api';
+import { useSocket } from '../../provider/socket_context';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -55,6 +58,10 @@ function ProfilePage() {
     const [totalFriends, setTotalFriends] = useState();
     const [countMutual, setCountMutual] = useState();
     const [listFriendMutuals, setListFriendMutuals] = useState([]);
+    const [hasRequest, setHasRequest] = useState(false);
+    const navigate = useNavigate();
+    const socket = useSocket();
+
     // Cuộn lên đầu trang khi vào trang hoặc khi đường dẫn thay đổi
     useEffect(() => {
         window.scrollTo(0, 0); // Cuộn lên đầu trang
@@ -81,6 +88,19 @@ function ProfilePage() {
     };
 
     const [dataUser, setDataUser] = useState(null);
+
+    useEffect(() => {
+        const checkRequestStatus = async () => {
+            try {
+                const response = await getData(API_CHECK_FRIEND_REQUEST(id_user));
+                setHasRequest(response.hasRequest);
+            } catch (error) {
+                console.error('Error checking friend request status:', error);
+            }
+        };
+        checkRequestStatus();
+    }, [id_user]);
+
     useEffect(() => {
         if (!id_user) return;
 
@@ -151,6 +171,47 @@ function ProfilePage() {
     const handleClose = () => {
         setOpenEditProfile(false);
     };
+    // Thêm bạn bè
+    const handleAddFriend = async (event) => {
+        try {
+            let response;
+            if (hasRequest) {
+                response = await postData(API_CANCEL_FRIEND_REQUEST(id_user));
+                if (response.status === true) {
+                    setHasRequest(false);
+                    // navigate(`${config.routes.friends}/suggestion`);
+                }
+            } else {
+                response = await postData(API_ADD_FRIEND(id_user));
+                if (response.status === true) {
+                    socket.emit('add_friend', {
+                        sender_id: dataOwner?.user_id,
+                        receiver_id: id_user,
+                        content: `${dataOwner?.user_name} đã gửi cho bạn lời mời kết bạn`,
+                        link_notice: `${config.routes.friends}/invitations`,
+                        created_at: new Date().toISOString(),
+                    });
+                    setHasRequest(true);
+                    // navigate(`${config.routes.friends}/invited`);
+                }
+            }
+        } catch (error) {
+            console.error('Error handling friend request:', error);
+        }
+    };
+    const handleRemoveFriend = async (event) => {
+        try {
+            const response = await postData(API_CANCEL_FRIEND_REQUEST(id_user)); // Giả sử bạn có API này
+            if (response.status === true) {
+                // navigate(`${config.routes.profile}/${id_user}`);
+                setHasRequest(false);
+            }
+        } catch (error) {
+            console.error('Error removing friend:', error);
+        }
+    };
+    console.log(hasRequest);
+    
     return (
         <div className="profile_container">
             <div className="profile_header">
@@ -214,6 +275,7 @@ function ProfilePage() {
                                         {isFriend ? (
                                             <>
                                                 <ButtonCustom
+                                                    onClick={handleRemoveFriend}
                                                     className="secondary"
                                                     title="Bạn bè"
                                                     startIcon={<FaUserCheck />}
@@ -227,7 +289,19 @@ function ProfilePage() {
                                                 </Link>
                                             </>
                                         ) : (
-                                            <ButtonCustom className="primary" title="Thích" startIcon={<FaHeart />} />
+                                            <>
+                                                <ButtonCustom
+                                                    onClick={handleAddFriend}
+                                                    title={hasRequest ? 'Huỷ yêu cầu' : 'Thêm bạn bè'}
+                                                    className={hasRequest ? 'secondary' : 'primary'}
+                                                />
+
+                                                <ButtonCustom
+                                                    className="primary"
+                                                    title="Thích"
+                                                    startIcon={<FaHeart />}
+                                                />
+                                            </>
                                         )}
                                     </>
                                 )}
