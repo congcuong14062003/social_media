@@ -13,6 +13,7 @@ import images from '../../assets/imgs';
 import PrimaryIcon from '../../components/PrimaryIcon/PrimaryIcon';
 import { OwnDataContext } from '../../provider/own_data';
 import './StoryPage.scss';
+import AvatarUser from '../../components/AvatarUser/AvatarUser';
 
 function StoryPage() {
     const { pathname } = useLocation();
@@ -63,8 +64,8 @@ function StoryPage() {
                     prevStories.map((story) =>
                         story.story_id === currentStory.story_id
                             ? { ...story, heart_quantity: story.heart_quantity + 1 }
-                            : story
-                    )
+                            : story,
+                    ),
                 );
             } else {
                 console.error('Error: Could not update heart count.');
@@ -75,6 +76,11 @@ function StoryPage() {
     }, [currentStory]);
 
     const handleDeleteStory = async () => {
+        const confirmDelete = window.confirm('Bạn có chắc chắn muốn xóa tin này không?');
+        if (!confirmDelete) {
+            return; // Người dùng từ chối, dừng xử lý.
+        }
+
         try {
             const response = await deleteData(API_DELETE_STORY_BY_ID(currentStory?.story_id));
             if (response?.status === true) {
@@ -114,18 +120,16 @@ function StoryPage() {
                 <div className="container">
                     <div className="story-container">
                         <div className="stories-present">
-                            <h2>Stories</h2>
-                            <h4>Your Story</h4>
-                            <p className="description">
-                                Bạn có thể chia sẻ ảnh hoặc viết gì đó
-                            </p>
+                            <h2>Tin</h2>
+                            <h4>Tin của bạn</h4>
+                            <p className="description">Bạn có thể chia sẻ ảnh hoặc viết gì đó</p>
                             <Link to={config.routes.createStory}>
                                 <div className="ur-story">
                                     <FaPlus />
                                     <h5>Tạo tin</h5>
                                 </div>
                             </Link>
-                            <h4>All Stories</h4>
+                            <h4>Tất cả tin</h4>
                             <ul className="list-user--stories">
                                 {groupedStories.map((data) => (
                                     <StoryPageItem
@@ -137,7 +141,6 @@ function StoryPage() {
                                 ))}
                             </ul>
                         </div>
-
                         <div className="content-story--main">
                             {contentLoaded && currentStory ? (
                                 <div
@@ -155,7 +158,9 @@ function StoryPage() {
                                                         return data?.stories?.map((story, storyIndex) => (
                                                             <div
                                                                 key={story.story_id} // Use story_id as key
-                                                                className={`white-bar-segment ${currentStoryIndex === storyIndex ? 'active' : ''}`}
+                                                                className={`white-bar-segment ${
+                                                                    currentStoryIndex === storyIndex ? 'active' : ''
+                                                                }`}
                                                             ></div>
                                                         ));
                                                     }
@@ -163,12 +168,15 @@ function StoryPage() {
                                             </div>
 
                                             <div className="content-img--avt">
-                                                <img src={currentStory?.user_avatar} alt="" />
+                                                <Link to={`${config.routes.profile}/${currentStory?.user_id}`}>
+                                                    <img src={currentStory?.user_avatar} alt="" />
+                                                </Link>
                                             </div>
+                                            {/* <AvatarUser avatar={currentStory?.user_avatar} /> */}
                                             <div className="content-info--detail">
                                                 <div className="info">
                                                     <p className="name">
-                                                        {currentStory?.user_name}{' '}
+                                                        {currentStory?.user_name}
                                                         <b>{timeAgo(currentStory?.created_at)}</b>
                                                     </p>
                                                     {dataOwner?.user_id === currentStory?.user_id && (
@@ -180,7 +188,8 @@ function StoryPage() {
                                                     )}
                                                 </div>
                                                 <p className="quantity-heart">
-                                                    <FaHandHoldingHeart /> <span>{currentStory.heart_quantity} lượt thích</span>
+                                                    <FaHandHoldingHeart />{' '}
+                                                    <span>{currentStory.heart_quantity} lượt thích</span>
                                                 </p>
                                             </div>
                                         </div>

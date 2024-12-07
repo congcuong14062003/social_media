@@ -21,13 +21,10 @@ function StoryPageItem({ active, data, onClick}) {
                 <li onClick={onClick} className={`user-story--item ${active ? "active" : ""}`}>
                     <Link to={`${config.routes.story}/user_id=${data?.user_id}`}>
                         <div className="img">
-                            {/* <PopupInfoShort /> */}
                             <img src={data?.user_avatar} alt="" />
                         </div>
                         <div className="info">
                             <p className="name">{data?.user_name}</p>
-
-                            {/* <p className="time">{timeAgo(data?.created_at)}</p> */}
                             <p className="time">{data?.stories.length} tin mới</p>
                         </div>
                     </Link>

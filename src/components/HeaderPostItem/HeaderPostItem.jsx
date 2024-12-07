@@ -23,15 +23,20 @@ function HeaderPostItem({ dataPost, setShowEditPost }) {
         setShowEditPost(true);
     };
     const handleDeletePost = async () => {
+        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa bài viết này không?");
+        if (!confirmDelete) {
+            return; // Nếu người dùng chọn "Cancel", dừng xử lý.
+        }
         try {
             const response = await deleteData(API_DELETE_POST(dataPost?.post_id));
             if (response.status === true) {
                 window.location.reload(); // Reload lại trang
             }
         } catch (error) {
-            console.error('Error deleting post:', error);
+            console.error("Error deleting post:", error);
         }
     };
+    
     return (
         <div className="header_post_container">
             <div className="user_post">
@@ -99,20 +104,6 @@ function HeaderPostItem({ dataPost, setShowEditPost }) {
                         >
                             <FontAwesomeIcon icon={faEllipsis} />
                         </ToolTip>
-                        {/* <div className="action_user_post_detail">
-                            <ButtonCustom
-                                startIcon={<MdModeEditOutline />}
-                                title="Chỉnh sửa"
-                                className="primary"
-                                onClick={handlEditPost}
-                            />
-                            <ButtonCustom
-                                onClick={handleDeletePost}
-                                startIcon={<MdDelete />}
-                                title="Xoá"
-                                className="secondary"
-                            />
-                        </div> */}
                     </div>
                 )}
             </div>

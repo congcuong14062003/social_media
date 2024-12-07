@@ -14,7 +14,7 @@ export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const dataOwner = useContext(OwnDataContext);
     const navigate = useNavigate();
-
+    const [toastId, setToastId] = useState(null);  // Lưu ID của toast để đóng sau
     useEffect(() => {
         const newSocket = io('http://localhost:8900', { transports: ['websocket'] });
         setSocket(newSocket);
@@ -86,11 +86,13 @@ export const SocketProvider = ({ children }) => {
                 }
             });
             // Nhận cuộc gọi
+            
+            // Lắng nghe sự kiện gọi cuộc gọi
             socket.on('user-calling', async (data) => {
                 if (data && dataOwner && data?.receiver_id === dataOwner?.user_id) {
                     const callerInfo = await getInfoCaller(data?.sender_id);
                     if (callerInfo) {
-                        toast.info(
+                        const toastId = toast.info(
                             ({ closeToast }) => (
                                 <div>
                                     <p>
@@ -105,50 +107,20 @@ export const SocketProvider = ({ children }) => {
                                         }}
                                     >
                                         <button
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                backgroundColor: '#4CAF50',
-                                                color: 'white',
-                                                padding: '6px 10px',
-                                                fontSize: '12px',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                transition: 'background-color 0.3s ease',
-                                            }}
                                             onClick={() => {
                                                 handleAccept(data);
-                                                closeToast();
+                                                closeToast(); // Đóng toast khi nghe cuộc gọi
                                             }}
-                                            onMouseOver={(e) => (e.target.style.backgroundColor = '#45A049')}
-                                            onMouseOut={(e) => (e.target.style.backgroundColor = '#4CAF50')}
                                         >
-                                            <FaPhoneAlt style={{ marginRight: '5px' }} />
-                                            Nghe
+                                            <FaPhoneAlt /> Nghe
                                         </button>
                                         <button
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                backgroundColor: '#F44336',
-                                                color: 'white',
-                                                padding: '6px 10px',
-                                                fontSize: '12px',
-                                                border: 'none',
-                                                borderRadius: '4px',
-                                                cursor: 'pointer',
-                                                transition: 'background-color 0.3s ease',
-                                            }}
                                             onClick={() => {
                                                 handleDecline(data);
-                                                closeToast();
+                                                closeToast(); // Đóng toast khi từ chối cuộc gọi
                                             }}
-                                            onMouseOver={(e) => (e.target.style.backgroundColor = '#E53935')}
-                                            onMouseOut={(e) => (e.target.style.backgroundColor = '#F44336')}
                                         >
-                                            <FaPhoneSlash style={{ marginRight: '5px' }} />
-                                            Từ chối
+                                            <FaPhoneSlash /> Từ chối
                                         </button>
                                     </div>
                                 </div>
@@ -162,7 +134,15 @@ export const SocketProvider = ({ children }) => {
                                 icon: false,
                             },
                         );
+                        setToastId(toastId);  // Lưu toastId
                     }
+                }
+            });
+
+            // Lắng nghe khi có cuộc gọi đã được chấp nhận hoặc từ chối để tắt toast trên các thiết bị còn lại
+            socket.on('statusAcceptedCallUser', (data) => {
+                if (toastId) {
+                    toast.dismiss(toastId);  // Tắt toast khi có trạng thái cuộc gọi
                 }
             });
         }

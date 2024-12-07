@@ -215,7 +215,6 @@ export default function ModalCreatePost({
             console.error('Lỗi:', error);
         } finally {
             hideLoading(); // Ẩn loading
-            // Gửi thông báo qua socket tới bạn bè khi tạo bài viết thành công
         }
     };
 
