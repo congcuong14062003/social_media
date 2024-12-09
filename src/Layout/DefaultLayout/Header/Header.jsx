@@ -58,7 +58,7 @@ function Header() {
 
     useEffect(() => {
         if (socket && dataOwner) {
-            socket.emit('registerUser', { user_id: dataOwner?.user_id });
+            console.log(dataOwner?.user_id);
             // lắng nghe sự kiện thông báo
             socket.on('receiver_notify', async (data) => {
                 console.log(data);

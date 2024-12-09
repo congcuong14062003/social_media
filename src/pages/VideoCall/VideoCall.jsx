@@ -67,13 +67,11 @@ const VideoCall = ({ isVideoCall, userId }) => {
         if (socket && sender_id && receiver_id && dataOwner?.user_id) {
             const handleStatusAccepted = async (data) => {
                 if (data?.status === 'Accepted') {
-                    toast('Người nghe đang vào cuộc hội thoại...');
                     dispatch({ type: 'ACCEPT_CALL' });
                     setStatusCall(true);
                 } else if (data?.status === 'Declined') {
                     toast.error('Người nghe đã từ chối gọi...');
                     await handleSendMessage('missed');
-
                     window.location.href = `/messages/${dataOwner?.user_id !== sender_id ? sender_id : receiver_id}`;
                 }
             };
@@ -237,7 +235,7 @@ const VideoCall = ({ isVideoCall, userId }) => {
         }
         peerRef.current.destroy();
 
-        dispatch({ type: 'END_CALL' });
+        // dispatch({ type: 'END_CALL' });
         // Gửi thông báo kết thúc cuộc gọi đến cả hai người
         socket.emit('endCall', { sender_id, receiver_id });
         if (statusCall) {
@@ -255,9 +253,9 @@ const VideoCall = ({ isVideoCall, userId }) => {
             socket.on('callEnded', (data) => {
                 console.log(data.message); // "The call has ended."
                 // Navigate the user back to the message screen
-                if (dataOwner.user_id === receiver_id) {
+                if (dataOwner?.user_id === receiver_id) {
                     window.location.href = `/messages/${sender_id}`;
-                } else if (dataOwner.user_id === sender_id) {
+                } else if (dataOwner?.user_id === sender_id) {
                     window.location.href = `/messages/${receiver_id}`;
                 }
             });

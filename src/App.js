@@ -59,7 +59,7 @@ function App() {
 
     return (
         <Router>
-            <ToastContainer autoClose={2000} />
+            <ToastContainer pauseOnHover={false} autoClose={2000} />
             <Routes>
                 {publicRouter.map((route, index) => {
                     const Layout = route.layout || DefaultLayout;

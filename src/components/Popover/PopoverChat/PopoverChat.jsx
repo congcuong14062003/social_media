@@ -72,6 +72,51 @@ function PopoverChat({ privateKey, currentChatId, handleClosePopover, setReceive
                     }
                 });
             });
+            socket.on('message_deleted', ({ preLastMessage }) => {
+                console.log('Vao: ', preLastMessage);
+
+                // Xử lý sự kiện xóa tin nhắn
+                setConversations((prevConversations) =>
+                    prevConversations.map((conversation) => {
+                        if (
+                            conversation?.friend_id === preLastMessage?.sender_id ||
+                            conversation?.friend_id === preLastMessage?.receiver_id
+                        ) {
+                            return {
+                                ...conversation,
+                                last_message: preLastMessage?.content_text,
+                                last_message_time: preLastMessage?.created_at,
+                                sender_id: preLastMessage?.sender_id,
+                                receiver_id: preLastMessage?.receiver_id,
+                                content_type: preLastMessage?.content_type,
+                                name_file: preLastMessage?.name_file,
+                            };
+                        }
+                        return conversation;
+                    }),
+                );
+            });
+            socket.on('message_deleted_owner', ({ preLastMessage }) => {
+                setConversations((prevConversations) =>
+                    prevConversations.map((conversation) => {
+                        if (
+                            conversation?.friend_id === preLastMessage?.sender_id ||
+                            conversation?.friend_id === preLastMessage?.receiver_id
+                        ) {
+                            return {
+                                ...conversation,
+                                last_message: preLastMessage?.content_text,
+                                last_message_time: preLastMessage?.created_at,
+                                sender_id: preLastMessage?.sender_id,
+                                receiver_id: preLastMessage?.receiver_id,
+                                content_type: preLastMessage?.content_type,
+                                name_file: preLastMessage?.name_file,
+                            };
+                        }
+                        return conversation;
+                    }),
+                );
+            });
         }
     }, [socket, dataOwner]);
 

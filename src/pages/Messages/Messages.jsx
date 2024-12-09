@@ -86,7 +86,7 @@ function MessagesPage() {
     const [contentReply, setContentReply] = useState(null);
     const [id_receiver, setReceiverId] = useState(idReceiver);
     const { showLoading, hideLoading } = useLoading();
-
+    const [isReceiverIncall, setReceiverIncall] = useState(true);
     useEffect(() => {
         if (idReceiver) {
             setReceiverId(idReceiver);
@@ -194,17 +194,27 @@ function MessagesPage() {
     };
     useEffect(() => {
         getAllMessages();
-    }, [id_receiver]);
+    }, [id_receiver, privateKey]);
     // Lấy tin nhắn
     useEffect(() => {
+        
+    }, [socket, id_receiver]);
+    useEffect(() => {
         if (socket && dataOwner && id_receiver && privateKey) {
-            socket.emit('registerUser', { user_id: dataOwner?.user_id });
+            // socket.emit('registerUser', { user_id: dataOwner?.user_id });
 
             // Kiểm tra trạng thái online khi component được mount
             socket.on('onlineUsers', (data) => {
                 setIsOnline(data.includes(id_receiver));
             });
-
+            // socket.on("user_busy", (data) => {
+            //     console.log("dataaa: ", data, id_receiver);
+            //     if(data?.status === 'Accepted') {
+            //         setReceiverIncall(false)
+            //     } else {
+            //         setReceiverIncall(true)
+            //     }
+            // })
             socket.on('receiveMessage', (data) => {
                 console.log('Tôi có nhận đc: ', data);
                 if (data?.sender_id === id_receiver || data?.sender_id === dataOwner?.user_id) {
@@ -228,7 +238,7 @@ function MessagesPage() {
             // Dọn dẹp khi component bị hủy
             return () => {
                 socket.off('connect');
-                socket.off('registerUser');
+                // socket.off('registerUser');
                 // socket.off('onlineUsers');
                 socket.off('onlineUsers');
                 socket.off('receiveMessage');
@@ -248,6 +258,9 @@ function MessagesPage() {
         }
         // Lắng nghe sự kiện xoá tin nhắn từ phía người gửi
         socket?.on('message_deleted', ({ messageId }) => {
+            setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
+        });
+        socket?.on('message_deleted_owner', ({ messageId }) => {
             setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
         });
     }, [socket, dataOwner]);
@@ -574,7 +587,7 @@ function MessagesPage() {
 
     const handleClickCall = (type_call) => {
         if (socket && id_receiver && dataOwner?.user_id) {
-            socket.emit('registerUser', { user_id: dataOwner?.user_id });
+            // socket.emit('registerUser', { user_id: dataOwner?.user_id });
             const receiver_id = id_receiver;
             const sender_id = dataOwner?.user_id;
             // Send call notification to the receiver
@@ -595,28 +608,42 @@ function MessagesPage() {
             toast.info('Người dùng này không trực tuyến!');
         }
     };
-
-    //Xoá tin nhắn
-    const handleDeleteMessage = async (messageId) => {
+    // Xoá tin nhắn cả hai phía
+    const handleDeleteMessage = async (messageId, receiver_id) => {
+        console.log(receiver_id);
         try {
-            const response = await deleteData(API_DELETE_MESSAGE(messageId));
+            const response = await postData(API_DELETE_MESSAGE(messageId), { receiver_id, private_key: privateKey });
             if (response.status) {
                 setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
-                // Emit sự kiện xóa tin nhắn
-                socket.emit('message_delete', { messageId });
+                // Emit sự kiện xóa tin nhắn cả hai phía
+                socket.emit('message_delete', {
+                    preLastMessage: response?.lastMessage,
+                    messageId,
+                    senderId: dataOwner?.user_id,
+                    receiverId: receiver_id,
+                });
             }
         } catch (error) {
             console.error(error);
         }
     };
-    //Xoá tin nhắn bên mình
-    const handleDeleteMessageOwnSide = async (messageId) => {
+
+    // Xoá tin nhắn chỉ bên mình
+    const handleDeleteMessageOwnSide = async (messageId, receiver_id) => {
         try {
-            const response = await deleteData(API_DELETE_MESSAGE_OWNER_SIDE(messageId));
+            const response = await postData(API_DELETE_MESSAGE_OWNER_SIDE(messageId), {
+                receiver_id,
+                private_key: privateKey,
+            });
             if (response.status) {
                 setMessages((prevMessages) => prevMessages.filter((message) => message.messenger_id !== messageId));
                 // Emit sự kiện thu hồi tin nhắn nếu chỉ xóa bên mình
-                socket.emit('messageRecalled', { messageId });
+                // socket.emit('message_delete', { messageId, senderId: dataOwner?.user_id });
+                socket.emit('message_delete_owner', {
+                    preLastMessage: response?.lastMessage,
+                    messageId,
+                    senderId: dataOwner?.user_id,
+                });
             }
         } catch (error) {
             console.error(error);
@@ -654,16 +681,44 @@ function MessagesPage() {
                                     </div>
                                 )}
                                 <div className="action_call">
-                                    <ToolTip title="Bắt đầu gọi thoại">
-                                        <div onClick={() => handleClickCall('audio-call')} className="action_chat">
-                                            <PhoneIcon />
-                                        </div>
-                                    </ToolTip>
-                                    <ToolTip title="Bắt đầu gọi video">
-                                        <div onClick={() => handleClickCall('video-call')} className="action_chat">
-                                            <VideoCallIcon />
-                                        </div>
-                                    </ToolTip>
+                                    {isReceiverIncall ? (
+                                        <>
+                                            <ToolTip title="Bắt đầu gọi thoại">
+                                                <div
+                                                    onClick={() => handleClickCall('audio-call')}
+                                                    className="action_chat"
+                                                >
+                                                    <PhoneIcon />
+                                                </div>
+                                            </ToolTip>
+                                            <ToolTip title="Bắt đầu gọi video">
+                                                <div
+                                                    onClick={() => handleClickCall('video-call')}
+                                                    className="action_chat"
+                                                >
+                                                    <VideoCallIcon />
+                                                </div>
+                                            </ToolTip>
+                                        </>
+                                    ) : (
+                                        <>
+                                        <ToolTip title="Người dùng đang có cuộc gọi khác">
+                                            <div
+                                                className="action_chat"
+                                            >
+                                                <PhoneIcon />
+                                            </div>
+                                        </ToolTip>
+                                        <ToolTip title="Người dùng đang có cuộc gọi khác">
+                                            <div
+                                                className="action_chat"
+                                            >
+                                                <VideoCallIcon />
+                                            </div>
+                                        </ToolTip>
+                                    </>
+                                    )}
+
                                     <ToolTip
                                         onClick={() => setOpenSettingChat(!openSettingChat)}
                                         title="Thông tin về cuộc trò chuyện"
@@ -698,6 +753,7 @@ function MessagesPage() {
                                             type={msg.content_type}
                                             message={msg.content_text ?? msg.text}
                                             sender_id={msg.sender_id}
+                                            receiver_id={msg.receiver_id}
                                             className={
                                                 msg.sender_id === dataOwner?.user_id ||
                                                 msg.senderId === dataOwner?.user_id

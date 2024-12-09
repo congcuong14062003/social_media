@@ -51,6 +51,7 @@ function MessagesItems({
     setIDReply,
     messenger_id,
     sender_id,
+    receiver_id,
     reply_id,
     inputRef,
     handleClickCall,
@@ -166,11 +167,11 @@ function MessagesItems({
                                                 startIcon={<ReplayCircleFilledIcon />}
                                                 title="Thu hồi ở phía bạn"
                                                 className="primary"
-                                                onClick={() => handleDeleteMessageOwnSide(messenger_id)}
+                                                onClick={() => handleDeleteMessageOwnSide(messenger_id, receiver_id)}
                                             />
                                             {dataOwner?.user_id === sender_id && (
                                                 <ButtonCustom
-                                                    onClick={() => handleDeleteMessage(messenger_id)}
+                                                    onClick={() => handleDeleteMessage(messenger_id, receiver_id)}
                                                     startIcon={<ReplayIcon />}
                                                     title="Thu hồi ở mọi người"
                                                     className="secondary"

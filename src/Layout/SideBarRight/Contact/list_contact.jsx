@@ -30,7 +30,7 @@ function ListContact() {
   }, [dataOwner]);
   useEffect(() => {
     if (socket) {
-      socket.emit("registerUser", { user_id: dataOwner?.user_id });
+      // socket.emit("registerUser", { user_id: dataOwner?.user_id });
 
       // Đăng ký sự kiện onlineUsers
       socket.on("onlineUsers", (data) => {

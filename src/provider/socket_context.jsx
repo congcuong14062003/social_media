@@ -6,7 +6,7 @@ import { FaPhoneAlt, FaPhoneSlash } from 'react-icons/fa';
 import { OwnDataContext } from './own_data';
 import { toast } from 'react-toastify';
 import { API_CREATE_NOTIFICATION, API_GET_INFO_USER_PROFILE_BY_ID } from '../API/api_server';
-
+import ButtonCustom from '../components/ButtonCustom/ButtonCustom';
 
 const SocketContext = createContext();
 
@@ -14,7 +14,7 @@ export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
     const dataOwner = useContext(OwnDataContext);
     const navigate = useNavigate();
-    const [toastId, setToastId] = useState(null);  // Lưu ID của toast để đóng sau
+    const [toastId, setToastId] = useState(null); // Lưu ID của toast để đóng sau
     useEffect(() => {
         const newSocket = io('http://localhost:8900', { transports: ['websocket'] });
         setSocket(newSocket);
@@ -51,24 +51,9 @@ export const SocketProvider = ({ children }) => {
             return null;
         }
     };
-    // const addNotification = async (sender_id, receiver_id, content, link_notice, created_at) => {
-    //     try {
-    //         const response = await postData(API_CREATE_NOTIFICATION, {
-    //             sender_id,
-    //             receiver_id,
-    //             content,
-    //             link_notice,
-    //             created_at,
-    //         });
-    //         if (response?.status) {
-    //             console.log('Thông báo đã được thêm thành công');
-    //         }
-    //     } catch (error) {
-    //         console.error('Lỗi khi thêm thông báo:', error);
-    //     }
-    // };
     useEffect(() => {
         if (socket && dataOwner) {
+            console.log(dataOwner?.user_id);
             socket.emit('registerUser', { user_id: dataOwner?.user_id });
             socket.on('receiver_notify', async (data) => {
                 const { sender_id, receiver_id, content, link_notice, created_at } = data;
@@ -86,7 +71,11 @@ export const SocketProvider = ({ children }) => {
                 }
             });
             // Nhận cuộc gọi
-            
+            socket.on('callEnded', (data) => {
+                if (data) {
+                    toast.dismiss(toastId); // Tắt toast khi có trạng thái cuộc gọi
+                }
+            });
             // Lắng nghe sự kiện gọi cuộc gọi
             socket.on('user-calling', async (data) => {
                 if (data && dataOwner && data?.receiver_id === dataOwner?.user_id) {
@@ -107,6 +96,52 @@ export const SocketProvider = ({ children }) => {
                                         }}
                                     >
                                         <button
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                backgroundColor: '#4CAF50',
+                                                color: 'white',
+                                                padding: '6px 10px',
+                                                fontSize: '12px',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                transition: 'background-color 0.3s ease',
+                                            }}
+                                            onClick={() => {
+                                                handleAccept(data);
+                                                closeToast();
+                                            }}
+                                            onMouseOver={(e) => (e.target.style.backgroundColor = '#45A049')}
+                                            onMouseOut={(e) => (e.target.style.backgroundColor = '#4CAF50')}
+                                        >
+                                            <FaPhoneAlt style={{ marginRight: '5px' }} />
+                                            Nghe
+                                        </button>
+                                        <button
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                backgroundColor: '#F44336',
+                                                color: 'white',
+                                                padding: '6px 10px',
+                                                fontSize: '12px',
+                                                border: 'none',
+                                                borderRadius: '4px',
+                                                cursor: 'pointer',
+                                                transition: 'background-color 0.3s ease',
+                                            }}
+                                            onClick={() => {
+                                                handleDecline(data);
+                                                closeToast();
+                                            }}
+                                            onMouseOver={(e) => (e.target.style.backgroundColor = '#E53935')}
+                                            onMouseOut={(e) => (e.target.style.backgroundColor = '#F44336')}
+                                        >
+                                            <FaPhoneSlash style={{ marginRight: '5px' }} />
+                                            Từ chối
+                                        </button>
+                                        {/* <button
                                             onClick={() => {
                                                 handleAccept(data);
                                                 closeToast(); // Đóng toast khi nghe cuộc gọi
@@ -121,7 +156,7 @@ export const SocketProvider = ({ children }) => {
                                             }}
                                         >
                                             <FaPhoneSlash /> Từ chối
-                                        </button>
+                                        </button> */}
                                     </div>
                                 </div>
                             ),
@@ -134,26 +169,27 @@ export const SocketProvider = ({ children }) => {
                                 icon: false,
                             },
                         );
-                        setToastId(toastId);  // Lưu toastId
+                        setToastId(toastId); // Lưu toastId
                     }
                 }
             });
-
             // Lắng nghe khi có cuộc gọi đã được chấp nhận hoặc từ chối để tắt toast trên các thiết bị còn lại
             socket.on('statusAcceptedCallUser', (data) => {
                 if (toastId) {
-                    toast.dismiss(toastId);  // Tắt toast khi có trạng thái cuộc gọi
+                    toast.dismiss(toastId); // Tắt toast khi có trạng thái cuộc gọi
                 }
             });
         }
 
         return () => {
             if (socket) {
-                socket.off('receiver_notify'); 
                 socket.off('user-calling');
+                socket.off('statusAcceptedCallUser');
+                socket.off('registerUser');
+                socket.off('receiver_notify');
             }
         };
-    }, [dataOwner, socket]);
+    }, [dataOwner, socket, toastId]);
 
     return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 };
