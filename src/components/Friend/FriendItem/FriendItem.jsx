@@ -12,7 +12,7 @@ function FriendItem({ data }) {
     const dataOwner = useContext(OwnDataProvider);
     useEffect(() => {
         if (socket && data) {
-            // socket.emit('registerUser', { user_id: dataOwner?.user_id });
+            socket.emit('registerUser', { user_id: dataOwner?.user_id });
             // Lắng nghe danh sách người dùng online từ server
             socket.on('onlineUsers', (dataOnline) => {
                 setStatusFriend(dataOnline);

@@ -31,7 +31,6 @@ export const SocketProvider = ({ children }) => {
     };
 
     const handleDecline = (data) => {
-        toast('Bạn đã từ chối cuộc gọi');
         if (socket) {
             socket.emit('acceptCallUser', {
                 status: 'Declined',
@@ -173,6 +172,7 @@ export const SocketProvider = ({ children }) => {
                     }
                 }
             });
+            
             // Lắng nghe khi có cuộc gọi đã được chấp nhận hoặc từ chối để tắt toast trên các thiết bị còn lại
             socket.on('statusAcceptedCallUser', (data) => {
                 if (toastId) {
