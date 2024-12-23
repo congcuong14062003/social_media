@@ -196,9 +196,7 @@ function MessagesPage() {
         getAllMessages();
     }, [id_receiver, privateKey]);
     // Lấy tin nhắn
-    useEffect(() => {
-        
-    }, [socket, id_receiver]);
+    useEffect(() => {}, [socket, id_receiver]);
     useEffect(() => {
         if (socket && dataOwner && id_receiver && privateKey) {
             // socket.emit('registerUser', { user_id: dataOwner?.user_id });
@@ -587,27 +585,41 @@ function MessagesPage() {
 
     const handleClickCall = (type_call) => {
         if (socket && id_receiver && dataOwner?.user_id) {
-            // socket.emit('registerUser', { user_id: dataOwner?.user_id });
             const receiver_id = id_receiver;
             const sender_id = dataOwner?.user_id;
-            // Send call notification to the receiver
-            socket.emit('callUser', {
-                receiver_id,
-                sender_id,
-                link_call: `/messages/${type_call}?ROOM_ID=${
-                    receiver_id + sender_id
-                }&sender_id=${sender_id}&receiver_id=${receiver_id}`,
-            });
 
-            navigate(
-                `/messages/${type_call}?ROOM_ID=${id_receiver + dataOwner?.user_id}&sender_id=${
-                    dataOwner?.user_id
-                }&receiver_id=${id_receiver}`,
-            );
+            // Kiểm tra trạng thái "bận" của người nhận trước khi gọi
+            socket.emit('checkUserBusy', { receiver_id }, (response) => {
+                const { isBusy, exists } = response;
+                if (!exists) {
+                    toast.error('Người dùng không tồn tại hoặc không trực tuyến.');
+                    return;
+                }
+                if (isBusy) {
+                    toast.error('Người dùng này đang trong cuộc gọi khác.');
+                } else {
+                    // Nếu không bận, gửi yêu cầu gọi
+                    socket.emit('callUser', {
+                        receiver_id,
+                        sender_id,
+                        link_call: `/messages/${type_call}?ROOM_ID=${
+                            receiver_id + sender_id
+                        }&sender_id=${sender_id}&receiver_id=${receiver_id}`,
+                    });
+
+                    // Chuyển hướng đến giao diện cuộc gọi
+                    navigate(
+                        `/messages/${type_call}?ROOM_ID=${
+                            receiver_id + sender_id
+                        }&sender_id=${sender_id}&receiver_id=${receiver_id}`,
+                    );
+                }
+            });
         } else {
             toast.info('Người dùng này không trực tuyến!');
         }
     };
+
     // Xoá tin nhắn cả hai phía
     const handleDeleteMessage = async (messageId, receiver_id) => {
         console.log(receiver_id);
@@ -702,21 +714,17 @@ function MessagesPage() {
                                         </>
                                     ) : (
                                         <>
-                                        <ToolTip title="Người dùng đang có cuộc gọi khác">
-                                            <div
-                                                className="action_chat"
-                                            >
-                                                <PhoneIcon />
-                                            </div>
-                                        </ToolTip>
-                                        <ToolTip title="Người dùng đang có cuộc gọi khác">
-                                            <div
-                                                className="action_chat"
-                                            >
-                                                <VideoCallIcon />
-                                            </div>
-                                        </ToolTip>
-                                    </>
+                                            <ToolTip title="Người dùng đang có cuộc gọi khác">
+                                                <div className="action_chat">
+                                                    <PhoneIcon />
+                                                </div>
+                                            </ToolTip>
+                                            <ToolTip title="Người dùng đang có cuộc gọi khác">
+                                                <div className="action_chat">
+                                                    <VideoCallIcon />
+                                                </div>
+                                            </ToolTip>
+                                        </>
                                     )}
 
                                     <ToolTip
