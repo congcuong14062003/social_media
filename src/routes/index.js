@@ -27,6 +27,7 @@ import ProfilePage from '../pages/ProfilePage/ProfilePage';
 import SettingPage from '../pages/SettingPage/SettingPage';
 import Signup from '../pages/Signup/Signup';
 import StoryPage from '../pages/StoryPage/StoryPage';
+import TestPage from '../pages/TestPage/TestPage';
 import VideoCall from '../pages/VideoCall/VideoCall';
 import VideoPage from '../pages/VideoPage/VideoPage';
 
@@ -139,6 +140,11 @@ const publicRouter = [
     {
         path: `${config.routes.post}/:id_post`,
         component: PostDetail,
+        requireAuth: true,
+    },
+    {
+        path: config.routes.test,
+        component: TestPage,
         requireAuth: true,
     },
     {

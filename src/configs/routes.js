@@ -15,5 +15,6 @@ const routes = {
     friends: '/friends',
     messages: '/messages',
     setting: '/setting',
+    test: '/test',
 };
 export default routes;
